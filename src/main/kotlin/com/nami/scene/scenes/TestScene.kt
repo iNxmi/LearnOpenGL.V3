@@ -9,6 +9,9 @@ import com.nami.nanovg.NVGDrawCall
 import com.nami.nanovg.NVGManager
 import com.nami.scene.Scene
 import com.nami.shader.ShaderManager
+import imgui.ImGui
+import imgui.type.ImFloat
+import imgui.type.ImInt
 import mu.KotlinLogging
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -29,15 +32,25 @@ class TestScene : Scene {
     private val vao = GLMemoryUtils.genVertexArray()
     private val texture = glGenTextures()
 
-    private var fov = 90.0f
-    private val cam = Camera(Math.toRadians(fov.toDouble()).toFloat(), 16f / 9f, 1e-3f, 100.0f)
+    private val fps = ImInt(Game.FPS.toInt())
 
+    private val fov = floatArrayOf(90.0f)
+    private val clip = floatArrayOf(1e-3f, 100.0f)
+    private val aspect = intArrayOf(16, 9)
+    private val cam =
+        Camera(Math.toRadians(fov[0].toDouble()).toFloat(), aspect[0].toFloat() / aspect[1].toFloat(), clip[0], clip[1])
+
+    private val camSpeed = floatArrayOf(3f)
+
+    private var polygonMode = GL_FILL
+
+    private var menu = false
     private var f3 = true
 
     init {
         ShaderManager.load("shader").uniform.locate("model").locate("view").locate("projection").locate("tex0")
 
-        glfwSetInputMode(Game.WINDOW_POINTER, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+        glfwSetInputMode(Game.WINDOW_PTR, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 
         //Create Cube VAO
         run {
@@ -121,36 +134,13 @@ class TestScene : Scene {
     private var pitch = 0f
 
     override fun update() {
-//        glfwSetWindowTitle(Game.WINDOW_POINTER, "FPS: ${1.0 / Game.DELTA_TIME}")
-
-        if (Input.keyStates[GLFW_KEY_ESCAPE] == Input.State.DOWN)
-            glfwSetWindowShouldClose(Game.WINDOW_POINTER, true)
-
-        if (Input.keyStates[GLFW_KEY_F1] == Input.State.DOWN)
-            glfwSetInputMode(
-                Game.WINDOW_POINTER,
-                GLFW_CURSOR,
-                if (glfwGetInputMode(
-                        Game.WINDOW_POINTER,
-                        GLFW_CURSOR
-                    ) == GLFW_CURSOR_NORMAL
-                ) GLFW_CURSOR_DISABLED else GLFW_CURSOR_NORMAL
-            )
-
-        if (Input.keyStates[GLFW_KEY_F2] == Input.State.DOWN)
-            glPolygonMode(
-                GL_FRONT_AND_BACK, when (glGetInteger(GL_POLYGON_MODE)) {
-                    GL_FILL -> GL_LINE
-                    GL_LINE -> GL_POINT
-                    else -> GL_FILL
-                }
-            )
-
-        if (Input.keyStates[GLFW_KEY_F3] == Input.State.DOWN)
-            f3 = !f3
+        if (Input.keyStates[GLFW_KEY_ESCAPE] == Input.State.DOWN) {
+            menu = !menu
+            glfwSetInputMode(Game.WINDOW_PTR, GLFW_CURSOR, if (menu) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED)
+        }
 
         //Camera Rotation
-        if (glfwGetInputMode(Game.WINDOW_POINTER, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+        if (glfwGetInputMode(Game.WINDOW_PTR, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
             val sensivity = 0.075f
 
             yaw += Input.posDelta.x * sensivity
@@ -166,7 +156,7 @@ class TestScene : Scene {
 
         //Camera Movement
         run {
-            var speed = 3f * Game.DELTA_TIME
+            var speed = camSpeed[0] * Game.DELTA_TIME
             if (Input.isKeyInStates(GLFW_KEY_LEFT_SHIFT, Input.State.DOWN, Input.State.HOLD))
                 speed *= 5f
 
@@ -185,16 +175,11 @@ class TestScene : Scene {
             if (Input.isKeyInStates(GLFW_KEY_LEFT_CONTROL, Input.State.DOWN, Input.State.HOLD))
                 cam.position.add(0f, speed, 0f)
         }
-
-        //Fov
-        run {
-            fov -= Input.scrollDelta.y * 5
-            fov = fov.coerceIn(30f, 150f)
-            cam.fov = Math.toRadians(fov.toDouble()).toFloat()
-        }
     }
 
     override fun render() {
+        glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
+
         val shader = ShaderManager.bind("shader")
 
         shader.uniform.set("model", Matrix4f()).set("projection", cam.projection).set("view", cam.view).set("tex0", 0)
@@ -216,41 +201,74 @@ class TestScene : Scene {
         if (!f3)
             return
 
-        NVGManager.draw().
-            color(Color(255,0,255,255)).
-            rect(250f,250f,100f,100f).
-            draw(false)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         val fps = 1.0f / Game.DELTA_TIME
-        val text = String.format("FPS=%.1f\nglfwGetTime=%.2fs", fps, glfwGetTime())
-        NVGManager.draw().
-            color(Color(255,0,255,255)).
-            fontFace("cascadia_code").
-            fontSize(32.0f).
-            textAlign(NVGDrawCall.TextAlign.LEFT).
-            textBox(10.0f, 40.0f, 1920f, text).
-            draw(true)
+        val text = String.format("FPS=%.1f\nDELTA_TIME=%f\nglfwGetTime=%.2fs", fps, Game.DELTA_TIME, glfwGetTime())
+        NVGManager.draw().color(Color(1f, 1f, 1f, 1f)).fontFace("cascadia_code").fontSize(32.0f)
+            .textAlign(NVGDrawCall.TextAlign.LEFT).textBox(10.0f, 40.0f, 1920f, text).draw(true)
     }
 
-    override fun renderNK() {
-//        val rect = NkRect.create()
-//        nk_rect(50f, 50f, 220f, 220f, rect)
+    val window = ImInt()
+    val comboPolyMode = ImInt()
+    override fun renderImGUI() {
+        if (!menu)
+            return
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+        ImGui.begin("Settings")
+
+        if (ImGui.collapsingHeader("Window")) {
+
+//            if (ImGui.checkbox("vSync", Game.V_SYNC)) {
+//                Game.V_SYNC = !Game.V_SYNC
+//                glfwSwapInterval(if (Game.V_SYNC) 1 else 0)
+//            }
+//            ImGui.sameLine()
+            if (ImGui.inputInt("FPS", fps))
+                Game.FPS = fps.toFloat()
+
+//            if (ImGui.combo("Window Mode", window, arrayOf("Windowed", "Windowed Fullscreen", "Fullscreen"))) {
 //
-//        val begin: Boolean = nk_begin(
-//            NKManager.ctx, "Show", rect,
-//            NK_WINDOW_BORDER or NK_WINDOW_MOVABLE or NK_WINDOW_CLOSABLE
-//        )
-//
-//        if (!begin)
-//            return
-//
-//        nk_layout_row_static(NKManager.ctx, 30f, 80, 1)
-//        if(nk_button_label(NKManager.ctx, "button")) {
-//            log.debug { "Hello" }
-//        }
-//        nk_layout_row_end(NKManager.ctx)
-//
-//        nk_end(NKManager.ctx)
+//            }
+        }
+
+        if (ImGui.collapsingHeader("Camera")) {
+            if (ImGui.sliderFloat("FOV", fov, 1f, 179f))
+                cam.fov = Math.toRadians(fov[0].toDouble()).toFloat()
+
+            if (ImGui.sliderFloat2("zNear / zFar", clip, 1e-3f, 100.0f)) {
+                cam.zNear = clip[0]
+                cam.zFar = clip[1]
+            }
+
+            if (ImGui.inputInt2("Aspect Ratio", aspect)) {
+                aspect[0] = aspect[0].coerceIn(1, 100)
+                aspect[1] = aspect[1].coerceIn(1, 100)
+                cam.aspect = aspect[0].toFloat() / aspect[1].toFloat()
+            }
+
+            ImGui.sliderFloat("Speed", camSpeed, 0.5f, 20.0f)
+        }
+
+        if (ImGui.collapsingHeader("OpenGL")) {
+            if (ImGui.combo("glPolygonMode", comboPolyMode, arrayOf("GL_FILL", "GL_LINE", "GL_POINT")))
+                polygonMode = when (comboPolyMode.get()) {
+                    0 -> GL_FILL
+                    1 -> GL_LINE
+                    2 -> GL_POINT
+                    else -> 0
+                }
+        }
+
+        if (ImGui.radioButton("F3 Overlay", f3))
+            f3 = !f3
+
+        if (ImGui.button("Quit"))
+            glfwSetWindowShouldClose(Game.WINDOW_PTR, true)
+
+        ImGui.end()
     }
 
 }

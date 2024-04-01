@@ -23,6 +23,8 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>19</kotlin.compiler.jvmTarget>
 
+        <imgui.version>1.86.11</imgui.version>
+
         <lwjgl.version>3.3.3</lwjgl.version>
         <joml.version>1.10.5</joml.version>
         <lwjgl.natives>natives-windows</lwjgl.natives>
@@ -32,10 +34,6 @@
         <repository>
             <id>mavenCentral</id>
             <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -88,6 +86,22 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-binding</artifactId>
+            <version>${imgui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-lwjgl3</artifactId>
+            <version>${imgui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-natives-windows</artifactId>
+            <version>${imgui.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging-jvm</artifactId>

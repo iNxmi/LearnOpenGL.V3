@@ -7,26 +7,26 @@ import org.joml.Vector3f
 class Camera(fov: Float, aspect: Float, zNear: Float, zFar: Float) {
     var fov = fov
         set(value) {
-            updateProjection()
             field = value
+            updateProjection()
         }
 
     var aspect = aspect
         set(value) {
-            updateProjection()
             field = value
+            updateProjection()
         }
 
     var zNear = zNear
         set(value) {
-            updateProjection()
             field = value
+            updateProjection()
         }
 
     var zFar = zFar
         set(value) {
-            updateProjection()
             field = value
+            updateProjection()
         }
 
     val position = Vector3f()

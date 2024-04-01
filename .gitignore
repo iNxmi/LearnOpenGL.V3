@@ -3,6 +3,12 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### JVM Crash Logs ###
+hs_err_pid*.log
+
+### ImGui ###
+imgui.ini
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

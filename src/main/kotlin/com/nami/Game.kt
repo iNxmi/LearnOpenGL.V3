@@ -1,8 +1,8 @@
 package com.nami
 
+import com.nami.imgui.ImGUIManager
 import com.nami.nanovg.NVGManager
 import com.nami.input.Input
-import com.nami.nuklear.NKManager
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.TestScene
 import mu.KotlinLogging
@@ -10,6 +10,7 @@ import org.lwjgl.Version
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.GLFWWindowSizeCallbackI
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL13.GL_MULTISAMPLE
@@ -18,6 +19,9 @@ import org.lwjgl.system.MemoryUtil.NULL
 class Game {
 
     companion object {
+
+        var V_SYNC = false
+
         var FPS = 120F
             set(value) {
                 FRAME_TIME = 1F / value
@@ -26,7 +30,7 @@ class Game {
 
         var FRAME_TIME = 1F / FPS
 
-        var WINDOW_POINTER = 0L
+        var WINDOW_PTR = 0L
 
         var DELTA_TIME = 0F
     }
@@ -50,19 +54,21 @@ class Game {
             glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE)
             glfwWindowHint(GLFW_FLOATING, GLFW_TRUE)
             glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE)
-            glfwWindowHint(GLFW_SAMPLES, 8)
+            glfwWindowHint(GLFW_SAMPLES, 16)
 
-            WINDOW_POINTER = glfwCreateWindow(1920, 1080, "Game", NULL, NULL)
-            if (WINDOW_POINTER == NULL)
+            WINDOW_PTR = glfwCreateWindow(1920, 1080, "LearnOpenGL.V3", NULL, NULL)
+            if (WINDOW_PTR == NULL)
                 throw RuntimeException("Failed to create GLFW Window")
 
-            glfwSetKeyCallback(WINDOW_POINTER, Input::onKeyCallback)
-            glfwSetMouseButtonCallback(WINDOW_POINTER, Input::onMouseButtonCallback)
-            glfwSetCursorPosCallback(WINDOW_POINTER, Input::onCursorPosCallback)
-            glfwSetScrollCallback(WINDOW_POINTER, Input::onScrollCallback)
+            glfwSetFramebufferSizeCallback(WINDOW_PTR) { _, width, height -> glViewport(0, 0, width, height) }
 
-            glfwMakeContextCurrent(WINDOW_POINTER)
-            glfwSwapInterval(0)
+            glfwSetKeyCallback(WINDOW_PTR, Input::onKeyCallback)
+            glfwSetMouseButtonCallback(WINDOW_PTR, Input::onMouseButtonCallback)
+            glfwSetCursorPosCallback(WINDOW_PTR, Input::onCursorPosCallback)
+            glfwSetScrollCallback(WINDOW_PTR, Input::onScrollCallback)
+
+            glfwMakeContextCurrent(WINDOW_PTR)
+            glfwSwapInterval(if (V_SYNC) 1 else 0)
         }
 
         GL.createCapabilities()
@@ -71,14 +77,14 @@ class Game {
         NVGManager.loadFont("roboto")
         NVGManager.loadFont("cascadia_code")
 
-        NKManager.init()
+        ImGUIManager.init()
 
         SceneManager.selected = TestScene()
 
-        glfwShowWindow(WINDOW_POINTER)
+        glfwShowWindow(WINDOW_PTR)
 
         var lastTime = 0.0
-        while (!glfwWindowShouldClose(WINDOW_POINTER)) {
+        while (!glfwWindowShouldClose(WINDOW_PTR)) {
             val delta = glfwGetTime() - lastTime
             if (delta < FRAME_TIME)
                 continue
@@ -111,20 +117,25 @@ class Game {
             run {
                 val width = intArrayOf(1)
                 val height = intArrayOf(1)
-                glfwGetWindowSize(WINDOW_POINTER, width, height)
+                glfwGetWindowSize(WINDOW_PTR, width, height)
 
                 NVGManager.beginFrame(width[0].toFloat(), height[0].toFloat(), 1f)
                 SceneManager.renderNVG()
                 NVGManager.endFrame()
             }
 
-            SceneManager.renderNK()
+            //SceneManager.renderImGUI()
+            run {
+                ImGUIManager.newFrame()
+                SceneManager.renderImGUI()
+                ImGUIManager.render()
+            }
 
             val error = glGetError()
-            if(error != 0)
+            if (error != 0)
                 log.warn { "OpenGL Error: $error" }
 
-            glfwSwapBuffers(WINDOW_POINTER)
+            glfwSwapBuffers(WINDOW_PTR)
 
             glfwPollEvents()
             Input.update()
@@ -133,11 +144,11 @@ class Game {
         }
 
         GLMemoryUtils.delete()
-
+        ImGUIManager.delete()
         NVGManager.delete()
 
-        glfwFreeCallbacks(WINDOW_POINTER)
-        glfwDestroyWindow(WINDOW_POINTER)
+        glfwFreeCallbacks(WINDOW_PTR)
+        glfwDestroyWindow(WINDOW_PTR)
 
         glfwTerminate()
         glfwSetErrorCallback(null)?.free()

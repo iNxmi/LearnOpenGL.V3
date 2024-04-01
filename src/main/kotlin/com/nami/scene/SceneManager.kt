@@ -22,8 +22,8 @@ class SceneManager {
         }
 
         @JvmStatic
-        fun renderNK() {
-            selected?.renderNK()
+        fun renderImGUI() {
+            selected?.renderImGUI()
         }
 
     }

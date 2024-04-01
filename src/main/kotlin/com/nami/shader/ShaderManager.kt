@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL33.*
 class ShaderManager {
 
     companion object {
+
         private val map = mutableMapOf<String, ShaderProgram>()
 
         @JvmStatic
