@@ -5,10 +5,16 @@ import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import imgui.internal.ImGuiContext
+import mu.KotlinLogging
+import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFW.glfwGetMonitorContentScale
+import org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor
 
 class ImGUIManager {
 
     companion object {
+
+        private val log = KotlinLogging.logger { }
 
         @JvmStatic
         var ctx: ImGuiContext? = null
@@ -22,6 +28,8 @@ class ImGUIManager {
             ImGui.setCurrentContext(ctx)
             glfw.init(Game.WINDOW_PTR, true)
             gl3.init("#version 330 core")
+
+//            ImGui.getStyle().scaleAllSizes(3.5f)
         }
 
         @JvmStatic

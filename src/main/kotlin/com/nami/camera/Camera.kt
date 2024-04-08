@@ -1,4 +1,4 @@
-package com.nami
+package com.nami.camera
 
 import com.nami.constants.Directions
 import org.joml.Matrix4f
@@ -34,7 +34,7 @@ class Camera(fov: Float, aspect: Float, zNear: Float, zFar: Float) {
 
     val projection: Matrix4f = Matrix4f()
     val view: Matrix4f = Matrix4f()
-        get() = field.identity().lookAt(Vector3f(), direction, Directions.UP).translate(position)
+        get() = field.identity().lookAt(position, Vector3f(position).add(direction), Directions.UP)
 
     init {
         updateProjection()

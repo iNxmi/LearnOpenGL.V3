@@ -1,0 +1,15 @@
+{
+  "mesh": "cube",
+  "material": {
+    "textures": {
+      "name": "planks",
+      "types": [
+        "diffuse",
+        "specular",
+        "normal"
+      ],
+      "filter": "nearest"
+    },
+    "specularExponent": 16.0
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "mesh": "sphere",
+  "material": {
+    "specularExponent": 64.0,
+    "color": "#ffffff"
+  }
+}

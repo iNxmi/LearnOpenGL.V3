@@ -9,15 +9,10 @@ class ShaderManager {
         private val map = mutableMapOf<String, ShaderProgram>()
 
         @JvmStatic
-        fun load(name: String): ShaderProgram {
-            val shader = ShaderProgram(name)
-            map[name] = shader
-
-            return shader
-        }
-
-        @JvmStatic
         fun get(name: String): ShaderProgram {
+            if(!map.containsKey(name))
+                map[name] = ShaderProgram(name)
+
             return map[name]!!
         }
 

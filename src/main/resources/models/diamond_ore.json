@@ -1,0 +1,14 @@
+{
+  "mesh": "cube",
+  "material": {
+    "textures": {
+      "name": "diamond_ore",
+      "types": [
+        "diffuse",
+        "specular"
+      ],
+      "filter": "nearest"
+    },
+    "specularExponent": 64.0
+  }
+}

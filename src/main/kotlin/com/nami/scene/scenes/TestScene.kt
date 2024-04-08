@@ -1,25 +1,28 @@
 package com.nami.scene.scenes
 
-import com.nami.Camera
-import com.nami.GLMemoryUtils
+import com.nami.camera.Camera
 import com.nami.Game
 import com.nami.constants.Directions
+import com.nami.constants.GamePaths
+import com.nami.entity.Entity
+import com.nami.entity.light.DirectionalLight
 import com.nami.input.Input
+import com.nami.model.ModelManager
 import com.nami.nanovg.NVGDrawCall
 import com.nami.nanovg.NVGManager
 import com.nami.scene.Scene
 import com.nami.shader.ShaderManager
 import imgui.ImGui
-import imgui.type.ImFloat
+import imgui.flag.ImGuiWindowFlags
+import imgui.type.ImBoolean
 import imgui.type.ImInt
 import mu.KotlinLogging
-import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.Color
-import java.nio.file.Paths
+import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import kotlin.math.cos
 import kotlin.math.sin
@@ -29,105 +32,45 @@ class TestScene : Scene {
 
     private val log = KotlinLogging.logger { }
 
-    private val vao = GLMemoryUtils.genVertexArray()
-    private val texture = glGenTextures()
+    private val entities = mutableListOf<Entity>()
 
     private val fps = ImInt(Game.FPS.toInt())
 
     private val fov = floatArrayOf(90.0f)
-    private val clip = floatArrayOf(1e-3f, 100.0f)
+    private val clip = floatArrayOf(1e-3f, 1000.0f)
     private val aspect = intArrayOf(16, 9)
     private val cam =
         Camera(Math.toRadians(fov[0].toDouble()).toFloat(), aspect[0].toFloat() / aspect[1].toFloat(), clip[0], clip[1])
 
     private val camSpeed = floatArrayOf(3f)
+    private val camSensivity = floatArrayOf(0.11f)
 
     private var polygonMode = GL_FILL
+    private var cullMode = GL_BACK
+    private var cullfaceEnabled = false
 
     private var menu = false
     private var f3 = true
 
     init {
-        ShaderManager.load("shader").uniform.locate("model").locate("view").locate("projection").locate("tex0")
-
         glfwSetInputMode(Game.WINDOW_PTR, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 
-        //Create Cube VAO
-        run {
-            glBindVertexArray(vao)
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(Game.WINDOW_PTR, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
 
-            val vbo = GLMemoryUtils.genBuffer()
-            glBindBuffer(GL_ARRAY_BUFFER, vbo)
-            val vertices: FloatArray = floatArrayOf(
-                0.5f, -0.5f, -0.5f, 1f, 1f,
-                0.5f, -0.5f, 0.5f, 1f, 0f,
-                -0.5f, -0.5f, 0.5f, 0f, 1f,
-                -0.5f, -0.5f, -0.5f, 1f, 0f,
-                0.5f, 0.5f, -0.5f, 1f, 1f,
-                0.5f, 0.5f, 0.5f, 1f, 0f,
-                -0.5f, 0.5f, 0.5f, 0f, 0f,
-                -0.5f, 0.5f, -0.5f, 0f, 1f,
-            )
-            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW)
+        val radius = 75f
+        for (i in 0 until 25) {
+            val entity = Entity(ModelManager.get("teapot"))
+            entity.transform.position.set(
+                Math.random(),
+                Math.random(),
+                Math.random()
+            ).mul(2f).sub(1f, 1f, 1f).mul(Math.random().toFloat() * radius)
+            entity.transform.rotation.set(Math.random()).mul(360f)
+            entity.transform.scale.set(1f)
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * Float.SIZE_BYTES, 0)
-            glEnableVertexAttribArray(0)
-
-            glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * Float.SIZE_BYTES, 3L * Float.SIZE_BYTES)
-            glEnableVertexAttribArray(1)
-
-            val ebo = GLMemoryUtils.genBuffer()
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-            val indices: IntArray = intArrayOf(
-                1, 2, 3,
-                4, 7, 6,
-                4, 5, 1,
-                1, 5, 6,
-                6, 7, 3,
-                4, 0, 3,
-                0, 1, 3,
-                5, 4, 6,
-                0, 4, 1,
-                2, 1, 6,
-                2, 6, 3,
-                7, 4, 3
-            )
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW)
-
-            glBindVertexArray(0)
+            entities.add(entity)
         }
-
-        //Create Texture
-        run {
-            val image = ImageIO.read(Paths.get("src", "main", "resources", "textures", "planks.png").toUri().toURL())
-
-            val pixels = IntArray(image.width * image.height)
-            image.getRGB(0, 0, image.width, image.height, pixels, 0, image.width)
-
-            val buffer = BufferUtils.createByteBuffer(pixels.size * 4)
-            for (y in 0 until image.height)
-                for (x in 0 until image.width) {
-                    val pixel = pixels[y * image.width + x]
-
-                    buffer.put(((pixel shr 16) and 0xFF).toByte())
-                    buffer.put(((pixel shr 8) and 0xFF).toByte())
-                    buffer.put((pixel and 0xFF).toByte())
-                    buffer.put(((pixel shr 24) and 0xFF).toByte())
-                }
-            buffer.flip()
-
-            glActiveTexture(GL_TEXTURE0)
-            glBindTexture(GL_TEXTURE_2D, texture)
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-            glGenerateMipmap(GL_TEXTURE_2D)
-
-            glBindTexture(GL_TEXTURE_2D, 0)
-        }
-
     }
 
     private var yaw = 0f
@@ -139,12 +82,44 @@ class TestScene : Scene {
             glfwSetInputMode(Game.WINDOW_PTR, GLFW_CURSOR, if (menu) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED)
         }
 
+        if (Input.keyStates[GLFW_KEY_F2] == Input.State.DOWN) {
+            val widthArr = IntArray(1)
+            val heightArr = IntArray(1)
+            glfwGetWindowSize(Game.WINDOW_PTR, widthArr, heightArr)
+
+            val width = widthArr[0]
+            val height = heightArr[0]
+
+            val buffer = BufferUtils.createByteBuffer(width * height * 3)
+            glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer)
+
+            val pixels = IntArray(width * height)
+            for (i in pixels.indices) {
+                val red = buffer.get().toInt() and 0xFF shl 16
+                val green = buffer.get().toInt() and 0xFF shl 8
+                val blue = buffer.get().toInt() and 0xFF
+
+                pixels[i] = red or green or blue
+            }
+
+            val flipped = IntArray(width * height)
+            for (y in 0 until height)
+                if (width >= 0)
+                    System.arraycopy(pixels, ((height - 1) - y) * width, flipped, y * width, width)
+
+            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+            image.setRGB(0, 0, width, height, flipped, 0, width)
+
+            val path = GamePaths.screenshots.resolve("${System.currentTimeMillis()}.png")
+            ImageIO.write(image, "png", path.toFile())
+
+            log.info { "Screenshot saved at '$path'" }
+        }
+
         //Camera Rotation
         if (glfwGetInputMode(Game.WINDOW_PTR, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-            val sensivity = 0.075f
-
-            yaw += Input.posDelta.x * sensivity
-            pitch -= Input.posDelta.y * sensivity
+            yaw += Input.posDelta.x * camSensivity[0]
+            pitch -= Input.posDelta.y * camSensivity[0]
             pitch = pitch.coerceIn(-90f, 90f)
 
             cam.direction.set(
@@ -161,38 +136,45 @@ class TestScene : Scene {
                 speed *= 5f
 
             if (Input.isKeyInStates(GLFW_KEY_W, Input.State.DOWN, Input.State.HOLD))
-                cam.position.add(Vector3f(cam.direction).mul(1f, 0f, 1f).mul(-speed))
-            if (Input.isKeyInStates(GLFW_KEY_S, Input.State.DOWN, Input.State.HOLD))
                 cam.position.add(Vector3f(cam.direction).mul(1f, 0f, 1f).mul(speed))
+            if (Input.isKeyInStates(GLFW_KEY_S, Input.State.DOWN, Input.State.HOLD))
+                cam.position.add(Vector3f(cam.direction).mul(1f, 0f, 1f).mul(-speed))
 
             if (Input.isKeyInStates(GLFW_KEY_A, Input.State.DOWN, Input.State.HOLD))
-                cam.position.add(Vector3f(cam.direction).cross(Directions.UP).normalize().mul(speed))
-            if (Input.isKeyInStates(GLFW_KEY_D, Input.State.DOWN, Input.State.HOLD))
                 cam.position.add(Vector3f(cam.direction).cross(Directions.UP).normalize().mul(-speed))
+            if (Input.isKeyInStates(GLFW_KEY_D, Input.State.DOWN, Input.State.HOLD))
+                cam.position.add(Vector3f(cam.direction).cross(Directions.UP).normalize().mul(speed))
 
             if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
-                cam.position.add(0f, -speed, 0f)
-            if (Input.isKeyInStates(GLFW_KEY_LEFT_CONTROL, Input.State.DOWN, Input.State.HOLD))
                 cam.position.add(0f, speed, 0f)
+            if (Input.isKeyInStates(GLFW_KEY_LEFT_CONTROL, Input.State.DOWN, Input.State.HOLD))
+                cam.position.add(0f, -speed, 0f)
         }
     }
 
+    val dirLight0 = DirectionalLight(direction = Vector3f(1f, 1f, 0f).normalize(), color = Vector3f(1f, 1f, 1f))
     override fun render() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
+        if (cullfaceEnabled) glEnable(GL_CULL_FACE) else glDisable(GL_CULL_FACE)
+        glCullFace(cullMode)
 
-        val shader = ShaderManager.bind("shader")
+        val shader = ShaderManager.bind("phong")
 
-        shader.uniform.set("model", Matrix4f()).set("projection", cam.projection).set("view", cam.view).set("tex0", 0)
+        shader.uniform.set("u_projection_matrix", cam.projection)
+        shader.uniform.set("u_view_matrix", cam.view)
 
-        glBindTexture(GL_TEXTURE_2D, texture)
 
-        glBindVertexArray(vao)
+        shader.uniform.set("u_directional_lights[0].direction", dirLight0.direction)
+        shader.uniform.set("u_directional_lights[0].color", dirLight0.color)
 
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0)
+//        shader.uniform.set("u_point_lights[0].position", light.position)
+//        shader.uniform.set("u_point_lights[0].color", light.color)
+//        shader.uniform.set("u_point_lights[0].attenuation", light.attenuation)
+        shader.uniform.set("u_camera_position", cam.position)
 
-        glBindVertexArray(0)
+        entities.forEach { e -> e.render(shader) }
 
-        glBindTexture(GL_TEXTURE_2D, 0)
+//        light.render(shader)
 
         ShaderManager.unbind()
     }
@@ -203,35 +185,49 @@ class TestScene : Scene {
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
+        val hours = glfwGetTime().toInt() / 3600
+        val minutes = (glfwGetTime().toInt() % 3600) / 60
+        val seconds = glfwGetTime().toInt() % 60
+
         val fps = 1.0f / Game.DELTA_TIME
-        val text = String.format("FPS=%.1f\nDELTA_TIME=%f\nglfwGetTime=%.2fs", fps, Game.DELTA_TIME, glfwGetTime())
+        val text = String.format(
+            "FPS=%.1f\nDELTA_TIME=%f\nglfwGetTime=%.2f (%02d:%02d:%02d)\ncam.position=(%.2f; %.2f; %.2f))",
+            fps,
+            Game.DELTA_TIME,
+            glfwGetTime(),
+            hours,
+            minutes,
+            seconds,
+            cam.position.x,
+            cam.position.y,
+            cam.position.z
+        )
         NVGManager.draw().color(Color(1f, 1f, 1f, 1f)).fontFace("cascadia_code").fontSize(32.0f)
             .textAlign(NVGDrawCall.TextAlign.LEFT).textBox(10.0f, 40.0f, 1920f, text).draw(true)
     }
 
-    val window = ImInt()
-    val comboPolyMode = ImInt()
+    private val comboPolyMode = ImInt()
+    private val comboCullMode = ImInt(1)
     override fun renderImGUI() {
         if (!menu)
             return
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-        ImGui.begin("Settings")
+        val width = IntArray(1)
+        val height = IntArray(1)
+        glfwGetWindowSize(Game.WINDOW_PTR, width, height)
+
+        ImGui.setNextWindowPos(0f, 0f)
+        ImGui.setNextWindowSize(width[0].toFloat(), height[0].toFloat())
+        ImGui.setNextWindowBgAlpha(0.4f)
+
+        ImGui.getFont().scale = 2f
+        ImGui.begin("Settings", ImBoolean(), ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
         if (ImGui.collapsingHeader("Window")) {
-
-//            if (ImGui.checkbox("vSync", Game.V_SYNC)) {
-//                Game.V_SYNC = !Game.V_SYNC
-//                glfwSwapInterval(if (Game.V_SYNC) 1 else 0)
-//            }
-//            ImGui.sameLine()
             if (ImGui.inputInt("FPS", fps))
                 Game.FPS = fps.toFloat()
-
-//            if (ImGui.combo("Window Mode", window, arrayOf("Windowed", "Windowed Fullscreen", "Fullscreen"))) {
-//
-//            }
         }
 
         if (ImGui.collapsingHeader("Camera")) {
@@ -250,6 +246,7 @@ class TestScene : Scene {
             }
 
             ImGui.sliderFloat("Speed", camSpeed, 0.5f, 20.0f)
+            ImGui.sliderFloat("Sensivity", camSensivity, 0.01f, 1f)
         }
 
         if (ImGui.collapsingHeader("OpenGL")) {
@@ -258,6 +255,19 @@ class TestScene : Scene {
                     0 -> GL_FILL
                     1 -> GL_LINE
                     2 -> GL_POINT
+                    else -> 0
+                }
+
+            if (ImGui.checkbox("glEnable(GL_CULL_FACE)", cullfaceEnabled))
+                cullfaceEnabled = !cullfaceEnabled
+
+            ImGui.sameLine()
+
+            if (ImGui.combo("glCullFace", comboCullMode, arrayOf("GL_FRONT_AND_BACK", "GL_BACK", "GL_FRONT")))
+                cullMode = when (comboCullMode.get()) {
+                    0 -> GL_FRONT_AND_BACK
+                    1 -> GL_BACK
+                    2 -> GL_FRONT
                     else -> 0
                 }
         }

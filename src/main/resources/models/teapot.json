@@ -1,0 +1,7 @@
+{
+  "mesh": "teapot",
+  "material": {
+    "specularExponent": 64.0,
+    "color": "#00ffff"
+  }
+}

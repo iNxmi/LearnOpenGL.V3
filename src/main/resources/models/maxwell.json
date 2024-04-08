@@ -1,0 +1,13 @@
+{
+  "mesh": "maxwell",
+  "material": {
+    "textures": {
+      "name": "maxwell",
+      "types": [
+        "diffuse"
+      ],
+      "filter": "linear"
+    },
+    "specularExponent": 0.0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "mesh": "cube",
+  "material": {
+    "textures": {
+      "name": "container",
+      "types": [
+        "diffuse",
+        "specular"
+      ],
+      "filter": "linear"
+    },
+    "specularExponent": 64.0
+  }
+}
