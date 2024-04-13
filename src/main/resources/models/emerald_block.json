@@ -9,6 +9,6 @@
       ],
       "filter": "nearest"
     },
-    "specularExponent": 64.0
+    "specularExponent": 192.0
   }
 }

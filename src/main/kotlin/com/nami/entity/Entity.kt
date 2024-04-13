@@ -1,13 +1,13 @@
 package com.nami.entity
 
 import com.nami.model.Model
-import com.nami.shader.ShaderProgram
+import com.nami.shader.Shader
 
 open class Entity(private var model: Model? = null) {
 
     val transform = Transform()
 
-    fun render(shader: ShaderProgram) {
+    fun render(shader: Shader) {
         if(model == null)
             return
 

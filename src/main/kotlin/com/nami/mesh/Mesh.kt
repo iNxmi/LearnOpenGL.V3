@@ -1,11 +1,14 @@
 package com.nami.mesh
 
+import org.lwjgl.opengl.GL30
+import org.lwjgl.opengl.GL30.*
 import org.lwjgl.opengl.GL33.*
 
 class Mesh(
     positions: FloatArray,
-    normals: FloatArray,
-    uvs: FloatArray,
+    colors: FloatArray?,
+    normals: FloatArray?,
+    uvs: FloatArray?,
     private val indices: IntArray
 ) {
 
@@ -19,15 +22,26 @@ class Mesh(
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0L)
         glEnableVertexAttribArray(0)
 
-        glBindBuffer(GL_ARRAY_BUFFER, glGenBuffers())
-        glBufferData(GL_ARRAY_BUFFER, normals, GL_STATIC_DRAW)
-        glVertexAttribPointer(1, 3, GL_FLOAT, true, 0, 0)
-        glEnableVertexAttribArray(1)
+        if(colors != null) {
+            glBindBuffer(GL_ARRAY_BUFFER, glGenBuffers())
+            glBufferData(GL_ARRAY_BUFFER, colors, GL_STATIC_DRAW)
+            glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0)
+            glEnableVertexAttribArray(1)
+        }
 
-        glBindBuffer(GL_ARRAY_BUFFER, glGenBuffers())
-        glBufferData(GL_ARRAY_BUFFER, uvs, GL_STATIC_DRAW)
-        glVertexAttribPointer(2, 2, GL_FLOAT, true, 0, 0)
-        glEnableVertexAttribArray(2)
+        if (normals != null) {
+            glBindBuffer(GL_ARRAY_BUFFER, glGenBuffers())
+            glBufferData(GL_ARRAY_BUFFER, normals, GL_STATIC_DRAW)
+            glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0)
+            glEnableVertexAttribArray(2)
+        }
+
+        if (uvs != null) {
+            glBindBuffer(GL_ARRAY_BUFFER, glGenBuffers())
+            glBufferData(GL_ARRAY_BUFFER, uvs, GL_STATIC_DRAW)
+            glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, 0)
+            glEnableVertexAttribArray(3)
+        }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glGenBuffers())
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW)

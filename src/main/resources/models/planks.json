@@ -5,8 +5,7 @@
       "name": "planks",
       "types": [
         "diffuse",
-        "specular",
-        "normal"
+        "specular"
       ],
       "filter": "nearest"
     },

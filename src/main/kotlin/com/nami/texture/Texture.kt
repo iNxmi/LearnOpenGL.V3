@@ -1,25 +1,28 @@
 package com.nami.texture
 
-import org.lwjgl.opengl.GL33
+import org.lwjgl.opengl.GL33.*
 
-data class Texture(val pointer: Int, val type: TextureType) {
+class Texture(val pointer: Int) {
 
-    fun bind(slot: Int) {
-        GL33.glActiveTexture(GL33.GL_TEXTURE0 + slot)
-        GL33.glBindTexture(GL33.GL_TEXTURE_2D, pointer)
+    fun bind(slot: Int): Texture {
+        glActiveTexture(GL_TEXTURE0 + slot)
+        glBindTexture(GL_TEXTURE_2D, pointer)
+
+        return this
     }
 
-}
+    enum class Type(val id: String) {
+        DIFFUSE("diffuse"),
+        SPECULAR("specular"),
+        NORMAL("normal"),
+        ROUGHNESS("roughness"),
+        AMBIENT("ambient"),
+        FRAME_BUFFER("");
 
-enum class TextureType(val id: String) {
-    DIFFUSE("diffuse"),
-    SPECULAR("specular"),
-    NORMAL("normal"),
-    ROUGHNESS("roughness"),
-    AMBIENT("ambient");
-
-    companion object {
-        private val map = TextureType.values().associateBy { it.id }
-        infix fun from(id: String) = map[id]!!
+        companion object {
+            private val map = Type.values().associateBy { it.id }
+            infix fun from(id: String) = map[id]!!
+        }
     }
+
 }

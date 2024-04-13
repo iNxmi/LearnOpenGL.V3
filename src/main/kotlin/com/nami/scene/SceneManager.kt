@@ -1,5 +1,7 @@
 package com.nami.scene
 
+import com.nami.imgui.ImGUIManager
+
 class SceneManager {
 
     companion object {
@@ -17,13 +19,10 @@ class SceneManager {
         }
 
         @JvmStatic
-        fun renderNVG() {
-            selected?.renderNVG()
-        }
-
-        @JvmStatic
-        fun renderImGUI() {
-            selected?.renderImGUI()
+        fun renderHUD() {
+            ImGUIManager.newFrame()
+            selected?.renderHUD()
+            ImGUIManager.render()
         }
 
     }

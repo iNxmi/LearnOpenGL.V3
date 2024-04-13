@@ -1,0 +1,13 @@
+{
+  "mesh": "cow",
+  "material": {
+    "textures": {
+      "name": "cow",
+      "types": [
+        "diffuse"
+      ],
+      "filter": "linear"
+    },
+    "specularExponent": 0.0
+  }
+}

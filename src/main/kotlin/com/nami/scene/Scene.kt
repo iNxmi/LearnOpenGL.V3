@@ -1,10 +1,25 @@
 package com.nami.scene
 
-interface Scene {
+abstract class Scene {
 
-    fun update()
-    fun render()
-    fun renderNVG()
-    fun renderImGUI()
+    protected val time = SceneTime()
+
+    fun update() {
+        time.update()
+        onUpdate()
+    }
+
+    protected abstract fun onUpdate()
+
+    fun render() {
+        onRender()
+    }
+
+    protected abstract fun onRender()
+    fun renderHUD() {
+        onRenderHUD()
+    }
+
+    protected abstract fun onRenderHUD()
 
 }

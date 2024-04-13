@@ -32,6 +32,7 @@ struct SpotLight {
     float angle_out;
 };
 
+in vec3 ls_position;
 in vec2 ls_uv;
 
 in vec3 ws_position;
@@ -101,5 +102,5 @@ void main() {
         color += directional_light(u_directional_lights[i], u_material, direction_camera);
     }
 
-    FragColor = color;
+    FragColor = vec4(ls_position.x / 64,ls_position.y / 12, ls_position.z / 64, 1.0);
 }

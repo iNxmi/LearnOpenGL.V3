@@ -8,12 +8,10 @@ class GamePaths {
     companion object {
 
         //Root
-        @JvmStatic
-        val root: Path = Paths.get("")
+        private val root: Path = Paths.get("")
 
         //Resources
-        @JvmStatic
-        val resources: Path = root.resolve("src/main/resources")
+        private val resources: Path = root.resolve("src/main/resources")
 
         @JvmStatic
         val fonts: Path = resources.resolve("fonts")
@@ -30,10 +28,11 @@ class GamePaths {
         @JvmStatic
         val meshes: Path = resources.resolve("meshes")
 
+        @JvmStatic
+        val sounds: Path = resources.resolve("sounds")
 
         //Data
-        @JvmStatic
-        val data: Path = root.resolve("data")
+        private val data: Path = root.resolve("data")
 
         @JvmStatic
         val screenshots: Path = data.resolve("screenshots")

@@ -1,11 +1,11 @@
 package com.nami.scene.scenes
 
-import com.nami.camera.Camera
 import com.nami.Game
+import com.nami.camera.Camera
+import com.nami.Window
 import com.nami.input.Input
-import com.nami.model.ModelManager
+import com.nami.register.Register
 import com.nami.scene.Scene
-import com.nami.shader.ShaderManager
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import org.joml.Matrix4f
@@ -16,9 +16,9 @@ import org.lwjgl.glfw.GLFW.glfwGetTime
 import org.lwjgl.opengl.GL33.*
 import kotlin.math.pow
 
-class MaxwellScene : Scene {
+class MaxwellScene : Scene() {
 
-    private val maxwell = ModelManager.get("maxwell")
+    private val maxwell = Register.model.get("maxwell")
     private val camera = Camera(Math.toRadians(20.0).toFloat(), 16f / 9f, 0.001f, 100.0f)
 
     private var menu = false
@@ -36,17 +36,17 @@ class MaxwellScene : Scene {
         camera.direction.set(Vector3f(0f, 0.32f, 0f).sub(camera.position).normalize())
     }
 
-    override fun update() {
+    override fun onUpdate() {
         if (Input.keyStates[GLFW_KEY_ESCAPE] == Input.State.DOWN)
             menu = !menu
 
-        angles[0] += rpm[0] / 60 * 360 * Game.DELTA_TIME
-        angles[1] += rpm[1] / 60 * 360 * Game.DELTA_TIME
-        angles[2] += rpm[2] / 60 * 360 * Game.DELTA_TIME
+        angles[0] += rpm[0] / 60 * 360 * time.delta
+        angles[1] += rpm[1] / 60 * 360 * time.delta
+        angles[2] += rpm[2] / 60 * 360 * time.delta
     }
 
-    override fun render() {
-        val shader = ShaderManager.bind("maxwell")
+    override fun onRender() {
+        val shader = Register.shader.get("maxwell").bind()
 
         val model = Matrix4f()
             .translate(position[0], position[1], position[2])
@@ -58,20 +58,16 @@ class MaxwellScene : Scene {
 
         maxwell.render(shader)
 
-        ShaderManager.unbind()
+        Register.shader.unbind()
     }
 
-    override fun renderNVG() {
-
-    }
-
-    override fun renderImGUI() {
+    override fun onRenderHUD() {
         if (!menu)
             return
 
         val width = IntArray(1)
         val height = IntArray(1)
-        GLFW.glfwGetWindowSize(Game.WINDOW_PTR, width, height)
+        GLFW.glfwGetWindowSize(Window.pointer, width, height)
 
         ImGui.getFont().scale = 2f
         ImGui.setNextWindowPos(0f, 0f)
