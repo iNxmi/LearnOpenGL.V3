@@ -43,10 +43,7 @@ class ImGUIManager {
         private fun loadFont(name: String) {
             val path = GamePaths.fonts.resolve("$name.ttf")
 
-            val config = ImFontConfig()
-            config.oversampleH =1
-            config.oversampleV = 1
-            fonts[name] = ImGui.getIO().fonts.addFontFromFileTTF(path.pathString, 40f, config)
+            fonts[name] = ImGui.getIO().fonts.addFontFromFileTTF(path.pathString, 40f)
 
             ImGui.getIO().fonts.build()
         }

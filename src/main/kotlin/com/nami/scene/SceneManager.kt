@@ -7,6 +7,10 @@ class SceneManager {
     companion object {
         @JvmStatic
         var selected: Scene? = null
+            set(value) {
+                field = value
+                value?.init()
+            }
 
         @JvmStatic
         fun update() {

@@ -20,9 +20,6 @@ class GamePaths {
         val shaders: Path = resources.resolve("shaders")
 
         @JvmStatic
-        val textures: Path = resources.resolve("textures")
-
-        @JvmStatic
         val models: Path = resources.resolve("models")
 
         @JvmStatic
@@ -30,6 +27,12 @@ class GamePaths {
 
         @JvmStatic
         val sounds: Path = resources.resolve("sounds")
+
+        @JvmStatic
+        val textures: Path = resources.resolve("textures")
+
+        @JvmStatic
+        val blocks: Path = resources.resolve("blocks")
 
         //Data
         private val data: Path = root.resolve("data")

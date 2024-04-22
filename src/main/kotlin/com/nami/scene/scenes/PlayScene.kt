@@ -1,39 +1,26 @@
 package com.nami.scene.scenes
 
 import com.nami.Game
-import com.nami.camera.Camera
 import com.nami.constants.GamePaths
 import com.nami.Window
 import com.nami.input.Input
-import com.nami.register.Register
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
-import com.nami.world.Chunk
-import com.nami.world.Player
 import com.nami.world.World
-import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
-import de.articdive.jnoise.generators.noisegen.worley.WorleyNoiseGenerator
-import de.articdive.jnoise.pipeline.JNoise
-import de.articdive.jnoise.transformers.domain_warp.DomainWarpTransformer
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
 import mu.KotlinLogging
-import org.joml.Vector3f
-import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.image.BufferedImage
-import java.lang.Float.max
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.math.*
-import kotlin.time.Duration
 
 
 class PlayScene : Scene() {
@@ -47,9 +34,10 @@ class PlayScene : Scene() {
     private var cullfaceEnabled = false
 
     private var menu = false
+    private var inventory = false
     private var f3 = true
 
-    init {
+    override fun onInit() {
         glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 
         if (glfwRawMouseMotionSupported())
@@ -58,9 +46,20 @@ class PlayScene : Scene() {
 
     override fun onUpdate() {
         if (Input.keyStates[GLFW_KEY_ESCAPE] == Input.State.DOWN) {
-            menu = !menu
-            glfwSetInputMode(Window.pointer, GLFW_CURSOR, if (menu) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED)
+            if (inventory)
+                inventory = !inventory
+            else
+                menu = !menu
         }
+
+        if (Input.keyStates[GLFW_KEY_E] == Input.State.DOWN)
+            inventory = !inventory && !menu
+
+        glfwSetInputMode(
+            Window.pointer,
+            GLFW_CURSOR,
+            if (menu || inventory) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
+        )
 
 //        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
 //            chunk.blocks[Vector3i().set(
@@ -98,7 +97,7 @@ class PlayScene : Scene() {
             val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
             image.setRGB(0, 0, width, height, flipped, 0, width)
 
-            val path = GamePaths.screenshots.resolve("${System.currentTimeMillis()}.png")
+            val path = GamePaths.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
             ImageIO.write(image, "png", path.toFile())
 
             log.info { "Screenshot saved at '$path'" }
@@ -113,23 +112,19 @@ class PlayScene : Scene() {
         glCullFace(cullMode)
 
         world.render()
-
-        Register.shader.unbind()
     }
 
     private val comboPolyMode = ImInt()
     private val comboCullMode = ImInt(1)
     private val timeScale = floatArrayOf(1.0f)
+    private val worldTime = floatArrayOf(0.0f)
+
     override fun onRenderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-        val width = IntArray(1)
-        val height = IntArray(1)
-        glfwGetWindowSize(Window.pointer, width, height)
-
         if (f3 && !menu) {
             ImGui.setNextWindowPos(0f, 0f)
-            ImGui.setNextWindowSize(width[0].toFloat(), height[0].toFloat())
+            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
             ImGui.setNextWindowBgAlpha(0.0f)
 
             ImGui.getFont().scale = 2.5f
@@ -140,19 +135,42 @@ class PlayScene : Scene() {
             ImGui.text("time.time=${time.time}")
             ImGui.text("player.position=${world.player.transform.position.toString(NumberFormat.getNumberInstance())}")
 
-            val duration = java.time.Duration.ofSeconds((world.t * world.secondsPerDay).toLong())
-            ImGui.text("sinT=${world.sinT} (${duration.toHours()}:${duration.toMinutesPart()}:${duration.toSecondsPart()})")
+            val duration = java.time.Duration.ofMillis((world.worldTime * world.millisPerDay).toLong())
+            ImGui.text(
+                "daylightPercentage=${
+                    String.format(
+                        "%.5f",
+                        world.daylightPercentage
+                    )
+                } (${duration.toHours()}:${duration.toMinutesPart()}:${duration.toSecondsPart()})"
+            )
+            ImGui.text("sinT=${String.format("%.5f", world.sinT)}")
+            ImGui.text("cosT=${String.format("%.5f", world.cosT)}")
+
+            ImGui.end()
+        }
+
+        if (inventory) {
+            ImGui.setNextWindowPos(0f, 0f)
+            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
+            ImGui.setNextWindowBgAlpha(0.4f)
+
+            ImGui.getFont().scale = 2f
+            ImGui.begin("Inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
             ImGui.end()
         }
 
         if (menu) {
             ImGui.setNextWindowPos(0f, 0f)
-            ImGui.setNextWindowSize(width[0].toFloat(), height[0].toFloat())
+            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
             ImGui.setNextWindowBgAlpha(0.4f)
 
             ImGui.getFont().scale = 2f
             ImGui.begin("Settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
+
+            if (ImGui.sliderFloat("World Time", worldTime, 0f, 1f))
+                world.worldTime = worldTime[0]
 
             if (ImGui.collapsingHeader("Time")) {
                 if (ImGui.sliderFloat("Scale", timeScale, 0f, 5f))

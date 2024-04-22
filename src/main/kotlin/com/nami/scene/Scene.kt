@@ -4,6 +4,12 @@ abstract class Scene {
 
     protected val time = SceneTime()
 
+    protected abstract fun onInit()
+
+    fun init() {
+        onInit()
+    }
+
     fun update() {
         time.update()
         onUpdate()

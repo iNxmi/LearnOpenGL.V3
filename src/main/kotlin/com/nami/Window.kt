@@ -15,6 +15,11 @@ class Window {
         var pointer: Long = 0L
 
         @JvmStatic
+        var width: Int = 0
+        @JvmStatic
+        var height: Int = 0
+
+        @JvmStatic
         var vSync = false
             set(value) {
                 glfwSwapInterval(if (value) 1 else 0)
@@ -23,6 +28,9 @@ class Window {
 
         @JvmStatic
         fun init(width: Int, height: Int) {
+            this.width = width
+            this.height = height
+
             GLFWErrorCallback.createPrint(System.err).set()
 
             if (!glfwInit())
@@ -43,6 +51,9 @@ class Window {
             glfwSetWindowPos(pointer, (videoMode.width() - width) / 2, (videoMode.height() - height) / 2)
 
             glfwSetFramebufferSizeCallback(pointer) { _, width, height ->
+                this.width = width
+                this.height = height
+
                 GL11.glViewport(0, 0, width, height)
             }
 

@@ -2,7 +2,9 @@ package com.nami
 
 import com.nami.imgui.ImGUIManager
 import com.nami.input.Input
+import com.nami.resource.Resource
 import com.nami.scene.SceneManager
+import com.nami.scene.scenes.LoadingScene
 import com.nami.scene.scenes.MainMenuScene
 import mu.KotlinLogging
 import org.lwjgl.Version
@@ -18,6 +20,13 @@ class Game {
     * Shadows
     * Particles
     * Audio
+    * Clouds based on noise
+    *
+    * Fix visual artifacts when player is at very high distances away from (0,0) -> (100000, 100000)
+    * Jitter problem fix -> https://www.reddit.com/r/Unity3D/comments/fv1rjm/terrain_and_objects_flickering_when_they_are_far/
+        * The second problem that could be causing your issues is the limited precision of floating point values. The way floats work is that they only have a limited number of digits that they can store before they have to round up or down. A 32-bit float can typically store between 6-9 significant digits, this means that when you move far enough away from the origin (the point at (0,0,0)) anything doing math with floats begins to round values up and down.
+        * Games with large open world get around this by moving the origin (google floating origin for more on this). One way to do this in Unity would be to move every object in the scene once the character, or camera, gets too far from (0,0,0)
+    *
     * */
 
     companion object {
@@ -36,14 +45,10 @@ class Game {
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_MULTISAMPLE)
 
-//        val device = alcOpenDevice(null as ByteBuffer?)
-//        val deviceCaps = ALC.createCapabilities(device)
-//
-//        val context = alcCreateContext(device, null as IntBuffer?)
-//        alcMakeContextCurrent(context)
-//        AL.createCapabilities(deviceCaps)
-
-        SceneManager.selected = MainMenuScene()
+        SceneManager.selected = LoadingScene({
+            Resource.shader.load()
+            Resource.texture.load()
+        }, MainMenuScene())
 
         glfwShowWindow(Window.pointer)
 
@@ -62,20 +67,14 @@ class Game {
         var lastTime = 0f
         while (!glfwWindowShouldClose(Window.pointer)) {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
-
-            glfwPollEvents()
-
-            if(DELTA_TIME < 1f/120.0f)
-                continue
-
             lastTime += DELTA_TIME
-
-
-            Input.update()
 
             SceneManager.update()
 
             render()
+
+            glfwPollEvents()
+            Input.update()
         }
     }
 

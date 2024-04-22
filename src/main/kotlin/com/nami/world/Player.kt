@@ -7,12 +7,13 @@ import com.nami.entity.Transform
 import com.nami.input.Input
 import com.nami.scene.SceneTime
 import mu.KotlinLogging
+import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL
-import org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE
+import org.lwjgl.glfw.GLFW.*
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 class Player(val world: World) {
@@ -27,53 +28,52 @@ class Player(val world: World) {
 
     val log = KotlinLogging.logger { }
 
-    val camera = Camera(90.0f, 16f / 9f, 0.001f, 1000.0f)
+    val camera = Camera(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
     val playerHeight = 1f
 
     val transform = Transform()
     val direction = Vector3f(0f, 0f, -1f)
     val acceleration = Vector3f(0f, 0f, 0f)
 
+    val range = 4f
+    val maxIterations = 512
+
+
     fun update(time: SceneTime) {
         inputDirection()
         inputMovement(time)
 
-        val chunkPos = Pair(
-            (transform.position.x / Chunk.width.toFloat()).toInt(),
-            (transform.position.z / Chunk.depth.toFloat()).toInt()
-        )
-
-        val chunk: Chunk? = world.chunks[chunkPos]
-
-        var height = 0f
-        if (chunk != null) {
-            for (y in 1 until Chunk.height + 1) {
-                val x = (transform.position.x % Chunk.width).toInt()
-                val z = (transform.position.z % Chunk.depth).toInt()
-                if (!chunk.blocks.containsKey(Vector3i(x, y, z))) {
-                    height = y + playerHeight
+        //Place
+        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_RIGHT] == Input.State.DOWN) {
+            for (i in 0..maxIterations) {
+                val pos =
+                    Vector3f(transform.position).add(Vector3f(direction).mul(i.toFloat() / maxIterations.toFloat() * range))
+                val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+                if (world.getBlock(blockPos) != null) {
+                    val lastPos =
+                        Vector3f(transform.position).add(Vector3f(direction).mul((i - 1).toFloat() / maxIterations.toFloat() * range))
+                    val lastBlockPos = Vector3i(lastPos.x.toInt(), lastPos.y.toInt(), lastPos.z.toInt())
+                    world.setBlock(
+                        lastBlockPos,
+                        BlockOneColor(Vector3f(1f, 0f, 0f).mul((Math.random() * (1.0 - 0.5) + 0.5).toFloat()))
+                    )
                     break
                 }
             }
         }
 
-        val position = transform.position
-        if (position.y > height)
-            acceleration.add(0f, -16f * time.delta, 0f)
-
-        if (Input.keyStates[GLFW_KEY_SPACE] == Input.State.DOWN)
-            if (position.y <= height)
-                acceleration.add(0f, 6.5f, 0f)
-
-        position.add(Vector3f(acceleration).mul(time.delta))
-
-        if (position.y < height) {
-            position.y = height
-            acceleration.y = 0f
+        //Break
+        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
+            for (i in 0..maxIterations) {
+                val pos =
+                    Vector3f(transform.position).add(Vector3f(direction).mul(i.toFloat() / maxIterations.toFloat() * range))
+                val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+                if (world.getBlock(blockPos) != null) {
+                    world.setBlock(blockPos, null)
+                    break
+                }
+            }
         }
-
-        camera.position.set(transform.position)
-        camera.direction.set(direction)
     }
 
     private val eulerAngles = Vector3f()
@@ -98,17 +98,19 @@ class Player(val world: World) {
         if (Input.isKeyInStates(GLFW.GLFW_KEY_LEFT_SHIFT, Input.State.DOWN, Input.State.HOLD))
             speed *= 2f
 
+        val dir = Vector3f(direction.x, 0f, direction.z).normalize()
+
         if (Input.isKeyInStates(GLFW.GLFW_KEY_W, Input.State.DOWN, Input.State.HOLD))
-            position.add(Vector3f(direction).mul(1f, 0f, 1f).mul(speed))
+            position.add(Vector3f(dir).mul(1f, 0f, 1f).mul(speed))
         if (Input.isKeyInStates(GLFW.GLFW_KEY_S, Input.State.DOWN, Input.State.HOLD))
-            position.add(Vector3f(direction).mul(1f, 0f, 1f).mul(-speed))
+            position.add(Vector3f(dir).mul(1f, 0f, 1f).mul(-speed))
 
         if (Input.isKeyInStates(GLFW.GLFW_KEY_A, Input.State.DOWN, Input.State.HOLD))
-            position.add(Vector3f(direction).cross(Directions.UP).normalize().mul(-speed))
+            position.add(Vector3f(dir).cross(Directions.UP).normalize().mul(-speed))
         if (Input.isKeyInStates(GLFW.GLFW_KEY_D, Input.State.DOWN, Input.State.HOLD))
-            position.add(Vector3f(direction).cross(Directions.UP).normalize().mul(speed))
+            position.add(Vector3f(dir).cross(Directions.UP).normalize().mul(speed))
 
-        if (Input.isKeyInStates(GLFW.GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
+        if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
             if (position.y <= 0f)
                 acceleration.add(0f, 5f, 0f)
 
@@ -116,10 +118,29 @@ class Player(val world: World) {
 //            position.add(0f, speed, 0f)
 //        if (Input.isKeyInStates(GLFW_KEY_LEFT_CONTROL, Input.State.DOWN, Input.State.HOLD))
 //            position.add(0f, -speed, 0f)
-    }
 
-    fun render() {
+        val height =
+            world.getHeight(Vector2i(transform.position.x.toInt(), transform.position.z.toInt())).toFloat() + 1 + 1.5f
 
+        if (position.y > height)
+            acceleration.add(0f, -21f * time.delta, 0f)
+
+        if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
+            if (position.y <= height)
+                acceleration.add(0f, 7.5f, 0f)
+
+        if (acceleration.y <= -100f)
+            acceleration.y = -100f
+
+        position.add(Vector3f(acceleration).mul(time.delta))
+
+        if (position.y < height) {
+            position.y = height
+            acceleration.y = 0f
+        }
+
+        camera.position.set(transform.position)
+        camera.direction.set(direction)
     }
 
 }

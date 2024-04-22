@@ -1,12 +1,10 @@
 package com.nami.shader
 
 import mu.KotlinLogging
-import org.joml.Matrix3f
-import org.joml.Matrix4f
-import org.joml.Vector2f
-import org.joml.Vector3f
+import org.joml.*
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL33.*
+import org.lwjgl.opengl.GL40.glUniformMatrix4dv
 
 class Uniform(private val shader: Shader) {
 
@@ -17,7 +15,7 @@ class Uniform(private val shader: Shader) {
         if (!uniforms.containsKey(name)) {
             val location = glGetUniformLocation(shader.pointer, name)
             if (location == -1)
-                log.warn { "Uniform '$name' in shader '${shader.key}' could not be found" }
+                log.warn { "Uniform '$name' in shader '${shader.path}' could not be found" }
 
             uniforms[name] = location
         }
