@@ -36,6 +36,8 @@ uniform vec3 u_light_direction;
 uniform vec3 u_camera_position;
 uniform float u_specular_exponent;
 
+uniform float u_gamma;
+
 out vec4 FragColor;
 
 void main() {
@@ -48,6 +50,8 @@ void main() {
     float specular = pow(max(dot(light_direction_reflected, camera_direction), 0.0), u_specular_exponent) * diffuse;
 
     vec3 result = color * min(ambient + diffuse + specular, 1.0);
-    FragColor = vec4(result, 1.0);
+
+    vec3 result_gamma_corrected = pow(result, vec3(1.0 / u_gamma));
+    FragColor = vec4(result_gamma_corrected, 1.0);
 }
 //END_FS

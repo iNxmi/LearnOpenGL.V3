@@ -2,10 +2,15 @@ package com.nami.world
 
 import com.nami.resource.Resource
 import com.nami.scene.SceneTime
-import de.articdive.jnoise.core.api.functions.Interpolation
-import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction
+import com.nami.world.biome.Biome
+import com.nami.world.block.Block
+import com.nami.world.chunk.Chunk
+import com.nami.world.chunk.ChunkGenerator
+import com.nami.world.chunk.ChunkManager
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
+import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
 import de.articdive.jnoise.generators.noisegen.worley.WorleyNoiseGenerator
+import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
 import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
 import org.joml.Math.sin
@@ -19,22 +24,68 @@ import kotlin.math.*
 class World {
     val log = KotlinLogging.logger { }
 
-    val chunks = mutableMapOf<Vector2i, Chunk>()
+    companion object {
+        const val width = 32
+        const val depth = 32
+
+        @JvmStatic
+        val seed = System.currentTimeMillis()
+    }
+
+    val chunkManager = ChunkManager(
+        this,
+        ChunkGenerator(
+            elevationNoise = JNoise.newBuilder()
+                .fastSimplex(
+                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed).build()
+                )
+                .octavate(6, 0.5, 2.15, FractalFunction.FBM, false)
+                .scale(1 / 1024.0)
+                .addModifier { v -> (v + 1) / 2.0 }
+                .clamp(0.0, 1.0)
+                .build(),
+            moistureNoise = JNoise.newBuilder()
+                .fastSimplex(
+                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 1).build()
+                )
+                .octavate(6, 0.5, 3.0, FractalFunction.FBM, false)
+                .scale(1 / 2048.0)
+                .addModifier { v -> (v + 1) / 2.0 }
+                .clamp(0.0, 1.0)
+                .build(),
+            temperatureNoise = JNoise.newBuilder()
+                .fastSimplex(
+                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 3).build()
+                )
+                .octavate(6, 0.5, 3.0, FractalFunction.FBM, false)
+                .scale(1 / 2048.0)
+                .addModifier { v -> (v + 1) / 2.0 }
+                .clamp(0.0, 1.0)
+                .build(),
+            caveNoise = JNoise.newBuilder()
+                .worley(
+                    WorleyNoiseGenerator.newBuilder().setSeed(seed + 4).build()
+                )
+                .octavate(8, 0.5, 2.0, FractalFunction.FBM, false)
+                .scale(0.05)
+                .addModifier { v -> (v + 1) / 2.0 }
+                .clamp(0.0, 1.0)
+                .build(),
+            treeNoise = JNoise.newBuilder()
+                .superSimplex(
+                    SuperSimplexNoiseGenerator.newBuilder().setSeed(seed + 5).build()
+                )
+                .scale(100.0)
+                .addModifier { v -> (v + 1) / 2.0 }
+                .clamp(0.0, 1.0)
+                .build()
+
+        )
+    )
+
     val player = Player(this)
 
-    val chunkRadius = 5
-
-    private val noise1 = JNoise.newBuilder()
-        .perlin(System.currentTimeMillis(), Interpolation.LINEAR, FadeFunction.IMPROVED_PERLIN_NOISE)
-        .scale(1 / 50.0)
-        .clamp(0.0, 1.0)
-        .build()
-
-    private val noise2 = JNoise.newBuilder()
-        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(System.currentTimeMillis() + 1).build())
-        .scale(1 / 89.0)
-        .clamp(-1.0, 1.0)
-        .build()
+    val chunkRadius = 16
 
     var worldTime = 0f
     var daylightPercentage = 0f
@@ -43,6 +94,14 @@ class World {
     var cosT = 0f
 
     val millisPerDay: Long = 24 * 60 * 60 * 1000
+
+    init {
+        log.debug { "World Seed: $seed" }
+
+        for (x in 0 until width)
+            for (z in 0 until depth)
+                chunkManager.generate(Vector2i(x, z))
+    }
 
     fun update(time: SceneTime) {
         val localTime = LocalTime.now()
@@ -74,12 +133,8 @@ class World {
                     player.transform.position.z.toInt() / Chunk.depth + z
                 )
 
-                if (pos.x >= 0 && pos.y >= 0)
-                    if (!chunks.containsKey(pos))
-                        chunks[pos] = Chunk(this, pos.x, pos.y, noise1, noise2)
-
-                val chunk = chunks[pos] ?: continue
-                chunk.update()
+                val chunk = chunkManager.get(pos) ?: chunkManager.generate(pos)
+                chunk?.update()
             }
     }
 
@@ -136,6 +191,8 @@ class World {
 
         shader.uniform.set("u_camera_position", player.transform.position)
 
+        shader.uniform.set("u_gamma", 1.0f)
+
         for (x in -chunkRadius until chunkRadius)
             for (z in -chunkRadius until chunkRadius) {
                 val pos = Vector2i(
@@ -143,8 +200,7 @@ class World {
                     player.transform.position.z.toInt() / Chunk.depth + z
                 )
 
-                val chunk = chunks[pos] ?: continue
-                chunk.render(shader)
+                chunkManager.get(pos)?.render(shader)
             }
 
         Resource.shader.unbind()
@@ -152,11 +208,11 @@ class World {
 
     fun getBlock(position: Vector3i): Block? {
         val chunkPos = Vector2i(position.x / Chunk.width, position.z / Chunk.depth)
-        val chunk = chunks[chunkPos] ?: return null
+        val chunk = chunkManager.get(chunkPos) ?: return null
 
         val chunkRelativeBlockPos =
             Vector3i(position.x - chunkPos.x * Chunk.width, position.y, position.z - chunkPos.y * Chunk.depth)
-        return chunk.blocks[chunkRelativeBlockPos]
+        return chunk.getBlock(chunkRelativeBlockPos)
     }
 
     fun setBlock(position: Vector3i, block: Block?) {
@@ -165,26 +221,29 @@ class World {
 
         val chunkPos = Vector2i(position.x / Chunk.width, position.z / Chunk.depth)
 
-        if (!chunks.containsKey(chunkPos))
-            chunks[chunkPos] = Chunk(this, chunkPos.x, chunkPos.y, noise1, noise2)
-
-        val chunk = chunks[chunkPos]!!
+        val chunk = chunkManager.get(chunkPos) ?: return
 
         val chunkRelativeBlockPos =
             Vector3i(position.x - chunkPos.x * Chunk.width, position.y, position.z - chunkPos.y * Chunk.depth)
 
-        if (block != null)
-            chunk.blocks[chunkRelativeBlockPos] = block
-        else
-            chunk.blocks.remove(chunkRelativeBlockPos)
+        chunk.setBlocks(Pair(chunkRelativeBlockPos, block))
     }
 
-    fun getHeight(pos: Vector2i): Int {
-        for (y in Chunk.height downTo 0)
+    fun getHeight(pos: Vector2i, startHeight: Int): Int {
+        for (y in startHeight downTo 0)
             if (getBlock(Vector3i(pos.x, y, pos.y)) != null)
                 return y
 
         return 0
+    }
+
+    fun getBiome(position: Vector2i): Biome? {
+        val chunkPos = Vector2i(position.x / Chunk.width, position.y / Chunk.depth)
+        val chunk = chunkManager.get(chunkPos) ?: return null
+
+        val chunkRelativePos =
+            Vector2i(position.x - chunkPos.x * Chunk.width, position.y - chunkPos.y * Chunk.depth)
+        return chunk.getBiome(chunkRelativePos)
     }
 
 }

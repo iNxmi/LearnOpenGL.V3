@@ -6,24 +6,31 @@ import com.nami.Window
 import com.nami.input.Input
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
+import com.nami.world.chunk.Chunk
 import com.nami.world.World
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import org.joml.Vector2i
+import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
+import java.awt.Color
 import java.awt.image.BufferedImage
+import java.nio.file.Path
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.math.max
 
 
-class PlayScene : Scene() {
+class PlayScene(val path: Path?) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
@@ -70,37 +77,36 @@ class PlayScene : Scene() {
 //        }
 
         if (Input.keyStates[GLFW_KEY_F2] == Input.State.DOWN) {
-            val widthArr = IntArray(1)
-            val heightArr = IntArray(1)
-            glfwGetWindowSize(Window.pointer, widthArr, heightArr)
-
-            val width = widthArr[0]
-            val height = heightArr[0]
+            val width = Window.width
+            val height = Window.height
 
             val buffer = BufferUtils.createByteBuffer(width * height * 3)
             glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer)
 
-            val pixels = IntArray(width * height)
-            for (i in pixels.indices) {
-                val red = buffer.get().toInt() and 0xFF shl 16
-                val green = buffer.get().toInt() and 0xFF shl 8
-                val blue = buffer.get().toInt() and 0xFF
+            GlobalScope.launch {
+                val pixels = IntArray(width * height)
+                for (i in pixels.indices) {
+                    val red = buffer.get().toInt() and 0xFF shl 16
+                    val green = buffer.get().toInt() and 0xFF shl 8
+                    val blue = buffer.get().toInt() and 0xFF
 
-                pixels[i] = red or green or blue
+                    pixels[i] = red or green or blue
+                }
+
+                val flipped = IntArray(width * height)
+                for (y in 0 until height)
+                    if (width >= 0)
+                        System.arraycopy(pixels, ((height - 1) - y) * width, flipped, y * width, width)
+
+                val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+                image.setRGB(0, 0, width, height, flipped, 0, width)
+
+                val path =
+                    GamePaths.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+                ImageIO.write(image, "png", path.toFile())
+
+                log.info { "Screenshot saved at '$path'" }
             }
-
-            val flipped = IntArray(width * height)
-            for (y in 0 until height)
-                if (width >= 0)
-                    System.arraycopy(pixels, ((height - 1) - y) * width, flipped, y * width, width)
-
-            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-            image.setRGB(0, 0, width, height, flipped, 0, width)
-
-            val path = GamePaths.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
-            ImageIO.write(image, "png", path.toFile())
-
-            log.info { "Screenshot saved at '$path'" }
         }
 
         world.update(time)
@@ -122,7 +128,7 @@ class PlayScene : Scene() {
     override fun onRenderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-        if (f3 && !menu) {
+        if (f3 && !menu && !inventory) {
             ImGui.setNextWindowPos(0f, 0f)
             ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
             ImGui.setNextWindowBgAlpha(0.0f)
@@ -146,6 +152,7 @@ class PlayScene : Scene() {
             )
             ImGui.text("sinT=${String.format("%.5f", world.sinT)}")
             ImGui.text("cosT=${String.format("%.5f", world.cosT)}")
+            ImGui.text("biome=${world.getBiome(Vector2i(world.player.transform.position.x.toInt(),world.player.transform.position.z.toInt()))}")
 
             ImGui.end()
         }
@@ -155,8 +162,10 @@ class PlayScene : Scene() {
             ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
             ImGui.setNextWindowBgAlpha(0.4f)
 
-            ImGui.getFont().scale = 2f
+            ImGui.getFont().scale = 4f
             ImGui.begin("Inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
+
+            world.player.inventory.map.forEach { (block, count) -> ImGui.text("${block.name}: $count") }
 
             ImGui.end()
         }
@@ -168,6 +177,52 @@ class PlayScene : Scene() {
 
             ImGui.getFont().scale = 2f
             ImGui.begin("Settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
+
+            if (ImGui.button("Capture Map")) {
+                GlobalScope.launch {
+                    val bounds = Vector2i()
+                    world.chunkManager.chunks.forEach { (position, _) ->
+                        bounds.set(
+                            max(position.x + 1, bounds.x),
+                            max(position.y + 1, bounds.y)
+                        )
+                    }
+
+                    val image =
+                        BufferedImage(bounds.x * Chunk.width, bounds.y * Chunk.depth, BufferedImage.TYPE_INT_RGB)
+                    world.chunkManager.chunks.forEach { (posChunk, chunk) ->
+                        for (x in 0 until Chunk.width)
+                            for (z in 0 until Chunk.depth) {
+                                val globalPos = Vector2i(x, z).add(Vector2i(posChunk).mul(Chunk.width, Chunk.depth))
+
+                                if (globalPos.x < 0 || globalPos.y < 0)
+                                    continue
+
+                                val block = world.getBlock(
+                                    Vector3i(
+                                        globalPos.x,
+                                        world.getHeight(globalPos, Chunk.height + 1),
+                                        globalPos.y
+                                    )
+                                ) ?: continue
+
+                                val color = Color(
+                                    (block.color.cTop.x * 255).toInt(),
+                                    (block.color.cTop.y * 255).toInt(),
+                                    (block.color.cTop.z * 255).toInt()
+                                )
+
+                                image.setRGB(globalPos.x, globalPos.y, color.rgb)
+                            }
+                    }
+
+                    val path =
+                        GamePaths.maps.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+                    ImageIO.write(image, "png", path.toFile())
+
+                    log.info { "Map saved at '$path'" }
+                }
+            }
 
             if (ImGui.sliderFloat("World Time", worldTime, 0f, 1f))
                 world.worldTime = worldTime[0]

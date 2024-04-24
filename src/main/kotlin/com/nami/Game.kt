@@ -13,6 +13,7 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL13.GL_MULTISAMPLE
+import org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB
 
 class Game {
 
@@ -69,12 +70,12 @@ class Game {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
             lastTime += DELTA_TIME
 
+            glfwPollEvents()
+            Input.update()
+
             SceneManager.update()
 
             render()
-
-            glfwPollEvents()
-            Input.update()
         }
     }
 

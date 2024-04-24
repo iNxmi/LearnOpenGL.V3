@@ -41,10 +41,13 @@ class GamePaths {
         val screenshots: Path = data.resolve("screenshots")
 
         @JvmStatic
+        val maps: Path = data.resolve("maps")
+
+        @JvmStatic
         val logs: Path = data.resolve("logs")
 
         @JvmStatic
-        val saves: Path = data.resolve("saves")
+        val worlds: Path = data.resolve("worlds")
 
     }
 

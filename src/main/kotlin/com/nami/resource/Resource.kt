@@ -16,9 +16,6 @@ abstract class Resource<T>(val path: Path, private val extension: String) {
 
         @JvmStatic
         val texture = TextureResource()
-
-        @JvmStatic
-        val block = BlockResource()
     }
 
     private val log = KotlinLogging.logger { }
