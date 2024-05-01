@@ -20,13 +20,6 @@ class Window {
         var height: Int = 0
 
         @JvmStatic
-        var vSync = false
-            set(value) {
-                glfwSwapInterval(if (value) 1 else 0)
-                field = value
-            }
-
-        @JvmStatic
         fun init(width: Int, height: Int) {
             this.width = width
             this.height = height
@@ -63,6 +56,8 @@ class Window {
             glfwSetScrollCallback(pointer, Input::onScrollCallback)
 
             glfwMakeContextCurrent(pointer)
+
+            glfwSwapInterval(0)
         }
 
     }

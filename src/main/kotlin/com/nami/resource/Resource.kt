@@ -1,6 +1,5 @@
 package com.nami.resource
 
-import com.nami.resource.resoures.*
 import mu.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
@@ -13,9 +12,6 @@ abstract class Resource<T>(val path: Path, private val extension: String) {
     companion object {
         @JvmStatic
         val shader = ShaderResource()
-
-        @JvmStatic
-        val texture = TextureResource()
     }
 
     private val log = KotlinLogging.logger { }

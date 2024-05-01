@@ -1,80 +1,65 @@
 package com.nami.world.block
 
-import org.joml.Vector3f
+import org.joml.Vector4f
 
 class Block(val template: BlockTemplate, val color: BlockColor) {
 
     companion object {
-        val invalid = BlockTemplate("Invalid", BlockColorSingle(Vector3f(1f, 0f, 1f)), (0.5f..1.0f))
+        val INVALID = BlockTemplate("Invalid", BlockColorSingle(Vector4f(1f, 0f, 1f, 1f)), (0.5f..1.0f), Type.SOLID)
 
-        val bedrock = BlockTemplate("Bedrock", BlockColorSingle(Vector3f(1f, 1f, 1f).mul(0.25f)), (0.5f..0.75f))
+        val BEDROCK =
+            BlockTemplate("Bedrock", BlockColorSingle(Vector4f(0.25f, 0.25f, 0.25f, 1f)), (0.5f..0.75f), Type.SOLID)
 
-        val water =
+        val WATER =
             BlockTemplate(
                 "Water",
-                BlockColorSingle(Vector3f(66f / 255f, 111f / 255f, 245f / 255f).mul(0.5f)),
-                (0.5f..0.75f)
+                BlockColorSingle(Vector4f(66f / 255f, 111f / 255f, 245f / 255f, 0.5f).mul(0.5f, 0.5f, 0.5f, 1.0f)),
+                (0.5f..0.75f), Type.FLUID
             )
-        val sand = BlockTemplate("Sand", BlockColorSingle(Vector3f(0.625f, 0.625f, 0f)), (0.5f..1.0f))
-        val stone = BlockTemplate("Stone", BlockColorSingle(Vector3f(0.5f, 0.5f, 0.5f).mul(0.75f)), (0.5f..1.0f))
-        val dirt =
+        val SAND = BlockTemplate("Sand", BlockColorSingle(Vector4f(0.5f, 0.5f, 0f, 1f)), (0.5f..1.0f), Type.SOLID)
+        val STONE = BlockTemplate(
+            "Stone",
+            BlockColorSingle(Vector4f(0.5f, 0.5f, 0.5f, 1f).mul(0.75f, 0.75f, 0.75f, 1.0f)),
+            (0.5f..1.0f), Type.SOLID
+        )
+        val DIRT =
             BlockTemplate(
                 "Dirt",
-                BlockColorSingle(Vector3f(196f / 255f, 164f / 255f, 132f / 255f).mul(0.25f)),
-                (0.5f..1.0f)
+                BlockColorSingle(Vector4f(196f / 255f, 164f / 255f, 132f / 255f, 1f).mul(0.25f, 0.25f, 0.25f, 1.0f)),
+                (0.5f..1.0f), Type.SOLID
             )
-        val grass = BlockTemplate(
+        val GRASS = BlockTemplate(
             "Grass",
-            BlockColorTop(Vector3f(0f, 0.6f, 0f).mul(0.5f), Vector3f(196f / 255f, 164f / 255f, 132f / 255f).mul(0.25f)),
-            (0.5f..1.0f)
+            BlockColorTop(
+                Vector4f(0f, 0.6f, 0f, 1f).mul(0.5f, 0.5f, 0.5f, 1.0f),
+                Vector4f(196f / 255f, 164f / 255f, 132f / 255f, 1f).mul(0.25f, 0.25f, 0.25f, 1.0f)
+            ),
+            (0.5f..1.0f), Type.SOLID
         )
 
-        val snow = BlockTemplate("Snow", BlockColorSingle(Vector3f(1f, 1f, 1f).mul(0.85f)), (0.8f..1.0f))
+        val MUSHROOM_STEM = BlockTemplate("Mushroom Stem", BlockColorSingle(Vector4f(200f/255f, 173f/255f, 127f/255f, 1f)), (0.75f..1.0f), Type.SOLID)
+        val MUSHROOM_BLOCK_RED = BlockTemplate("Red Mushroom Block", BlockColorSingle(Vector4f(1f, 0f, 0f, 1f)), (0.75f..1.0f), Type.SOLID)
+        val MYCELIUM = BlockTemplate("Mycelium", BlockColorSingle(Vector4f(0.5f, 0.5f, 0.5f, 1f)), (0.5f..1.0f), Type.SOLID)
 
-        val log = BlockTemplate("Log", BlockColorSingle(Vector3f(71 / 255f, 54 / 255f, 21 / 255f)), (0.6f..1.0f))
-        val leaves = BlockTemplate("Leaves", BlockColorSingle(Vector3f(0f, 1f, 0f).mul(0.5f)), (0.6f..1.0f))
+        val SNOW = BlockTemplate("Snow", BlockColorSingle(Vector4f(0.85f, 0.85f, 0.85f, 1f)), (0.8f..1.0f), Type.SOLID)
 
-        val cactus = BlockTemplate("Cactus", BlockColorSingle(Vector3f(0f, 1f, 0f).mul(0.25f)), (0.6f..1.0f))
+        val LOG =
+            BlockTemplate(
+                "Log",
+                BlockColorSingle(Vector4f(71 / 255f, 54 / 255f, 21 / 255f, 1f)),
+                (0.6f..1.0f),
+                Type.SOLID
+            )
+        val LEAVES = BlockTemplate("Leaves", BlockColorSingle(Vector4f(0f, 0.5f, 0f, 0.9f)), (0.6f..1.0f), Type.FOLIAGE)
+        val LEAVES_SNOW = BlockTemplate("Snowy Leaves", BlockColorSingle(Vector4f(0.85f, 0.85f, 0.85f, 1f)), (0.8f..1.0f), Type.FOLIAGE)
+
+        val CACTUS = BlockTemplate("Cactus", BlockColorSingle(Vector4f(0f, 0.25f, 0f, 1f)), (0.6f..1.0f), Type.SOLID)
+    }
+
+    enum class Type {
+        SOLID,
+        FOLIAGE,
+        FLUID
     }
 
 }
-
-class BlockTemplate(
-    val name: String,
-    private val color: BlockColor,
-    private val range: ClosedFloatingPointRange<Float>
-) {
-
-    fun create(): Block {
-        return Block(this, color.mutate(range))
-    }
-
-}
-
-open class BlockColor(
-    val cTop: Vector3f,
-    val cBottom: Vector3f,
-    val cLeft: Vector3f,
-    val cRight: Vector3f,
-    val cFront: Vector3f,
-    val cBack: Vector3f
-) {
-    fun mutate(range: ClosedFloatingPointRange<Float>): BlockColor {
-        val scalar: Float = (Math.random() * (1 - range.start) + range.endInclusive).toFloat()
-        val max = Vector3f(1f, 1f, 1f)
-        return BlockColor(
-            Vector3f(cTop).mul(scalar).min(max),
-            Vector3f(cBottom).mul(scalar).min(max),
-            Vector3f(cLeft).mul(scalar).min(max),
-            Vector3f(cRight).mul(scalar).min(max),
-            Vector3f(cFront).mul(scalar).min(max),
-            Vector3f(cBack).mul(scalar).min(max),
-        )
-    }
-}
-
-class BlockColorSingle(color: Vector3f) :
-    BlockColor(Vector3f(color), Vector3f(color), Vector3f(color), Vector3f(color), Vector3f(color), Vector3f(color))
-
-class BlockColorTop(top: Vector3f, other: Vector3f) :
-    BlockColor(cTop = top, cBottom = other, cLeft = other, cRight = other, cFront = other, cBack = other)

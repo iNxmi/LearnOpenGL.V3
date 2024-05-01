@@ -14,35 +14,27 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.glfw.GLFW.*
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class Player(val world: World) {
 
     companion object {
-        @JvmStatic
-        val speed = 3.0f
-
-        @JvmStatic
-        val sensivity = 0.15f
-
-        @JvmStatic
-        val height = 2.8f
+        const val SPEED = 3.0f
+        const val SENSIVITY = 0.11f
+        const val HEIGHT = 2.8f
+        const val RANGE = 4f
+        const val MAX_ITERATIONS = 512
     }
 
     val log = KotlinLogging.logger { }
 
     val camera = Camera(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
-    val playerHeight = 1f
 
     val transform = Transform()
-    val direction = Vector3f(0f, 0f, -1f)
     val acceleration = Vector3f(0f, 0f, 0f)
 
-    val range = 4f
-    val maxIterations = 512
-
     val inventory = Inventory()
+    var selectedBlock = Block.WATER
 
     fun update(time: SceneTime) {
         inputDirection()
@@ -50,19 +42,20 @@ class Player(val world: World) {
 
         //Place
         if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_RIGHT] == Input.State.DOWN) {
-            for (i in 0..maxIterations) {
+            for (i in 0..MAX_ITERATIONS) {
                 val pos =
-                    Vector3f(transform.position).add(0f, height, 0f)
-                        .add(Vector3f(direction).mul(i.toFloat() / maxIterations.toFloat() * range))
+                    Vector3f(transform.position).add(0f, HEIGHT, 0f)
+                        .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
                 val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
                 if (world.getBlock(blockPos) != null) {
                     val lastPos =
-                        Vector3f(transform.position).add(0f, height, 0f).add(Vector3f(direction).mul((i - 1).toFloat() / maxIterations.toFloat() * range))
+                        Vector3f(transform.position).add(0f, HEIGHT, 0f)
+                            .add(Vector3f(camera.directionFront).mul((i - 1).toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
                     val lastBlockPos = Vector3i(lastPos.x.toInt(), lastPos.y.toInt(), lastPos.z.toInt())
 
-                    val block = Block.invalid
+                    val block = selectedBlock
                     inventory.remove(block, 1)
-                    world.setBlock(lastBlockPos, block.create())
+                    world.setBlock(lastBlockPos, block)
                     break
                 }
             }
@@ -70,14 +63,16 @@ class Player(val world: World) {
 
         //Break
         if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
-            for (i in 0..maxIterations) {
+            for (i in 0..MAX_ITERATIONS) {
                 val pos =
-                    Vector3f(transform.position).add(0f, height, 0f).add(Vector3f(direction).mul(i.toFloat() / maxIterations.toFloat() * range))
+                    Vector3f(transform.position).add(0f, HEIGHT, 0f)
+                        .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
                 val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
 
                 val block = world.getBlock(blockPos) ?: continue
 
                 inventory.add(block.template, 1)
+                selectedBlock = block.template
                 world.setBlock(blockPos, null)
                 break
             }
@@ -87,11 +82,11 @@ class Player(val world: World) {
     private val eulerAngles = Vector3f()
     private fun inputDirection() {
         if (glfwGetInputMode(Window.pointer, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-            eulerAngles.y += Input.posDelta.x * sensivity
-            eulerAngles.x -= Input.posDelta.y * sensivity
+            eulerAngles.y += Input.posDelta.x *  SENSIVITY
+            eulerAngles.x -= Input.posDelta.y *  SENSIVITY
             eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
 
-            direction.set(
+            camera.directionFront.set(
                 cos(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble())),
                 sin(Math.toRadians(eulerAngles.x.toDouble())),
                 sin(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble()))
@@ -102,11 +97,11 @@ class Player(val world: World) {
     private fun inputMovement(time: SceneTime) {
         val position = transform.position
 
-        var speed = speed * time.delta
+        var speed = SPEED * time.delta
         if (Input.isKeyInStates(GLFW_KEY_LEFT_SHIFT, Input.State.DOWN, Input.State.HOLD))
             speed *= 2f
 
-        val dir = Vector3f(direction.x, 0f, direction.z).normalize()
+        val dir = Vector3f(camera.directionFront.x, 0f, camera.directionFront.z).normalize()
 
         if (Input.isKeyInStates(GLFW_KEY_W, Input.State.DOWN, Input.State.HOLD))
             position.add(Vector3f(dir).mul(1f, 0f, 1f).mul(speed))
@@ -125,7 +120,7 @@ class Player(val world: World) {
         val height =
             world.getHeight(
                 Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
-                transform.position.y.toInt() + Player.height.toInt()
+                transform.position.y.toInt() + HEIGHT.toInt()
             ).toFloat()
 
         if (position.y > height)
@@ -140,16 +135,15 @@ class Player(val world: World) {
 
         position.add(Vector3f(acceleration).mul(time.delta))
 
-        position.x = position.x.coerceIn(0f, (World.width * Chunk.width).toFloat() - 0.1f)
-        position.z = position.z.coerceIn(0f, (World.depth * Chunk.depth).toFloat() - 0.1f)
+        position.x = position.x.coerceIn(0f, (World.SIZE.x * Chunk.SIZE.x).toFloat() - 0.1f)
+        position.z = position.z.coerceIn(0f, (World.SIZE.z * Chunk.SIZE.z).toFloat() - 0.1f)
 
         if (position.y < height) {
             position.y = height
             acceleration.y = 0f
         }
 
-        camera.position.set(Vector3f(position).add(0f, Player.height, 0f))
-        camera.direction.set(direction)
+        camera.transform.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
     }
 
 }

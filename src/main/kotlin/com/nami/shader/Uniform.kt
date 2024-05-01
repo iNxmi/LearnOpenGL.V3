@@ -5,6 +5,7 @@ import org.joml.*
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.opengl.GL40.glUniformMatrix4dv
+import org.lwjgl.system.MemoryStack
 
 class Uniform(private val shader: Shader) {
 
@@ -49,18 +50,22 @@ class Uniform(private val shader: Shader) {
     }
 
     fun set(name: String, value: Matrix4f): Uniform {
-        val buffer = BufferUtils.createFloatBuffer(16)
-        value.get(buffer)
+        MemoryStack.stackPush().use { stack ->
+            val buffer = stack.callocFloat(16)
+            value.get(buffer)
+            glUniformMatrix4fv(location(name), false, buffer)
+        }
 
-        glUniformMatrix4fv(location(name), false, buffer)
         return this
     }
 
     fun set(name: String, value: Matrix3f): Uniform {
-        val buffer = BufferUtils.createFloatBuffer(9)
-        value.get(buffer)
+        MemoryStack.stackPush().use { stack ->
+            val buffer = stack.callocFloat(9)
+            value.get(buffer)
+            glUniformMatrix3fv(location(name), false, buffer)
+        }
 
-        glUniformMatrix3fv(location(name), false, buffer)
         return this
     }
 

@@ -1,53 +1,111 @@
 package com.nami.world.biome
 
-import com.nami.world.biome.rules.*
+import com.nami.world.biome.generator.*
 import com.nami.world.block.BlockTemplate
-import org.joml.Vector2i
 import org.joml.Vector3f
+import org.joml.Vector3i
 
-class Biome(val factors: Vector3f, val generator: BiomeGenerator) {
+class Biome(val template: BiomeTemplate, val factors: Vector3f) {
 
     companion object {
-        const val waterLevel: Int = 64
+        @JvmStatic
+        val ELEVATION_RANGE: ClosedFloatingPointRange<Float> = (0.0f..256.0f)
 
-        val elevationRange: ClosedFloatingPointRange<Float> = (0.0f..256.0f)            //Meter
-        val moistureRange: ClosedFloatingPointRange<Float> = (0.0f..100.0f)          //Percent
-        val temperatureRange: ClosedFloatingPointRange<Float> = (-25.0f..50.0f)      //Celsius
+        @JvmStatic
+        val MOISTURE_RANGE: ClosedFloatingPointRange<Float> = (0.0f..100.0f)
 
-        val sea = SeaBiomeGenerator()
-        val beach = BeachBiomeGenerator()
-        val normal = NormalBiomeGenerator()
-        val snow = SnowBiomeGenerator()
-        val desert = DesertBiomeGenerator()
+        @JvmStatic
+        val TEMPERATURE_RANGE: ClosedFloatingPointRange<Float> = (-25.0f..50.0f)
 
+        @JvmStatic
+        val INVALID = BiomeTemplate(
+            "Invalid",
+            0f..0f,
+            0f..0f,
+            0f..0f,
+            InvalidBiomeGenerator()
+        )
+
+        @JvmStatic
+        val SEA = BiomeRegister.register(
+            BiomeTemplate(
+                "Sea",
+                0f..64f,
+                0f..100f,
+                -15f..50f,
+                SeaBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
+        val BEACH = BiomeRegister.register(
+            BiomeTemplate(
+                "Beach",
+                64f..67f,
+                0f..100f,
+                0f..50f,
+                BeachBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
+        val MUSHROOM = BiomeRegister.register(
+            BiomeTemplate(
+                "Mushroom",
+                67f..256f,
+                65f..100f,
+                25f..50f,
+                MushroomBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
+        val NORMAL = BiomeRegister.register(
+            BiomeTemplate(
+                "Normal",
+                67f..256f,
+                0f..100f,
+                0f..35f,
+                NormalBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
+        val SNOW = BiomeRegister.register(
+            BiomeTemplate(
+                "Snow",
+                67f..256f,
+                0f..100f,
+                -25f..0f,
+                SnowBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
+        val DESERT = BiomeRegister.register(
+            BiomeTemplate(
+                "Desert",
+                67f..256f,
+                0f..25f,
+                35f..50.0f,
+                DesertBiomeGenerator()
+            )
+        )
+
+        @JvmStatic
         fun evaluate(factors: Vector3f): Biome {
-            return Biome(factors, evaluateGenerator(factors))
+            val realFactors = Vector3f(
+                factors.x * (ELEVATION_RANGE.endInclusive - ELEVATION_RANGE.start) + ELEVATION_RANGE.start,
+                factors.y * (MOISTURE_RANGE.endInclusive - MOISTURE_RANGE.start) + MOISTURE_RANGE.start,
+                factors.z * (TEMPERATURE_RANGE.endInclusive - TEMPERATURE_RANGE.start) + TEMPERATURE_RANGE.start
+            )
+            return Biome(BiomeRegister.evaluate(realFactors), realFactors)
         }
 
-        private fun evaluateGenerator(factors: Vector3f): BiomeGenerator {
-            val e = factors.x
-            val m = factors.y
-            val t = factors.z
-
-            if (e < 64.0f) return sea
-            if (e < 67f) return beach
-
-            if(t > 35.0f) return desert
-            if(t < -10.0f) return snow
-
-            if (e >= 192f) return snow
-            if (e >= 67f) return normal
-
-            return normal
-        }
     }
 
-    fun generateColumn(position: Vector2i): Map<Int, BlockTemplate> {
-        return generator.generateColumn(factors, position)
-    }
-
-    override fun toString(): String {
-        return "Biome=${generator.name()} Elevation=${factors.x} Moisture=${factors.y} Temperature=${factors.z}"
+    fun generate(position: Vector3i): BlockTemplate? {
+        return template.generator.generate(factors, position)
     }
 
 }

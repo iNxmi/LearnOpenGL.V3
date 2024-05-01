@@ -32,7 +32,7 @@ class MainMenuScene : Scene() {
         ImGui.begin("Main Menu", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
         if (ImGui.button("Play"))
-            SceneManager.selected = PlayScene(GamePaths.worlds)
+            SceneManager.selected = WorldSelectScene()
 
         if (ImGui.button("Quit"))
             glfwSetWindowShouldClose(Window.pointer, true)

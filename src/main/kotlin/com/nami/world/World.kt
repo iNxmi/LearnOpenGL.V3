@@ -4,229 +4,184 @@ import com.nami.resource.Resource
 import com.nami.scene.SceneTime
 import com.nami.world.biome.Biome
 import com.nami.world.block.Block
+import com.nami.world.block.BlockTemplate
 import com.nami.world.chunk.Chunk
-import com.nami.world.chunk.ChunkGenerator
 import com.nami.world.chunk.ChunkManager
-import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
-import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
-import de.articdive.jnoise.generators.noisegen.worley.WorleyNoiseGenerator
-import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
-import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
-import org.joml.Math.sin
-import org.joml.Vector2i
-import org.joml.Vector3f
-import org.joml.Vector3i
-import org.lwjgl.opengl.GL33.glClearColor
-import java.time.LocalTime
-import kotlin.math.*
+import org.joml.*
+import org.lwjgl.glfw.GLFW.glfwGetTime
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL33.*
+import java.util.*
 
-class World {
+class World(val seed: Long) {
     val log = KotlinLogging.logger { }
 
     companion object {
-        const val width = 32
-        const val depth = 32
-
         @JvmStatic
-        val seed = System.currentTimeMillis()
+        val SIZE = Vector3i(512, 32, 512)
+        const val WATER_LEVEL = 64
     }
 
-    val chunkManager = ChunkManager(
-        this,
-        ChunkGenerator(
-            elevationNoise = JNoise.newBuilder()
-                .fastSimplex(
-                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed).build()
-                )
-                .octavate(6, 0.5, 2.15, FractalFunction.FBM, false)
-                .scale(1 / 1024.0)
-                .addModifier { v -> (v + 1) / 2.0 }
-                .clamp(0.0, 1.0)
-                .build(),
-            moistureNoise = JNoise.newBuilder()
-                .fastSimplex(
-                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 1).build()
-                )
-                .octavate(6, 0.5, 3.0, FractalFunction.FBM, false)
-                .scale(1 / 2048.0)
-                .addModifier { v -> (v + 1) / 2.0 }
-                .clamp(0.0, 1.0)
-                .build(),
-            temperatureNoise = JNoise.newBuilder()
-                .fastSimplex(
-                    FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 3).build()
-                )
-                .octavate(6, 0.5, 3.0, FractalFunction.FBM, false)
-                .scale(1 / 2048.0)
-                .addModifier { v -> (v + 1) / 2.0 }
-                .clamp(0.0, 1.0)
-                .build(),
-            caveNoise = JNoise.newBuilder()
-                .worley(
-                    WorleyNoiseGenerator.newBuilder().setSeed(seed + 4).build()
-                )
-                .octavate(8, 0.5, 2.0, FractalFunction.FBM, false)
-                .scale(0.05)
-                .addModifier { v -> (v + 1) / 2.0 }
-                .clamp(0.0, 1.0)
-                .build(),
-            treeNoise = JNoise.newBuilder()
-                .superSimplex(
-                    SuperSimplexNoiseGenerator.newBuilder().setSeed(seed + 5).build()
-                )
-                .scale(100.0)
-                .addModifier { v -> (v + 1) / 2.0 }
-                .clamp(0.0, 1.0)
-                .build()
-
-        )
-    )
+    val chunkManager = ChunkManager(this)
 
     val player = Player(this)
 
-    val chunkRadius = 16
-
-    var worldTime = 0f
-    var daylightPercentage = 0f
-
-    var sinT = 0f
-    var cosT = 0f
-
-    val millisPerDay: Long = 24 * 60 * 60 * 1000
+    val chunkRadius = Vector3i(5)
 
     init {
         log.debug { "World Seed: $seed" }
 
-        for (x in 0 until width)
-            for (z in 0 until depth)
-                chunkManager.generate(Vector2i(x, z))
+//        player.transform.position.set(
+//            (SIZE.x / 2 * Chunk.SIZE.x).toDouble(),
+//            0.0,
+//            (SIZE.z / 2 * Chunk.SIZE.z).toDouble()
+//        )
+
+//        for (x in 0 until width)
+//            for (y in 0 until height)
+//                for (z in 0 until depth) {
+//                    log.debug { Vector3i(x, y, z) }
+//                    chunkManager.generate(Vector3i(x, y, z))
+//                }
     }
 
     fun update(time: SceneTime) {
-        val localTime = LocalTime.now()
-        val millisOfDay =
-            (localTime.hour * 3600000 + localTime.minute * 60000 + localTime.second * 1000 + localTime.nano / 1000000).toLong()
-        worldTime = (millisOfDay % millisPerDay) / millisPerDay.toFloat()
-
-//        val dayLength = 60f
-//        worldTime = (time.time % dayLength) / dayLength
-
-        worldTime = 0.35f
-
-        val functionResult = daylightFunction(worldTime)
-        daylightPercentage = functionResult.first
-
-        val t: Float = (2.0 * PI * functionResult.second - PI / 2.0).toFloat()
-        sinT = sin(t)
-        cosT = cos(t)
-
-        val color = Vector3f(0.45f, 0.84f, 1f).mul(daylightPercentage)
+        val color = Vector3f(0.45f, 0.84f, 1f).mul(0.85f)
         glClearColor(color.x, color.y, color.z, 1.0f)
 
         player.update(time)
 
-        for (x in -chunkRadius until chunkRadius)
-            for (z in -chunkRadius until chunkRadius) {
-                val pos = Vector2i(
-                    player.transform.position.x.toInt() / Chunk.width + x,
-                    player.transform.position.z.toInt() / Chunk.depth + z
-                )
+        for (x in -chunkRadius.x until chunkRadius.x)
+            for (y in -chunkRadius.y until chunkRadius.y)
+                for (z in -chunkRadius.z until chunkRadius.z) {
+                    val pos = Vector3i(
+                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
+                    )
 
-                val chunk = chunkManager.get(pos) ?: chunkManager.generate(pos)
-                chunk?.update()
-            }
+                    val chunk = chunkManager.get(pos) ?: chunkManager.generate(pos)
+                    chunk?.update()
+                }
     }
 
-    private fun daylightFunction(t: Float): Pair<Float, Float> {
-        //00:00 Uhr - 06:00 Uhr
-        var range = 0f / 24f..6f / 24F
-        if (range.contains(t))
-            return Pair(0f, 0f)
+    var drawCalls = 0
 
-        //06:00 Uhr - 10:00 Uhr
-        range = 6f / 24f..10f / 24f
-        if (range.contains(t)) {
-            val x = (t - range.start) / (range.endInclusive - range.start)
-            val percentage = ((x - 1).pow(2f) - 1f).pow(2f)
-
-            return Pair(percentage, percentage / 2f)
-        }
-
-        //10:00 Uhr - 17:00 Uhr
-        range = 10f / 24f..17f / 24f
-        if (range.contains(t))
-            return Pair(1f, 0.5f)
-
-        //17:00 Uhr - 21:00 Uhr
-        range = 17f / 24f..21f / 24f
-        if (range.contains(t)) {
-            val x = (t - range.start) / (range.endInclusive - range.start)
-            val percentage = (x.pow(2f) - 1f).pow(2f)
-
-            return Pair(percentage, percentage / 2f - 0.5f / percentage)
-        }
-
-        //21:00 Uhr - 24:00 Uhr
-        range = 21f / 24f..24f / 24f
-        if (range.contains(t))
-            return Pair(0f, 0f)
-
-        //Fallback -> Redundant to (21:00 Uhr - 24:00 Uhr)
-        return Pair(0f, 0f)
-    }
-
+    private val chunks = TreeMap<Double, Chunk>()
     fun render() {
-        val shader = Resource.shader.get("chunk").bind()
+        drawCalls = 0
 
-//        val direction = Vector3f(cosT, sinT, 0f)
-        val direction = Vector3f(-1f, 1f, 0f).normalize()
-        shader.uniform.set("u_daylight_percentage", daylightPercentage)
-        shader.uniform.set("u_ambient_strength", min(max(daylightPercentage, 0.1f), 0.4f))
-        shader.uniform.set("u_light_direction", direction)
-        shader.uniform.set("u_specular_exponent", 8.0f)
+        val shaderTerrain = Resource.shader.get("chunk_terrain").bind()
+        shaderTerrain.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
+        shaderTerrain.uniform.set("u_specular_exponent", 8.0f)
 
-        shader.uniform.set("u_projection_matrix", player.camera.projection)
-        shader.uniform.set("u_view_matrix", player.camera.view)
+        shaderTerrain.uniform.set("u_projection_matrix", player.camera.projection())
+        shaderTerrain.uniform.set("u_view_matrix", player.camera.view())
 
-        shader.uniform.set("u_camera_position", player.transform.position)
+        shaderTerrain.uniform.set("u_camera_position", player.transform.position)
 
-        shader.uniform.set("u_gamma", 1.0f)
+        val shaderFoliage = Resource.shader.get("chunk_foliage").bind()
+        shaderFoliage.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
+        shaderFoliage.uniform.set("u_specular_exponent", 8.0f)
 
-        for (x in -chunkRadius until chunkRadius)
-            for (z in -chunkRadius until chunkRadius) {
-                val pos = Vector2i(
-                    player.transform.position.x.toInt() / Chunk.width + x,
-                    player.transform.position.z.toInt() / Chunk.depth + z
-                )
+        shaderFoliage.uniform.set("u_projection_matrix", player.camera.projection())
+        shaderFoliage.uniform.set("u_view_matrix", player.camera.view())
 
-                chunkManager.get(pos)?.render(shader)
+        shaderFoliage.uniform.set("u_camera_position", player.transform.position)
+
+        shaderFoliage.uniform.set("u_time", glfwGetTime().toFloat())
+
+        val shaderFluid = Resource.shader.get("chunk_fluid").bind()
+        shaderFluid.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
+        shaderFluid.uniform.set("u_specular_exponent", 8.0f)
+
+        shaderFluid.uniform.set("u_projection_matrix", player.camera.projection())
+        shaderFluid.uniform.set("u_view_matrix", player.camera.view())
+
+        shaderFluid.uniform.set("u_camera_position", player.transform.position)
+
+        chunks.clear()
+        for (x in -chunkRadius.x until chunkRadius.x)
+            for (y in -chunkRadius.y until chunkRadius.y)
+                for (z in -chunkRadius.z until chunkRadius.z) {
+                    val pos = Vector3i(
+                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
+                    )
+
+                    val chunk = chunkManager.get(pos) ?: continue
+
+                    val distance = Vector3d(pos).add(Vector3f(Chunk.SIZE).div(2.0f)).mul(Vector3d(Chunk.SIZE))
+                        .sub(player.transform.position).length()
+                    chunks[distance] = chunk
+                }
+
+        //Draw solid stuff
+        for ((_, chunk) in chunks) {
+            val model = Matrix4f().translate(
+                (chunk.position.x * Chunk.SIZE.x).toFloat(),
+                (chunk.position.y * Chunk.SIZE.y).toFloat(),
+                (chunk.position.z * Chunk.SIZE.z).toFloat()
+            )
+
+            if (chunk.meshTerrain.indices > 0) {
+                shaderTerrain.bind().uniform.set("u_model_matrix", model)
+
+                glBindVertexArray(chunk.meshTerrain.vao)
+                GL11.glDrawElements(GL_TRIANGLES, chunk.meshTerrain.indices, GL_UNSIGNED_INT, 0)
+                glBindVertexArray(0)
             }
+
+            if (chunk.meshFoliage.indices > 0) {
+                shaderFoliage.bind().uniform.set("u_model_matrix", model)
+
+                glBindVertexArray(chunk.meshFoliage.vao)
+                GL11.glDrawElements(GL_TRIANGLES, chunk.meshFoliage.indices, GL_UNSIGNED_INT, 0)
+                glBindVertexArray(0)
+            }
+        }
+
+        //Draw transparent stuff
+        for ((_, chunk) in chunks) {
+            if (chunk.meshFluid.indices <= 0)
+                continue
+
+            shaderFluid.bind().uniform.set(
+                "u_model_matrix",
+                Matrix4f().translate(
+                    (chunk.position.x * Chunk.SIZE.x).toFloat(),
+                    (chunk.position.y * Chunk.SIZE.y).toFloat(),
+                    (chunk.position.z * Chunk.SIZE.z).toFloat()
+                )
+            )
+
+            glBindVertexArray(chunk.meshFluid.vao)
+            GL11.glDrawElements(GL_TRIANGLES, chunk.meshFluid.indices, GL_UNSIGNED_INT, 0)
+            glBindVertexArray(0)
+        }
 
         Resource.shader.unbind()
     }
 
-    fun getBlock(position: Vector3i): Block? {
-        val chunkPos = Vector2i(position.x / Chunk.width, position.z / Chunk.depth)
-        val chunk = chunkManager.get(chunkPos) ?: return null
-
-        val chunkRelativeBlockPos =
-            Vector3i(position.x - chunkPos.x * Chunk.width, position.y, position.z - chunkPos.y * Chunk.depth)
-        return chunk.getBlock(chunkRelativeBlockPos)
+    fun getChunkRelativePosition(position: Vector3i): Vector3i {
+        return Vector3i(position).sub(getChunkPosition(position).mul(Chunk.SIZE))
     }
 
-    fun setBlock(position: Vector3i, block: Block?) {
-        if (position.y >= Chunk.height)
-            return
+    fun getChunkPosition(position: Vector3i): Vector3i {
+        return Vector3i(position.x / Chunk.SIZE.x, position.y / Chunk.SIZE.y, position.z / Chunk.SIZE.z)
+    }
 
-        val chunkPos = Vector2i(position.x / Chunk.width, position.z / Chunk.depth)
+    fun getBlock(position: Vector3i): Block? {
+        val chunk = chunkManager.get(getChunkPosition(position)) ?: return null
+        return chunk.getBlock(getChunkRelativePosition(position))
+    }
 
-        val chunk = chunkManager.get(chunkPos) ?: return
-
-        val chunkRelativeBlockPos =
-            Vector3i(position.x - chunkPos.x * Chunk.width, position.y, position.z - chunkPos.y * Chunk.depth)
-
-        chunk.setBlocks(Pair(chunkRelativeBlockPos, block))
+    fun setBlock(position: Vector3i, block: BlockTemplate?): Boolean {
+        val chunk = chunkManager.get(getChunkPosition(position)) ?: return false
+        chunk.setBlock(getChunkRelativePosition(position), block)
+        return true
     }
 
     fun getHeight(pos: Vector2i, startHeight: Int): Int {
@@ -237,13 +192,11 @@ class World {
         return 0
     }
 
-    fun getBiome(position: Vector2i): Biome? {
-        val chunkPos = Vector2i(position.x / Chunk.width, position.y / Chunk.depth)
-        val chunk = chunkManager.get(chunkPos) ?: return null
+    fun getBiome(position: Vector3i): Biome? {
+        val chunk = chunkManager.get(getChunkPosition(position)) ?: return null
 
-        val chunkRelativePos =
-            Vector2i(position.x - chunkPos.x * Chunk.width, position.y - chunkPos.y * Chunk.depth)
-        return chunk.getBiome(chunkRelativePos)
+        val chunkRelativePosition = getChunkRelativePosition(position)
+        return chunk.getBiome(Vector2i(chunkRelativePosition.x, chunkRelativePosition.z))
     }
 
 }

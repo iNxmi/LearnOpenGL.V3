@@ -13,7 +13,7 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL13.GL_MULTISAMPLE
-import org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB
+import java.util.*
 
 class Game {
 
@@ -46,9 +46,11 @@ class Game {
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_MULTISAMPLE)
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
         SceneManager.selected = LoadingScene({
             Resource.shader.load()
-            Resource.texture.load()
         }, MainMenuScene())
 
         glfwShowWindow(Window.pointer)
@@ -68,14 +70,16 @@ class Game {
         var lastTime = 0f
         while (!glfwWindowShouldClose(Window.pointer)) {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
-            lastTime += DELTA_TIME
+            lastTime  = glfwGetTime().toFloat()
 
-            glfwPollEvents()
             Input.update()
 
             SceneManager.update()
 
             render()
+
+            Input.endFrame()
+            glfwPollEvents()
         }
     }
 

@@ -16,6 +16,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.joml.Vector2i
+import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
@@ -34,18 +35,16 @@ class PlayScene(val path: Path?) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
-    private val world = World()
+    private val world = World(System.currentTimeMillis())
 
     private var polygonMode = GL_FILL
-    private var cullMode = GL_BACK
-    private var cullfaceEnabled = false
 
     private var menu = false
     private var inventory = false
     private var f3 = true
 
     override fun onInit() {
-        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_CAPTURED)
 
         if (glfwRawMouseMotionSupported())
             glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
@@ -67,14 +66,6 @@ class PlayScene(val path: Path?) : Scene() {
             GLFW_CURSOR,
             if (menu || inventory) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
         )
-
-//        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
-//            chunk.blocks[Vector3i().set(
-//                player.transform.position.x.toInt(),
-//                player.transform.position.y.toInt() - 2,
-//                player.transform.position.z.toInt()
-//            )] = Vector3f(1f, 0f, 0f)
-//        }
 
         if (Input.keyStates[GLFW_KEY_F2] == Input.State.DOWN) {
             val width = Window.width
@@ -114,16 +105,15 @@ class PlayScene(val path: Path?) : Scene() {
 
     override fun onRender() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
-        if (cullfaceEnabled) glEnable(GL_CULL_FACE) else glDisable(GL_CULL_FACE)
-        glCullFace(cullMode)
+        glEnable(GL_CULL_FACE)
+        glCullFace(GL_BACK)
 
         world.render()
     }
 
     private val comboPolyMode = ImInt()
-    private val comboCullMode = ImInt(1)
     private val timeScale = floatArrayOf(1.0f)
-    private val worldTime = floatArrayOf(0.0f)
+    private val fullscreen = ImBoolean(false)
 
     override fun onRenderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -137,22 +127,18 @@ class PlayScene(val path: Path?) : Scene() {
             ImGui.begin("HUD", ImBoolean(), ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
-            ImGui.text("glfwGetTime()=${glfwGetTime()}")
-            ImGui.text("time.time=${time.time}")
-            ImGui.text("player.position=${world.player.transform.position.toString(NumberFormat.getNumberInstance())}")
-
-            val duration = java.time.Duration.ofMillis((world.worldTime * world.millisPerDay).toLong())
-            ImGui.text(
-                "daylightPercentage=${
-                    String.format(
-                        "%.5f",
-                        world.daylightPercentage
-                    )
-                } (${duration.toHours()}:${duration.toMinutesPart()}:${duration.toSecondsPart()})"
+            val biome = world.getBiome(
+                Vector3i(
+                    world.player.transform.position.x.toInt(),
+                    world.player.transform.position.y.toInt(),
+                    world.player.transform.position.z.toInt()
+                )
             )
-            ImGui.text("sinT=${String.format("%.5f", world.sinT)}")
-            ImGui.text("cosT=${String.format("%.5f", world.cosT)}")
-            ImGui.text("biome=${world.getBiome(Vector2i(world.player.transform.position.x.toInt(),world.player.transform.position.z.toInt()))}")
+            ImGui.text("seed=${world.seed}")
+            ImGui.text("biome=${biome?.template?.name} factors=${biome?.factors}")
+            ImGui.text("position=${world.player.transform.position}")
+            ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
+            ImGui.text("draw_calls=${world.drawCalls}")
 
             ImGui.end()
         }
@@ -178,61 +164,68 @@ class PlayScene(val path: Path?) : Scene() {
             ImGui.getFont().scale = 2f
             ImGui.begin("Settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-            if (ImGui.button("Capture Map")) {
-                GlobalScope.launch {
-                    val bounds = Vector2i()
-                    world.chunkManager.chunks.forEach { (position, _) ->
-                        bounds.set(
-                            max(position.x + 1, bounds.x),
-                            max(position.y + 1, bounds.y)
-                        )
-                    }
-
-                    val image =
-                        BufferedImage(bounds.x * Chunk.width, bounds.y * Chunk.depth, BufferedImage.TYPE_INT_RGB)
-                    world.chunkManager.chunks.forEach { (posChunk, chunk) ->
-                        for (x in 0 until Chunk.width)
-                            for (z in 0 until Chunk.depth) {
-                                val globalPos = Vector2i(x, z).add(Vector2i(posChunk).mul(Chunk.width, Chunk.depth))
-
-                                if (globalPos.x < 0 || globalPos.y < 0)
-                                    continue
-
-                                val block = world.getBlock(
-                                    Vector3i(
-                                        globalPos.x,
-                                        world.getHeight(globalPos, Chunk.height + 1),
-                                        globalPos.y
-                                    )
-                                ) ?: continue
-
-                                val color = Color(
-                                    (block.color.cTop.x * 255).toInt(),
-                                    (block.color.cTop.y * 255).toInt(),
-                                    (block.color.cTop.z * 255).toInt()
-                                )
-
-                                image.setRGB(globalPos.x, globalPos.y, color.rgb)
-                            }
-                    }
-
-                    val path =
-                        GamePaths.maps.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
-                    ImageIO.write(image, "png", path.toFile())
-
-                    log.info { "Map saved at '$path'" }
+            if (ImGui.collapsingHeader("World")) {
+                if (ImGui.button("Capture Map")) {
+//                    GlobalScope.launch {
+//                        val bounds = Vector2i()
+//                        world.chunkManager.chunks.forEach { (position, _) ->
+//                            bounds.set(
+//                                max(position.x + 1, bounds.x),
+//                                max(position.z + 1, bounds.y)
+//                            )
+//                        }
+//
+//                        val image =
+//                            BufferedImage(bounds.x * Chunk.size.x, bounds.y * Chunk.size.z, BufferedImage.TYPE_INT_RGB)
+//                        world.chunkManager.chunks.forEach { (posChunk, chunk) ->
+//                            for (x in 0 until Chunk.size.x)
+//                                for (y in 0 until Chunk.size.y)
+//                                    for (z in 0 until Chunk.size.z) {
+//                                        val globalPos = Vector3i(x, y, z).add(
+//                                            Vector3i(posChunk).mul(
+//                                                Chunk.size.x,
+//                                                Chunk.size.y,
+//                                                Chunk.size.z
+//                                            )
+//                                        )
+//
+//                                        if (globalPos.x < 0 || globalPos.y < 0)
+//                                            continue
+//
+//                                        val block = world.getBlock(
+//                                            Vector3i(
+//                                                globalPos.x,
+//                                                world.getHeight(Vector2i(globalPos.x, globalPos.y), Chunk.size.y + 1),
+//                                                globalPos.y
+//                                            )
+//                                        ) ?: continue
+//
+//                                        val color = Color(
+//                                            (block.color.cTop.x * 255).toInt(),
+//                                            (block.color.cTop.y * 255).toInt(),
+//                                            (block.color.cTop.z * 255).toInt()
+//                                        )
+//
+//                                        image.setRGB(globalPos.x, globalPos.y, color.rgb)
+//                                    }
+//                        }
+//
+//                        val path =
+//                            GamePaths.maps.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+//                        ImageIO.write(image, "png", path.toFile())
+//
+//                        log.info { "Map saved at '$path'" }
+//                    }
                 }
             }
 
-            if (ImGui.sliderFloat("World Time", worldTime, 0f, 1f))
-                world.worldTime = worldTime[0]
 
             if (ImGui.collapsingHeader("Time")) {
                 if (ImGui.sliderFloat("Scale", timeScale, 0f, 5f))
                     time.scale = timeScale[0]
             }
 
-            if (ImGui.collapsingHeader("OpenGL")) {
+            if (ImGui.collapsingHeader("OpenGL"))
                 if (ImGui.combo("glPolygonMode", comboPolyMode, arrayOf("GL_FILL", "GL_LINE", "GL_POINT")))
                     polygonMode = when (comboPolyMode.get()) {
                         0 -> GL_FILL
@@ -241,18 +234,11 @@ class PlayScene(val path: Path?) : Scene() {
                         else -> 0
                     }
 
-                if (ImGui.checkbox("glEnable(GL_CULL_FACE)", cullfaceEnabled))
-                    cullfaceEnabled = !cullfaceEnabled
-
-                ImGui.sameLine()
-
-                if (ImGui.combo("glCullFace", comboCullMode, arrayOf("GL_FRONT_AND_BACK", "GL_BACK", "GL_FRONT")))
-                    cullMode = when (comboCullMode.get()) {
-                        0 -> GL_FRONT_AND_BACK
-                        1 -> GL_BACK
-                        2 -> GL_FRONT
-                        else -> 0
-                    }
+            if (ImGui.checkbox("Fullscreen", fullscreen)) {
+                if (fullscreen.get())
+                    glfwSetWindowMonitor(Window.pointer, glfwGetPrimaryMonitor(), 0, 0, 3840, 2160, 120)
+                else
+                    glfwSetWindowMonitor(Window.pointer, 0, 100, 100, 1920, 1080, 120)
             }
 
             if (ImGui.radioButton("F3 Overlay", f3))

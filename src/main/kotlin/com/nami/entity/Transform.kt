@@ -31,11 +31,16 @@ class Transform(
     private fun update() {
         if (position != positionLast || rotation != rotationLast || scale != scaleLast) {
             modelMatrix.identity()
-                .scale(scale)
+//                .scale(scale)
+//                .rotateX(Math.toRadians(rotation.x.toDouble()).toFloat())
+//                .rotateY(Math.toRadians(rotation.y.toDouble()).toFloat())
+//                .rotateY(Math.toRadians(rotation.z.toDouble()).toFloat())
+//                .translate(position)
+                .translate(position)
                 .rotateX(Math.toRadians(rotation.x.toDouble()).toFloat())
                 .rotateY(Math.toRadians(rotation.y.toDouble()).toFloat())
                 .rotateY(Math.toRadians(rotation.z.toDouble()).toFloat())
-                .translate(position)
+                .scale(scale)
 
             normalMatrix.set(Matrix4f(modelMatrix).invert().transpose())
 

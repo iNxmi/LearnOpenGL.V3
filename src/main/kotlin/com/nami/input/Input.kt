@@ -11,9 +11,7 @@ class Input {
         private val keyStatesLast = mutableMapOf<Int, State>()
         private val mouseButtonStatesLast = mutableMapOf<Int, State>()
         private val posLast = Vector2f()
-        private val posDeltaLast = Vector2f()
         private val scrollLast = Vector2f()
-        private val scrollDeltaLast = Vector2f()
 
         @JvmStatic
         val keyStates = mutableMapOf<Int, State>()
@@ -87,22 +85,12 @@ class Input {
 
                 mouseButtonStatesLast[i] = mouseButtonStates[i]!!
             }
+        }
 
-            //Update Mouse Delta Pos
-            run {
-                if (posDelta == posDeltaLast)
-                    posDelta.zero()
-
-                posDeltaLast.set(posDelta)
-            }
-
-            //Update Scroll
-            run {
-                if (scrollDelta == scrollDeltaLast)
-                    scrollDelta.zero()
-
-                scrollDeltaLast.set(scrollDelta)
-            }
+        @JvmStatic
+        fun endFrame() {
+            posDelta.zero()
+            scrollDelta.zero()
         }
 
         @JvmStatic
