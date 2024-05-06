@@ -4,146 +4,137 @@ import com.nami.toIntArray
 import com.nami.world.block.Block
 import org.joml.Vector3i
 import org.lwjgl.opengl.GL33.*
-import org.lwjgl.system.MemoryStack
-import java.awt.Color
-import java.nio.FloatBuffer
-import java.nio.IntBuffer
+import org.lwjgl.system.MemoryUtil
 import kotlin.math.roundToInt
 
 
-class ChunkMesh(private val chunk: Chunk) {
+class ChunkMesh(private val chunk: Chunk, val blockType: Block.Type) {
 
-    var vao = glGenVertexArrays()
-    var vbo = glGenBuffers()
-    var ebo = glGenBuffers()
+    val world = chunk.world
+    val blockManager = world.blockManager
+    val chunkManager = world.chunkManager
+
+    var vao = 0
+        private set
+    var vbo = 0
+        private set
+    var ebo = 0
+        private set
     var indicesCount = 0
+        private set
 
     private fun face(
-        blocks: Map<Vector3i, Block>,
+        block: Block,
         position: Vector3i,
         offset: Vector3i
     ): Boolean {
-        val adjacentPosition = Vector3i(position).add(offset)
-        val adjacentBlock: Block? = if (
-            (0 until Chunk.SIZE.x).contains(adjacentPosition.x) &&
-            (0 until Chunk.SIZE.y).contains(adjacentPosition.y) &&
-            (0 until Chunk.SIZE.z).contains(adjacentPosition.z)
-        ) {
-            blocks[adjacentPosition]
-        } else {
-            val worldAdjacentPosition = Vector3i(position).add(Vector3i(chunk.position).mul(Chunk.SIZE).add(offset))
-            chunk.world.getBlock(worldAdjacentPosition)
-        }
+        if (chunkManager.getByBlockPosition(Vector3i(position).add(offset)) == null)
+            return false
 
-        if (adjacentBlock == null) return true
+        val adjacentBlock = blockManager.getBlock(Vector3i(position).add(offset)) ?: return true
 
-        val block = blocks[position]!!
-        if (block.template.type != adjacentBlock.template.type) return true
-
-        return false
+        return block.template.type != adjacentBlock.template.type
     }
 
-    private val generate = mutableMapOf<Vector3i, List<Face>>()
-    private val vertices = mutableListOf<Float>()
-    private val indices = mutableListOf<Int>()
-    fun update(blocks: Map<Vector3i, Block>) {
-        generate.clear()
-        for (x in 0 until Chunk.SIZE.x)
-            for (y in 0 until Chunk.SIZE.y)
-                for (z in 0 until Chunk.SIZE.z) {
+    fun update() {
+        val blocks = mutableMapOf<Vector3i, Block>()
+        for (z in (chunk.position.z * Chunk.SIZE.z) until ((chunk.position.z + 1) * Chunk.SIZE.z))
+            for (y in (chunk.position.y * Chunk.SIZE.y) until ((chunk.position.y + 1) * Chunk.SIZE.y))
+                for (x in (chunk.position.x * Chunk.SIZE.x) until ((chunk.position.x + 1) * Chunk.SIZE.x)) {
                     val position = Vector3i(x, y, z)
-                    if (!blocks.containsKey(position)) continue
 
-                    val faces = mutableListOf<Face>()
+                    val block = blockManager.getBlock(position) ?: continue
+                    if (block.template.type != blockType) continue
 
-                    if (face(blocks, position, Vector3i(-1, 0, 0)))
-                        faces.add(Face.LEFT)
-                    if (face(blocks, position, Vector3i(1, 0, 0)))
-                        faces.add(Face.RIGHT)
-
-                    if (face(blocks, position, Vector3i(0, 1, 0)))
-                        faces.add(Face.TOP)
-                    if (face(blocks, position, Vector3i(0, -1, 0)))
-                        faces.add(Face.BOTTOM)
-
-                    if (face(blocks, position, Vector3i(0, 0, -1)))
-                        faces.add(Face.FRONT)
-                    if (face(blocks, position, Vector3i(0, 0, 1)))
-                        faces.add(Face.BACK)
-
-                    generate[position] = faces
+                    blocks[position] = block
                 }
 
-        vertices.clear()
-        indices.clear()
-        generate.forEach { (chunkRelativeBlockPosition, faces) ->
-            faces.forEach { face ->
-                val color = when (face) {
-                    Face.TOP -> blocks[chunkRelativeBlockPosition]!!.color.cTop
-                    Face.BOTTOM -> blocks[chunkRelativeBlockPosition]!!.color.cBottom
-                    Face.LEFT -> blocks[chunkRelativeBlockPosition]!!.color.cLeft
-                    Face.RIGHT -> blocks[chunkRelativeBlockPosition]!!.color.cRight
-                    Face.FRONT -> blocks[chunkRelativeBlockPosition]!!.color.cFront
-                    Face.BACK -> blocks[chunkRelativeBlockPosition]!!.color.cBack
-                }
-                val normal = face.normal
+        val generate = mutableListOf<Pair<Vector3i, Face>>()
+        blocks.forEach { (position, block) ->
+            if (block == null)
+                return@forEach
 
-                for (i in 0 until Face.NUM_TRIANGLES) {
-                    val faceIndices = face.indices[i].toIntArray()
+            if (face(block, position, Vector3i(-1, 0, 0)))
+                generate.add(Pair(position, Face.LEFT))
+            if (face(block, position, Vector3i(1, 0, 0)))
+                generate.add(Pair(position, Face.RIGHT))
 
-                    for (j in 0 until 3) {
-                        indices.add(vertices.size / 2)
+            if (face(block, position, Vector3i(0, 1, 0)))
+                generate.add(Pair(position, Face.TOP))
+            if (face(block, position, Vector3i(0, -1, 0)))
+                generate.add(Pair(position, Face.BOTTOM))
 
-                        val pos = Vector3i(Face.positions[faceIndices[j]]).add(chunkRelativeBlockPosition)
+            if (face(block, position, Vector3i(0, 0, -1)))
+                generate.add(Pair(position, Face.FRONT))
+            if (face(block, position, Vector3i(0, 0, 1)))
+                generate.add(Pair(position, Face.BACK))
+        }
 
-                        var data = 0
-                        data += pos.x shl 0
-                        data += pos.y shl 5
-                        data += pos.z shl 10
-                        data += normal shl 15
-                        vertices.add(java.lang.Float.intBitsToFloat(data))
+        if (generate.size <= 0)
+            return
 
-                        val c = Color(
-                            (color.x * 255f).roundToInt(),
-                            (color.y * 255f).roundToInt(),
-                            (color.z * 255f).roundToInt(),
-                            (color.w * 255f).roundToInt()
-                        )
-                        vertices.add(java.lang.Float.intBitsToFloat(c.rgb))
-                    }
+        val vertices = MemoryUtil.memAllocFloat(generate.size * Face.NUM_TRIANGLES * 3)
+        val indices = MemoryUtil.memAllocInt(generate.size * Face.NUM_TRIANGLES * 3)
+        generate.withIndex().forEach { (i, pair) ->
+            val position = pair.first
+            val chunkBlockPosition = Vector3i(position).sub(Vector3i(chunk.position).mul(Chunk.SIZE))
+            val face = pair.second
+
+            val block = blocks[position]!!
+            val color = when (face) {
+                Face.TOP -> block.template.colorTop
+                Face.BOTTOM -> block.template.colorBottom
+                Face.LEFT -> block.template.colorLeft
+                Face.RIGHT -> block.template.colorRight
+                Face.FRONT -> block.template.colorFront
+                Face.BACK -> block.template.colorBack
+            }.id
+            val mutation = block.mutation
+            val normal = face.normal
+
+            for (j in 0 until Face.NUM_TRIANGLES) {
+                val faceIndices = face.indices[j].toIntArray()
+
+                for (k in 0 until 3) {
+                    val pos = Vector3i(Face.positions[faceIndices[k]]).add(chunkBlockPosition)
+
+                    var data = 0
+                    data += pos.x shl 0
+                    data += pos.y shl 6
+                    data += pos.z shl 12
+                    data += color shl 18
+                    data += (mutation * 15).roundToInt() shl 24
+                    data += normal shl 29
+                    vertices.put(java.lang.Float.intBitsToFloat(data))
+
+                    indices.put(i * 6 + j * 3 + k)
                 }
             }
         }
 
-        indicesCount = indices.size
+        vertices.flip()
+        indices.flip()
 
-        MemoryStack.stackPush().use { stack ->
-            val verticesBuffer = stack.callocFloat(vertices.size)
-            vertices.forEach { value -> verticesBuffer.put(value) }
+        chunkManager.sendToGPU(chunk.position
+        ) {
+            if (vao == 0) vao = glGenVertexArrays()
+            glBindVertexArray(vao)
 
-            val indicesBuffer = stack.callocInt(indices.size)
-            indices.forEach { value -> indicesBuffer.put(value) }
+            if (vbo == 0) vbo = glGenBuffers()
+            glBindBuffer(GL_ARRAY_BUFFER, vbo)
+            glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW)
 
-            updateBuffers(verticesBuffer, indicesBuffer)
+            glEnableVertexAttribArray(0)
+            glVertexAttribPointer(0, 1, GL_FLOAT, false, 1 * Float.SIZE_BYTES, 0L * Float.SIZE_BYTES)
+
+            if (ebo == 0) ebo = glGenBuffers()
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_DYNAMIC_DRAW)
+
+            glBindVertexArray(0)
+
+            indicesCount = indices.limit()
         }
-    }
-
-    private fun updateBuffers(data: FloatBuffer, indices: IntBuffer) {
-        glBindVertexArray(vao)
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo)
-        glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
-
-        glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 1, GL_FLOAT, false, 8, 0L * 4)
-
-        glEnableVertexAttribArray(1)
-        glVertexAttribPointer(1, 1, GL_FLOAT, false, 8, 1L * 4)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_DYNAMIC_DRAW)
-
-        glBindVertexArray(0)
     }
 
     enum class Face(val normal: Int, val indices: Array<Vector3i>) {

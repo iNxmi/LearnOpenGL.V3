@@ -13,15 +13,15 @@ class Uniform(private val shader: Shader) {
     private val uniforms = mutableMapOf<String, Int>()
 
     private fun location(name: String): Int {
-        if (!uniforms.containsKey(name)) {
-            val location = glGetUniformLocation(shader.pointer, name)
-            if (location == -1)
-                log.warn { "Uniform '$name' in shader '${shader.path}' could not be found" }
+        if (uniforms.containsKey(name))
+            return uniforms[name]!!
 
-            uniforms[name] = location
-        }
+        val location = glGetUniformLocation(shader.pointer, name)
+        if (location == -1)
+            log.warn { "Uniform '$name' in shader '${shader.path}' could not be found" }
 
-        return uniforms[name]!!
+        uniforms[name] = location
+        return location
     }
 
     fun set(name: String, value: Int): Uniform {

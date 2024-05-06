@@ -14,10 +14,13 @@ class GamePaths {
         private val resources: Path = root.resolve("src/main/resources")
 
         @JvmStatic
-        val fonts: Path = resources.resolve("fonts")
+        val shaders: Path = resources.resolve("shaders")
 
         @JvmStatic
-        val shaders: Path = resources.resolve("shaders")
+        val html: Path = resources.resolve("html")
+
+        @JvmStatic
+        val css: Path = resources.resolve("css")
 
         //Data
         private val data: Path = root.resolve("data")

@@ -40,14 +40,6 @@ class ImGUIManager {
             init = true
         }
 
-        private fun loadFont(name: String) {
-            val path = GamePaths.fonts.resolve("$name.ttf")
-
-            fonts[name] = ImGui.getIO().fonts.addFontFromFileTTF(path.pathString, 40f)
-
-            ImGui.getIO().fonts.build()
-        }
-
         @JvmStatic
         fun newFrame() {
             if (!init)

@@ -1,7 +1,7 @@
 package com.nami.world.biome
 
 import com.nami.world.biome.generator.*
-import com.nami.world.block.BlockTemplate
+import com.nami.world.block.Block
 import org.joml.Vector3f
 import org.joml.Vector3i
 
@@ -54,7 +54,7 @@ class Biome(val template: BiomeTemplate, val factors: Vector3f) {
                 "Mushroom",
                 67f..256f,
                 65f..100f,
-                25f..50f,
+                25f..35f,
                 MushroomBiomeGenerator()
             )
         )
@@ -86,7 +86,7 @@ class Biome(val template: BiomeTemplate, val factors: Vector3f) {
             BiomeTemplate(
                 "Desert",
                 67f..256f,
-                0f..25f,
+                0f..50f,
                 35f..50.0f,
                 DesertBiomeGenerator()
             )
@@ -104,7 +104,7 @@ class Biome(val template: BiomeTemplate, val factors: Vector3f) {
 
     }
 
-    fun generate(position: Vector3i): BlockTemplate? {
+    fun generate(position: Vector3i): Block.Template? {
         return template.generator.generate(factors, position)
     }
 

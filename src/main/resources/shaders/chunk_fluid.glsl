@@ -2,34 +2,29 @@
 #version 330 core
 
 layout (location = 0) in int a_data;
-layout (location = 1) in int a_data_color;
 
 vec3 a_position = vec3(
-    (a_data >> 0) & 31,
-    (a_data >> 5) & 31,
-    (a_data >> 10) & 31
+    (a_data >> 0) & 63,
+    (a_data >> 6) & 63,
+    (a_data >> 12) & 63
 );
 
-vec4 a_color = vec4(
-    (a_data_color >> 16) & 0xFF,
-    (a_data_color >> 8) & 0xFF,
-    (a_data_color >> 0) & 0xFF,
-    (a_data_color >> 24) & 0xFF
-) / vec4(255.0);
+float a_uv = ((a_data >> 18) & 63) / 14.0;
 
-vec3 NORMALS[6] = vec3[6](
+float mutation = ((a_data >> 24) & 31) / 15.0;
+
+int normal_index = (a_data >> 29) & 7;
+vec3 a_normal = vec3[6](
     vec3(0.0, 1.0, 0.0),
     vec3(0.0, -1.0, 0.0),
     vec3(-1.0, 0.0, 0.0),
     vec3(1.0, 0.0, 0.0),
     vec3(0.0, 0.0, 1.0),
     vec3(0.0, 0.0, -1.0)
-);
-
-int normal_index = (a_data >> 15) & 7;
-vec3 a_normal = NORMALS[normal_index];
+)[normal_index];
 
 uniform mat4 u_projection_matrix, u_view_matrix, u_model_matrix;
+uniform sampler1D u_color_atlas;
 
 out vec4 color;
 out vec3 normal;
@@ -37,7 +32,7 @@ out vec3 normal;
 out vec3 ws_position;
 
 void main() {
-    color = a_color;
+    color = vec4(texture(u_color_atlas, a_uv).rgb * mutation, texture(u_color_atlas, a_uv).a);
     normal = a_normal;
 
     ws_position = vec3(u_model_matrix * vec4(a_position, 1.0));
@@ -58,7 +53,7 @@ uniform vec3 u_light_direction;
 uniform vec3 u_camera_position;
 uniform float u_specular_exponent;
 
-uniform float u_gamma;
+uniform float u_time;
 
 out vec4 FragColor;
 
@@ -71,7 +66,7 @@ void main() {
     vec3 light_direction_reflected = reflect(-u_light_direction, normal);
     float specular = pow(max(dot(light_direction_reflected, camera_direction), 0.0), u_specular_exponent) * diffuse;
 
-    vec3 result = color.rgb * min(ambient + diffuse + specular, 1.0);
+    vec3 result = color.rgb * min(ambient + diffuse + specular, 1.0) * ((cos(u_time / 3.14 * 2 + (1.0 - color.r) * 13 + (1.0 - color.g) * 19 + (1.0 - color.b) * 31) * 0.5 + 0.5) * 0.5 + 0.5);
     FragColor = vec4(result, color.a);
 }
 //END_FS

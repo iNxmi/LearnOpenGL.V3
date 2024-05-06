@@ -1,19 +1,19 @@
 package com.nami.world
 
-import com.nami.world.block.BlockTemplate
+import com.nami.world.block.Block
 
 class Inventory {
 
-    val map = mutableMapOf<BlockTemplate, Int>()
+    val map = mutableMapOf<Block.Template, Int>()
 
-    fun add(block: BlockTemplate, count: Int) {
+    fun add(block: Block.Template, count: Int) {
         if (map[block] == null)
             map[block] = 0
 
         map[block] = map[block]!! + count
     }
 
-    fun remove(block: BlockTemplate, count: Int) {
+    fun remove(block: Block.Template, count: Int) {
         if (map[block] == null)
             map[block] = 0
 
@@ -21,7 +21,7 @@ class Inventory {
             map[block] = map[block]!! - count
     }
 
-    fun count(block: BlockTemplate): Int {
+    fun count(block: Block.Template): Int {
         if (map[block] == null)
             return 0
 

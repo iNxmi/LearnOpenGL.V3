@@ -28,6 +28,8 @@ class Player(val world: World) {
 
     val log = KotlinLogging.logger { }
 
+    val blockManager = world.blockManager
+
     val camera = Camera(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
 
     val transform = Transform()
@@ -47,7 +49,7 @@ class Player(val world: World) {
                     Vector3f(transform.position).add(0f, HEIGHT, 0f)
                         .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
                 val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
-                if (world.getBlock(blockPos) != null) {
+                if (blockManager.getBlock(blockPos) != null) {
                     val lastPos =
                         Vector3f(transform.position).add(0f, HEIGHT, 0f)
                             .add(Vector3f(camera.directionFront).mul((i - 1).toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
@@ -55,7 +57,7 @@ class Player(val world: World) {
 
                     val block = selectedBlock
                     inventory.remove(block, 1)
-                    world.setBlock(lastBlockPos, block)
+                    blockManager.setBlock(lastBlockPos, block)
                     break
                 }
             }
@@ -69,11 +71,11 @@ class Player(val world: World) {
                         .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
                 val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
 
-                val block = world.getBlock(blockPos) ?: continue
+                val block = blockManager.getBlock(blockPos) ?: continue
 
                 inventory.add(block.template, 1)
                 selectedBlock = block.template
-                world.setBlock(blockPos, null)
+                blockManager.setBlock(blockPos, null)
                 break
             }
         }
@@ -118,7 +120,7 @@ class Player(val world: World) {
                 acceleration.add(0f, 5f, 0f)
 
         val height =
-            world.getHeight(
+            blockManager.getHeight(
                 Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
                 transform.position.y.toInt() + HEIGHT.toInt()
             ).toFloat()

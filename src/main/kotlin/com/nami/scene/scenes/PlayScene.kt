@@ -35,7 +35,7 @@ class PlayScene(val path: Path?) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
-    private val world = World(System.currentTimeMillis())
+    private val world = World(0)
 
     private var polygonMode = GL_FILL
 
@@ -107,8 +107,9 @@ class PlayScene(val path: Path?) : Scene() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
+//        glEnable(GL_FRAMEBUFFER_SRGB)
 
-        world.render()
+        world.render(time)
     }
 
     private val comboPolyMode = ImInt()
@@ -127,18 +128,17 @@ class PlayScene(val path: Path?) : Scene() {
             ImGui.begin("HUD", ImBoolean(), ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
-            val biome = world.getBiome(
-                Vector3i(
-                    world.player.transform.position.x.toInt(),
-                    world.player.transform.position.y.toInt(),
-                    world.player.transform.position.z.toInt()
-                )
-            )
+//            val biome = world.getBiome(
+//                Vector3i(
+//                    world.player.transform.position.x.toInt(),
+//                    world.player.transform.position.y.toInt(),
+//                    world.player.transform.position.z.toInt()
+//                )
+//            )
             ImGui.text("seed=${world.seed}")
-            ImGui.text("biome=${biome?.template?.name} factors=${biome?.factors}")
+//            ImGui.text("biome=${biome?.template?.name} factors=${biome?.factors}")
             ImGui.text("position=${world.player.transform.position}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
-            ImGui.text("draw_calls=${world.drawCalls}")
 
             ImGui.end()
         }

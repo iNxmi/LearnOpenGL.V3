@@ -1,65 +1,212 @@
 package com.nami.world.block
 
-import org.joml.Vector4f
+import de.articdive.jnoise.core.api.functions.Interpolation
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction
+import de.articdive.jnoise.pipeline.JNoise
+import org.joml.Vector3i
+import kotlin.math.roundToInt
 
-class Block(val template: BlockTemplate, val color: BlockColor) {
+class Block(val template: Template, val mutation: Float) {
 
     companion object {
-        val INVALID = BlockTemplate("Invalid", BlockColorSingle(Vector4f(1f, 0f, 1f, 1f)), (0.5f..1.0f), Type.SOLID)
+        val INVALID = Template(
+            "Invalid",
+            BlockColor.INVALID,
+            BlockColor.INVALID,
+            BlockColor.INVALID,
+            BlockColor.INVALID,
+            BlockColor.INVALID,
+            BlockColor.INVALID,
+            Type.SOLID
+        )
 
         val BEDROCK =
-            BlockTemplate("Bedrock", BlockColorSingle(Vector4f(0.25f, 0.25f, 0.25f, 1f)), (0.5f..0.75f), Type.SOLID)
-
-        val WATER =
-            BlockTemplate(
-                "Water",
-                BlockColorSingle(Vector4f(66f / 255f, 111f / 255f, 245f / 255f, 0.5f).mul(0.5f, 0.5f, 0.5f, 1.0f)),
-                (0.5f..0.75f), Type.FLUID
-            )
-        val SAND = BlockTemplate("Sand", BlockColorSingle(Vector4f(0.5f, 0.5f, 0f, 1f)), (0.5f..1.0f), Type.SOLID)
-        val STONE = BlockTemplate(
-            "Stone",
-            BlockColorSingle(Vector4f(0.5f, 0.5f, 0.5f, 1f).mul(0.75f, 0.75f, 0.75f, 1.0f)),
-            (0.5f..1.0f), Type.SOLID
-        )
-        val DIRT =
-            BlockTemplate(
-                "Dirt",
-                BlockColorSingle(Vector4f(196f / 255f, 164f / 255f, 132f / 255f, 1f).mul(0.25f, 0.25f, 0.25f, 1.0f)),
-                (0.5f..1.0f), Type.SOLID
-            )
-        val GRASS = BlockTemplate(
-            "Grass",
-            BlockColorTop(
-                Vector4f(0f, 0.6f, 0f, 1f).mul(0.5f, 0.5f, 0.5f, 1.0f),
-                Vector4f(196f / 255f, 164f / 255f, 132f / 255f, 1f).mul(0.25f, 0.25f, 0.25f, 1.0f)
-            ),
-            (0.5f..1.0f), Type.SOLID
-        )
-
-        val MUSHROOM_STEM = BlockTemplate("Mushroom Stem", BlockColorSingle(Vector4f(200f/255f, 173f/255f, 127f/255f, 1f)), (0.75f..1.0f), Type.SOLID)
-        val MUSHROOM_BLOCK_RED = BlockTemplate("Red Mushroom Block", BlockColorSingle(Vector4f(1f, 0f, 0f, 1f)), (0.75f..1.0f), Type.SOLID)
-        val MYCELIUM = BlockTemplate("Mycelium", BlockColorSingle(Vector4f(0.5f, 0.5f, 0.5f, 1f)), (0.5f..1.0f), Type.SOLID)
-
-        val SNOW = BlockTemplate("Snow", BlockColorSingle(Vector4f(0.85f, 0.85f, 0.85f, 1f)), (0.8f..1.0f), Type.SOLID)
-
-        val LOG =
-            BlockTemplate(
-                "Log",
-                BlockColorSingle(Vector4f(71 / 255f, 54 / 255f, 21 / 255f, 1f)),
-                (0.6f..1.0f),
+            Template(
+                "Bedrock",
+                BlockColor.INVALID,
+                BlockColor.BEDROCK,
+                BlockColor.BEDROCK,
+                BlockColor.BEDROCK,
+                BlockColor.BEDROCK,
+                BlockColor.BEDROCK,
                 Type.SOLID
             )
-        val LEAVES = BlockTemplate("Leaves", BlockColorSingle(Vector4f(0f, 0.5f, 0f, 0.9f)), (0.6f..1.0f), Type.FOLIAGE)
-        val LEAVES_SNOW = BlockTemplate("Snowy Leaves", BlockColorSingle(Vector4f(0.85f, 0.85f, 0.85f, 1f)), (0.8f..1.0f), Type.FOLIAGE)
 
-        val CACTUS = BlockTemplate("Cactus", BlockColorSingle(Vector4f(0f, 0.25f, 0f, 1f)), (0.6f..1.0f), Type.SOLID)
+        val WATER =
+            Template(
+                "Water",
+                BlockColor.WATER,
+                BlockColor.WATER,
+                BlockColor.WATER,
+                BlockColor.WATER,
+                BlockColor.WATER,
+                BlockColor.WATER,
+                Type.FLUID
+            )
+
+        val SAND = Template(
+            "Sand",
+            BlockColor.SAND,
+            BlockColor.SAND,
+            BlockColor.SAND,
+            BlockColor.SAND,
+            BlockColor.SAND,
+            BlockColor.SAND,
+            Type.SOLID
+        )
+        val STONE = Template(
+            "Stone",
+            BlockColor.STONE,
+            BlockColor.STONE,
+            BlockColor.STONE,
+            BlockColor.STONE,
+            BlockColor.STONE,
+            BlockColor.STONE,
+            Type.SOLID
+        )
+
+        val DIRT =
+            Template(
+                "Dirt",
+                BlockColor.DIRT,
+                BlockColor.DIRT,
+                BlockColor.DIRT,
+                BlockColor.DIRT,
+                BlockColor.DIRT,
+                BlockColor.DIRT,
+                Type.SOLID
+            )
+
+        val GRASS = Template(
+            "Grass",
+            BlockColor.GRASS,
+            BlockColor.DIRT,
+            BlockColor.DIRT,
+            BlockColor.DIRT,
+            BlockColor.DIRT,
+            BlockColor.DIRT,
+            Type.SOLID
+        )
+
+        val MUSHROOM_STEM = Template(
+            "Mushroom Stem",
+            BlockColor.MUSHROOM_STEM,
+            BlockColor.MUSHROOM_STEM,
+            BlockColor.MUSHROOM_STEM,
+            BlockColor.MUSHROOM_STEM,
+            BlockColor.MUSHROOM_STEM,
+            BlockColor.MUSHROOM_STEM,
+            Type.SOLID
+        )
+        val MUSHROOM_BLOCK_RED = Template(
+            "Red Mushroom Block",
+            BlockColor.MUSHROOM_BLOCK_RED,
+            BlockColor.MUSHROOM_BLOCK_RED,
+            BlockColor.MUSHROOM_BLOCK_RED,
+            BlockColor.MUSHROOM_BLOCK_RED,
+            BlockColor.MUSHROOM_BLOCK_RED,
+            BlockColor.MUSHROOM_BLOCK_RED,
+            Type.SOLID
+        )
+        val MYCELIUM =
+            Template(
+                "Mycelium",
+                BlockColor.MYCELIUM,
+                BlockColor.MYCELIUM,
+                BlockColor.MYCELIUM,
+                BlockColor.MYCELIUM,
+                BlockColor.MYCELIUM,
+                BlockColor.MYCELIUM,
+                Type.SOLID
+            )
+
+        val SNOW = Template(
+            "Snow",
+            BlockColor.SNOW,
+            BlockColor.SNOW,
+            BlockColor.SNOW,
+            BlockColor.SNOW,
+            BlockColor.SNOW,
+            BlockColor.SNOW,
+            Type.SOLID
+        )
+
+        val LOG =
+            Template(
+                "Log",
+                BlockColor.LOG,
+                BlockColor.LOG,
+                BlockColor.LOG,
+                BlockColor.LOG,
+                BlockColor.LOG,
+                BlockColor.LOG,
+                Type.SOLID
+            )
+        val LEAVES =
+            Template(
+                "Leaves",
+                BlockColor.LEAVES,
+                BlockColor.LEAVES,
+                BlockColor.LEAVES,
+                BlockColor.LEAVES,
+                BlockColor.LEAVES,
+                BlockColor.LEAVES,
+                Type.FOLIAGE
+            )
+        val LEAVES_SNOW = Template(
+            "Snowy Leaves",
+            BlockColor.LEAVES_SNOW,
+            BlockColor.LEAVES_SNOW,
+            BlockColor.LEAVES_SNOW,
+            BlockColor.LEAVES_SNOW,
+            BlockColor.LEAVES_SNOW,
+            BlockColor.LEAVES_SNOW,
+            Type.FOLIAGE
+        )
+
+        val CACTUS = Template(
+            "Cactus",
+            BlockColor.CACTUS,
+            BlockColor.CACTUS,
+            BlockColor.CACTUS,
+            BlockColor.CACTUS,
+            BlockColor.CACTUS,
+            BlockColor.CACTUS,
+            Type.SOLID
+        )
     }
 
     enum class Type {
         SOLID,
         FOLIAGE,
         FLUID
+    }
+
+    class Template(
+        val name: String,
+        val colorTop: BlockColor,
+        val colorBottom: BlockColor,
+        val colorLeft: BlockColor,
+        val colorRight: BlockColor,
+        val colorFront: BlockColor,
+        val colorBack: BlockColor,
+        val type: Type
+    ) {
+
+        val noise = JNoise.newBuilder()
+            .value(1, Interpolation.CUBIC, FadeFunction.NONE)
+            .scale(512.0)
+            .addModifier { v -> ((v + 1) / 2.0) * 0.35 + 0.65 }
+            .clamp(0.0, 1.0)
+            .build()
+
+        fun create(position: Vector3i): Block {
+            return Block(
+                this,
+                noise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble()).toFloat()
+            )
+        }
+
     }
 
 }
