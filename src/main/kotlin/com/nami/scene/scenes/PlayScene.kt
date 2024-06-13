@@ -1,12 +1,12 @@
 package com.nami.scene.scenes
 
 import com.nami.Game
-import com.nami.constants.GamePaths
 import com.nami.Window
 import com.nami.input.Input
+import com.nami.resources.GamePath
+import com.nami.resources.item.Items
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
-import com.nami.world.chunk.Chunk
 import com.nami.world.World
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
@@ -15,27 +15,22 @@ import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.joml.Vector2i
 import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
-import java.awt.Color
 import java.awt.image.BufferedImage
-import java.nio.file.Path
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.math.max
 
 
-class PlayScene(val path: Path?) : Scene() {
+class PlayScene(seed: Long) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
-    private val world = World(0)
+    private val world = World(seed)
 
     private var polygonMode = GL_FILL
 
@@ -44,10 +39,10 @@ class PlayScene(val path: Path?) : Scene() {
     private var f3 = true
 
     override fun onInit() {
-        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_CAPTURED)
-
-        if (glfwRawMouseMotionSupported())
-            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
+        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+//
+//        if (glfwRawMouseMotionSupported())
+//            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
     override fun onUpdate() {
@@ -93,7 +88,7 @@ class PlayScene(val path: Path?) : Scene() {
                 image.setRGB(0, 0, width, height, flipped, 0, width)
 
                 val path =
-                    GamePaths.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+                    GamePath.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
                 ImageIO.write(image, "png", path.toFile())
 
                 log.info { "Screenshot saved at '$path'" }
@@ -107,7 +102,6 @@ class PlayScene(val path: Path?) : Scene() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
-//        glEnable(GL_FRAMEBUFFER_SRGB)
 
         world.render(time)
     }
@@ -115,6 +109,7 @@ class PlayScene(val path: Path?) : Scene() {
     private val comboPolyMode = ImInt()
     private val timeScale = floatArrayOf(1.0f)
     private val fullscreen = ImBoolean(false)
+    private val selectedItem = ImInt(0)
 
     override fun onRenderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -128,15 +123,15 @@ class PlayScene(val path: Path?) : Scene() {
             ImGui.begin("HUD", ImBoolean(), ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
-//            val biome = world.getBiome(
-//                Vector3i(
-//                    world.player.transform.position.x.toInt(),
-//                    world.player.transform.position.y.toInt(),
-//                    world.player.transform.position.z.toInt()
-//                )
-//            )
             ImGui.text("seed=${world.seed}")
-//            ImGui.text("biome=${biome?.template?.name} factors=${biome?.factors}")
+            val biome = world.biomeManager.getBiome(
+                Vector3i(
+                    world.player.transform.position.x.toInt(),
+                    world.player.transform.position.y.toInt(),
+                    world.player.transform.position.z.toInt()
+                )
+            )
+            ImGui.text("biome=${biome?.template?.id} factors=${biome?.factors}")
             ImGui.text("position=${world.player.transform.position}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
 
@@ -151,7 +146,11 @@ class PlayScene(val path: Path?) : Scene() {
             ImGui.getFont().scale = 4f
             ImGui.begin("Inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-            world.player.inventory.map.forEach { (block, count) -> ImGui.text("${block.name}: $count") }
+            val items =
+                world.player.inventory.map.entries.stream().map { (k, v) -> "${k.id}: $v" }.toList().toTypedArray()
+
+            ImGui.listBox("Items", selectedItem, items)
+            world.player.selectedItem = world.player.inventory.map.keys.toList()[selectedItem.get()]
 
             ImGui.end()
         }

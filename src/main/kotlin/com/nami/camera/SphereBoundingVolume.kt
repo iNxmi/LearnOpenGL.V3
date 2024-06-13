@@ -1,10 +1,7 @@
 package com.nami.camera
 
 import com.nami.entity.Transform
-import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.joml.Vector4f
-import kotlin.math.max
 
 class SphereBoundingVolume(val position: Vector3f, val radius: Float) : BoundingVolume {
 
@@ -25,7 +22,7 @@ class SphereBoundingVolume(val position: Vector3f, val radius: Float) : Bounding
 //                globalSphere.isOnOrForwardPlane(frustum.planeNear) &&
 //                globalSphere.isOnOrForwardPlane(frustum.planeTop) &&
 //                globalSphere.isOnOrForwardPlane(frustum.planeBottom))
-    TODO()
+        TODO()
     }
 
 

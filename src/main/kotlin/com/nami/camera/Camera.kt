@@ -19,7 +19,8 @@ class Camera(var fov: Float, var aspect: Float, var near: Float, var far: Float)
     private val view: Matrix4f = Matrix4f()
     fun view(): Matrix4f {
         directionRight.set(directionFront).cross(Directions.UP)
-        return view.identity().lookAt(transform.position, Vector3f(transform.position).add(directionFront), Directions.UP)
+        return view.identity()
+            .lookAt(transform.position, Vector3f(transform.position).add(directionFront), Directions.UP)
     }
 
     fun frustum(): Frustum {

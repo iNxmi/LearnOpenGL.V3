@@ -11,15 +11,19 @@ data class Frustum(val camera: Camera) {
     val frontMulFar = Vector3f(camera.directionFront).mul(camera.far)
 
     val planeNear =
-        Plane(Vector3f(camera.transform.position)
+        Plane(
+            Vector3f(camera.transform.position)
                 .add(Vector3f(camera.directionFront).mul(camera.near)),
-            Vector3f(camera.directionFront))
+            Vector3f(camera.directionFront)
+        )
 
     val planeFar =
-        Plane(Vector3f(camera.transform.position)
+        Plane(
+            Vector3f(camera.transform.position)
                 .add(frontMulFar),
             Vector3f(camera.directionFront)
-                .mul(-1f))
+                .mul(-1f)
+        )
 
     val planeRight = Plane(
         Vector3f(camera.transform.position),

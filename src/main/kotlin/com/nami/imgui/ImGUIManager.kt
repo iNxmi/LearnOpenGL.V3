@@ -1,15 +1,12 @@
 package com.nami.imgui
 
-import com.nami.constants.GamePaths
 import com.nami.Window
 import imgui.ImFont
-import imgui.ImFontConfig
 import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import imgui.internal.ImGuiContext
 import mu.KotlinLogging
-import kotlin.io.path.pathString
 
 class ImGUIManager {
 

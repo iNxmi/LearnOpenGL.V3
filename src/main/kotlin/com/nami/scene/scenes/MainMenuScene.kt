@@ -1,13 +1,10 @@
 package com.nami.scene.scenes
 
 import com.nami.Window
-import com.nami.constants.GamePaths
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
-import khttp.responses.Response
-import org.json.JSONObject
 import org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose
 
 class MainMenuScene : Scene() {
@@ -32,7 +29,7 @@ class MainMenuScene : Scene() {
         ImGui.begin("Main Menu", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
         if (ImGui.button("Play"))
-            SceneManager.selected = WorldSelectScene()
+            SceneManager.selected = SelectWorldScene()
 
         if (ImGui.button("Quit"))
             glfwSetWindowShouldClose(Window.pointer, true)

@@ -5,9 +5,9 @@ import org.joml.Matrix4f
 import org.joml.Vector3f
 
 class Transform(
-    val position: Vector3f = Vector3f(),
-    val rotation: Vector3f = Vector3f(),
-    val scale: Vector3f = Vector3f(1f)
+    var position: Vector3f = Vector3f(),
+    var rotation: Vector3f = Vector3f(),
+    var scale: Vector3f = Vector3f(1f)
 ) {
 
     //Rotation in Deg

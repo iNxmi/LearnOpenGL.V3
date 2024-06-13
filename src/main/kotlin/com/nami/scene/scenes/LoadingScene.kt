@@ -5,7 +5,6 @@ import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
-import mu.KotlinLogging
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11.glClearColor
 import kotlin.math.sin

@@ -6,8 +6,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.joml.Vector3f
 import org.joml.Vector3i
-import org.lwjgl.glfw.GLFW.glfwGetTime
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class ChunkManager(val world: World) {
@@ -88,20 +86,14 @@ class ChunkManager(val world: World) {
             val position = pair.first
             generationQueue.remove(position)
 
-            println("${generationQueue.size} $pair")
-
             jobs[i] = GlobalScope.launch {
                 val chunk = Chunk(world, Vector3i(pair.first))
                 chunks[pair.first] = chunk
 
-                getByChunkPosition(Vector3i(pair.first).add(-1, 0, 0))?.updateMesh()
-                getByChunkPosition(Vector3i(pair.first).add(1, 0, 0))?.updateMesh()
-
-                getByChunkPosition(Vector3i(pair.first).add(0, -1, 0))?.updateMesh()
-                getByChunkPosition(Vector3i(pair.first).add(0, 1, 0))?.updateMesh()
-
-                getByChunkPosition(Vector3i(pair.first).add(0, 0, -1))?.updateMesh()
-                getByChunkPosition(Vector3i(pair.first).add(0, 0, 1))?.updateMesh()
+                for (z in -1..1)
+                    for (y in -1..1)
+                        for (x in -1..1)
+                            getByChunkPosition(Vector3i(pair.first).add(x, y, z))?.updateMesh()
             }
         }
     }

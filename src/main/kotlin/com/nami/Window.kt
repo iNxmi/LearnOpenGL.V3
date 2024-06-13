@@ -16,6 +16,7 @@ class Window {
 
         @JvmStatic
         var width: Int = 0
+
         @JvmStatic
         var height: Int = 0
 

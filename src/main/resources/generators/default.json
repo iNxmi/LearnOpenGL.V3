@@ -1,0 +1,41 @@
+{
+  "elevation": {
+    "algorithm": "fast_simples",
+
+    "octaves": 6,
+    "gain": 0.5,
+    "lacunarity": 2.5,
+    "function": "fbm",
+
+    "scale": 0.00048828125,
+
+    "min": 0,
+    "max": 256
+  },
+  "moisture": {
+    "algorithm": "fast_simplex",
+
+    "octaves": 6,
+    "gain": 0.5,
+    "lacunarity": 3,
+    "function": "fbm",
+
+    "scale": 0.00048828125,
+
+    "min": 0,
+    "max": 100
+  },
+  "temperature": {
+    "algorithm": "fast_simplex",
+
+    "octaves": 6,
+    "gain": 0.5,
+    "lacunarity": 3.5,
+    "function": "fbm",
+
+    "scale": 0.00048828125,
+
+    "min": -25,
+    "max": 50
+  }
+}
