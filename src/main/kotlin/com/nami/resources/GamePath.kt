@@ -1,9 +1,9 @@
-package com.nami.constants
+package com.nami.resources
 
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class GamePaths {
+class GamePath {
 
     companion object {
 
@@ -17,10 +17,16 @@ class GamePaths {
         val shaders: Path = resources.resolve("shaders")
 
         @JvmStatic
-        val html: Path = resources.resolve("html")
+        val textures: Path = resources.resolve("textures")
 
         @JvmStatic
-        val css: Path = resources.resolve("css")
+        val blocks: Path = resources.resolve("blocks")
+
+        @JvmStatic
+        val biomes: Path = resources.resolve("biomes")
+
+        @JvmStatic
+        val items: Path = resources.resolve("items")
 
         //Data
         private val data: Path = root.resolve("data")
