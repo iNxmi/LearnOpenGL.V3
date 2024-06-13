@@ -1,0 +1,20 @@
+{
+  "id": "sand",
+  "textures": {
+    "top": "blocks.sand",
+    "bottom": "blocks.sand",
+
+    "north": "blocks.sand",
+    "east": "blocks.sand",
+
+    "west": "blocks.sand",
+    "south": "blocks.sand"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "sand"
+    }
+  ]
+}

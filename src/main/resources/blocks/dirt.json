@@ -1,0 +1,20 @@
+{
+  "id": "dirt",
+  "textures": {
+    "top": "blocks.dirt",
+    "bottom": "blocks.dirt",
+
+    "north": "blocks.dirt",
+    "east": "blocks.dirt",
+
+    "west": "blocks.dirt",
+    "south": "blocks.dirt"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "dirt"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "tnt",
+  "textures": {
+    "top": "blocks.tnt_top",
+    "bottom": "blocks.tnt_bottom",
+    "north": "blocks.tnt_side",
+    "east": "blocks.tnt_side",
+    "west": "blocks.tnt_side",
+    "south": "blocks.tnt_side"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "tnt"
+    }
+  ]
+}

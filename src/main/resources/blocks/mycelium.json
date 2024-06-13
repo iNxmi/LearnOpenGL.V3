@@ -1,0 +1,20 @@
+{
+  "id": "mycelium",
+  "textures": {
+    "top": "blocks.mycelium_top",
+    "bottom": "blocks.dirt",
+
+    "north": "blocks.mycelium_side",
+    "east": "blocks.mycelium_side",
+
+    "west": "blocks.mycelium_side",
+    "south": "blocks.mycelium_side"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "dirt"
+    }
+  ]
+}

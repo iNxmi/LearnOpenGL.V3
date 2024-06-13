@@ -1,0 +1,21 @@
+{
+  "id": "mushroom_stem",
+  "textures": {
+    "top": "blocks.mushroom_stem",
+    "bottom": "blocks.mushroom_stem",
+
+    "north": "blocks.mushroom_stem",
+    "east": "blocks.mushroom_stem",
+
+    "west": "blocks.mushroom_stem",
+    "south": "blocks.mushroom_stem"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "mushroom",
+      "rate": 0.25
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "invalid",
+  "textures": {
+    "top": "blocks.invalid",
+    "bottom": "blocks.invalid",
+
+    "north": "blocks.invalid",
+    "east": "blocks.invalid",
+
+    "west": "blocks.invalid",
+    "south": "blocks.invalid"
+  },
+  "layer": "solid",
+  "resistance": 1.0
+}

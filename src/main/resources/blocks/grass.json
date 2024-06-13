@@ -1,0 +1,20 @@
+{
+  "id": "grass",
+  "textures": {
+    "top": "blocks.grass_top",
+    "bottom": "blocks.dirt",
+
+    "north": "blocks.grass_side",
+    "east": "blocks.grass_side",
+
+    "west": "blocks.grass_side",
+    "south": "blocks.grass_side"
+  },
+  "layer": "solid",
+  "resistance": 0.0,
+  "drops": [
+    {
+      "item": "dirt"
+    }
+  ]
+}
