@@ -1,12 +1,12 @@
-package com.nami.resource
+package com.nami.resources.shader
 
-import com.nami.constants.GamePaths
-import com.nami.shader.Shader
+import com.nami.resources.GamePath
+import com.nami.resources.Resource
 import org.lwjgl.opengl.GL33.*
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ShaderResource : Resource<Shader>(GamePaths.shaders, "glsl") {
+class ResourceShader : Resource<Shader>(GamePath.shaders, arrayOf("glsl")) {
 
     override fun onLoad(path: Path): Shader {
         val source = Files.readString(path)
@@ -26,6 +26,10 @@ class ShaderResource : Resource<Shader>(GamePaths.shaders, "glsl") {
             throw RuntimeException("Linkage of shader '$path' failed. ${glGetProgramInfoLog(pointer)}")
 
         return Shader(pointer, path)
+    }
+
+    override fun onLoadCompleted() {
+
     }
 
     private fun loadSubShader(path: Path, source: String, type: Shader.Type): Int {

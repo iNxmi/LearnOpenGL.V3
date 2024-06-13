@@ -1,10 +1,11 @@
-package com.nami.shader
+package com.nami.resources.shader
 
 import mu.KotlinLogging
-import org.joml.*
-import org.lwjgl.BufferUtils
+import org.joml.Matrix3f
+import org.joml.Matrix4f
+import org.joml.Vector2f
+import org.joml.Vector3f
 import org.lwjgl.opengl.GL33.*
-import org.lwjgl.opengl.GL40.glUniformMatrix4dv
 import org.lwjgl.system.MemoryStack
 
 class Uniform(private val shader: Shader) {

@@ -1,4 +1,4 @@
-package com.nami.shader
+package com.nami.resources.shader
 
 import org.lwjgl.opengl.GL33.*
 import java.nio.file.Path
