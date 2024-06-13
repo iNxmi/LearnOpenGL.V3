@@ -1,0 +1,15 @@
+{
+  "id": "mushroom_forest",
+  "elevation": {
+    "min": 67,
+    "max": 256
+  },
+  "moisture": {
+    "min": 50,
+    "max": 100
+  },
+  "temperature": {
+    "min": 20,
+    "max": 40
+  }
+}
