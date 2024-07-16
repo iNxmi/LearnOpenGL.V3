@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "top": "block.tnt_top",
+    "bottom": "block.tnt_bottom",
+    "north": "block.tnt_side",
+    "east": "block.tnt_side",
+    "west": "block.tnt_side",
+    "south": "block.tnt_side"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.1
+  },
+  "drops": [
+    {
+      "item": "block.tnt"
+    }
+  ]
+}

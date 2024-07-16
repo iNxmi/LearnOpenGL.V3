@@ -1,0 +1,20 @@
+{
+  "textures": {
+    "top": "block.mushroom_red",
+    "bottom": "block.mushroom_red",
+    "north": "block.mushroom_red",
+    "east": "block.mushroom_red",
+    "west": "block.mushroom_red",
+    "south": "block.mushroom_red"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.0
+  },
+  "drops": [
+    {
+      "item": "mushroom",
+      "rate": 0.25
+    }
+  ]
+}

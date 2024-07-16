@@ -1,0 +1,12 @@
+{
+  "item": "block.oak_planks",
+  "variants": [
+    {
+      "amount": 4,
+      "duration": 1.0,
+      "ingredients": {
+        "block.oak_log": 1
+      }
+    }
+  ]
+}

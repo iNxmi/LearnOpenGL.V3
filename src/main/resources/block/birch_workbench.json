@@ -1,0 +1,23 @@
+{
+  "textures": {
+    "top": "block.birch_workbench_top",
+    "bottom": "block.birch_planks",
+    "north": "block.birch_workbench_front",
+    "east": "block.birch_workbench_side",
+    "west": "block.birch_workbench_side",
+    "south": "block.birch_workbench_side"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.0,
+    "tag.axe": 0.0
+  },
+  "tags": [
+    "workstation"
+  ],
+  "drops": [
+    {
+      "item": "block.birch_workbench"
+    }
+  ]
+}

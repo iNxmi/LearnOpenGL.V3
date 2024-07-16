@@ -1,0 +1,24 @@
+{
+  "elevation": {
+    "min": 67,
+    "max": 256
+  },
+  "moisture": {
+    "min": 0,
+    "max": 50
+  },
+  "temperature": {
+    "min": 25,
+    "max": 50
+  },
+  "features": [
+    {
+      "feature": "cactus",
+      "base": [
+        "sand"
+      ],
+      "scale": 1024.0,
+      "radius": 10
+    }
+  ]
+}

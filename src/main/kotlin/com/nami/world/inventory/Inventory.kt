@@ -5,11 +5,13 @@ import org.joml.Vector2i
 
 class Inventory(val size: Vector2i) {
 
-    val map = mutableMapOf<Item, Int>()
+    val map = mutableMapOf<Item.Instance, Int>()
+    var weight = 0f
 
-    fun add(item: Item, count: Int): Int {
+    fun add(item: Item.Instance, count: Int): Int {
         if (count <= 0) return get(item)
 
+        weight += item.template.weight * count
         val newCount = count + get(item)
 
         if (map.containsKey(item))
@@ -21,9 +23,10 @@ class Inventory(val size: Vector2i) {
         return newCount
     }
 
-    fun remove(item: Item, count: Int): Int {
+    fun remove(item: Item.Instance, count: Int): Int {
         if (count <= 0) return get(item)
 
+        weight -= item.template.weight * count
         val newCount = get(item) - count
 
         if (newCount <= 0) {
@@ -40,7 +43,7 @@ class Inventory(val size: Vector2i) {
         return newCount
     }
 
-    fun get(item: Item): Int {
+    fun get(item: Item.Instance): Int {
         return map.getOrDefault(item, 0)
     }
 

@@ -1,0 +1,12 @@
+{
+  "item": "snowball",
+  "variants": [
+    {
+      "duration": 1.0,
+      "amount": 16,
+      "ingredients": {
+        "block.snow": 1
+      }
+    }
+  ]
+}

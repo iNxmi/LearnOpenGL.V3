@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "top": "block.birch_log_top",
+    "bottom": "block.birch_log_top",
+    "north": "block.birch_log_side",
+    "east": "block.birch_log_side",
+    "west": "block.birch_log_side",
+    "south": "block.birch_log_side"
+  },
+  "layer": "solid",
+  "resistance": {
+    "tag.axe": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.birch_log"
+    }
+  ]
+}

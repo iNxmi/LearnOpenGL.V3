@@ -1,0 +1,23 @@
+{
+  "item": "block.furnace",
+  "variants": [
+    {
+      "workstations": [
+        "oak_workbench"
+      ],
+      "duration": 5.0,
+      "ingredients": {
+        "block.cobblestone": 80
+      }
+    },
+    {
+      "workstations": [
+        "furnace"
+      ],
+      "duration": 5.0,
+      "ingredients": {
+        "block.cobblestone": 50
+      }
+    }
+  ]
+}

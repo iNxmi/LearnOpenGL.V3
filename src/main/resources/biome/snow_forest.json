@@ -1,0 +1,14 @@
+{
+  "elevation": {
+    "min": 67,
+    "max": 256
+  },
+  "moisture": {
+    "min": 0,
+    "max": 100
+  },
+  "temperature": {
+    "min": -25,
+    "max": 0
+  }
+}

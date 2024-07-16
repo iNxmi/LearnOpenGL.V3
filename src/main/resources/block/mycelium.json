@@ -1,0 +1,20 @@
+{
+  "textures": {
+    "top": "block.mycelium_top",
+    "bottom": "block.dirt",
+    "north": "block.mycelium_side",
+    "east": "block.mycelium_side",
+    "west": "block.mycelium_side",
+    "south": "block.mycelium_side"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.7,
+    "tag.shovel": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.dirt"
+    }
+  ]
+}

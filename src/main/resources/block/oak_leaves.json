@@ -1,0 +1,37 @@
+{
+  "textures": {
+    "top": "block.oak_leaves",
+    "bottom": "block.oak_leaves",
+    "north": "block.oak_leaves",
+    "east": "block.oak_leaves",
+    "west": "block.oak_leaves",
+    "south": "block.oak_leaves"
+  },
+  "layer": "foliage",
+  "resistance": {
+    "item.hand": 0.25,
+    "tag.shears": 0.0
+  },
+  "drops": [
+    {
+      "item": "leaf",
+      "amount": {
+        "min": 1,
+        "max": 3
+      },
+      "rate": 1.0
+    },
+    {
+      "item": "acorn",
+      "rate": 0.1
+    },
+    {
+      "item": "stick",
+      "amount": {
+        "min": 1,
+        "max": 2
+      },
+      "rate": 0.33
+    }
+  ]
+}

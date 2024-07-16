@@ -1,0 +1,11 @@
+{
+  "item": "block.oak_workbench",
+  "variants": [
+    {
+      "duration": 1.0,
+      "ingredients": {
+        "block.oak_planks": 4
+      }
+    }
+  ]
+}

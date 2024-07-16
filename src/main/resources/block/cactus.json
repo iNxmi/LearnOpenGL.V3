@@ -1,0 +1,20 @@
+{
+  "textures": {
+    "top": "block.cactus_top",
+    "bottom": "block.cactus_bottom",
+    "north": "block.cactus_side",
+    "east": "block.cactus_side",
+    "west": "block.cactus_side",
+    "south": "block.cactus_side"
+  },
+  "layer": "foliage",
+  "resistance": {
+    "item.hand": 0.8,
+    "tag.axe": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.cactus"
+    }
+  ]
+}

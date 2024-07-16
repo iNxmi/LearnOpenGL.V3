@@ -1,11 +1,9 @@
 package com.nami.resources.texture
 
-import com.nami.resources.Resource
+import com.nami.resources.Resources
 import org.joml.Vector2f
 import org.joml.Vector2i
 import java.awt.image.BufferedImage
-import java.io.File
-import javax.imageio.ImageIO
 import kotlin.math.max
 
 class TextureAtlas {
@@ -26,7 +24,7 @@ class TextureAtlas {
         fun generate() {
             var width = 0
             var height = 0
-            Resource.TEXTURE.map.forEach { (k, v) ->
+            Resources.TEXTURE.map.forEach { (k, v) ->
                 val img = v.image
                 width += img.width
                 height = max(height, img.height)
@@ -37,7 +35,7 @@ class TextureAtlas {
             val graphics = image.createGraphics()
 
             var cursor = 0
-            Resource.TEXTURE.map.forEach { (k, v) ->
+            Resources.TEXTURE.map.forEach { (k, v) ->
                 val img = v.image
                 val width = img.width
                 val height = img.height
@@ -55,7 +53,7 @@ class TextureAtlas {
                 cursor += v.image.width
             }
 
-            texture = Texture(image)
+            texture = Texture("atlas", image)
         }
 
         @JvmStatic

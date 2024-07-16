@@ -1,0 +1,19 @@
+{
+  "timeInSeconds": {
+    "min": 7.0,
+    "max": 15.0
+  },
+  "scale": {
+    "min": 0.0625,
+    "max": 0.1875
+  },
+  "colors": [
+    {
+      "hex": "00ff00",
+      "brightness": {
+        "min": 0.5,
+        "max": 0.75
+      }
+    }
+  ]
+}

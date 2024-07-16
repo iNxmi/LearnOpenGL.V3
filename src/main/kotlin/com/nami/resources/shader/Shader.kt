@@ -3,7 +3,11 @@ package com.nami.resources.shader
 import org.lwjgl.opengl.GL33.*
 import java.nio.file.Path
 
-data class Shader(val pointer: Int, val path: Path) {
+class Shader(
+    id: String,
+    val pointer: Int,
+    val path: Path
+) : ResourceShader(id) {
 
     val uniform: Uniform = Uniform(this)
 

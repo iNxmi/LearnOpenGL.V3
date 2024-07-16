@@ -1,6 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.resources.Resource
+import com.nami.resources.Resources
 import com.nami.world.World
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
@@ -19,7 +19,7 @@ class BiomeManager(val world: World) {
                 FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed).build()
             )
             .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
-            .scale(1 / 2048.0)
+            .scale(1 / 4098.0)
             .addModifier { v -> ((v + 1) / 2.0) * 256 }
             .clamp(0.0, 256.0)
             .build()
@@ -63,9 +63,9 @@ class BiomeManager(val world: World) {
         ).toFloat()
 
         val factors = Vector3f(elevation, moisture, temperature)
-//        val biome = Resource.BIOME.evaluate(factors) ?: return
-        val biome = Resource.BIOME.get("mushroom_forest")
-        biomes[position] = biome.create(position, factors)
+        val biome = Resources.BIOME.evaluate(factors) ?: return
+//        val biome = Resource.BIOME.get("jungle_forest")
+        biomes[position] = biome.create(world, position, factors)
     }
 
     fun getBiome(position: Vector3i): Biome.Instance? {

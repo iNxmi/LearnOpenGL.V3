@@ -1,71 +1,70 @@
 package com.nami.world.block
 
+import com.nami.resources.block.ResourceBlock
+import com.nami.scene.SceneTime
 import com.nami.world.World
+import com.nami.world.inventory.item.Item
 import org.joml.Vector3i
+import kotlin.math.min
 import kotlin.math.roundToInt
 
-data class Block(
-    val id: String,
-    val textures: Array<String>,
+class Block(
+    id: String,
+    private val handlerClass: Class<BlockListener>,
+
+    val textures: List<String>,
     val layer: Layer,
-    val resistance: Float,
-    val handler: BlockListener?,
-    val drops: Array<BlockDrop>?
-) {
+    val tags: List<String>?,
+    val resistance: Map<String, Float>,
+    val drops: List<BlockDrop>?
+) : ResourceBlock(id) {
 
     fun create(world: World, position: Vector3i): Instance {
-        return Instance(world, position, this)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Block
-
-        if (id != other.id) return false
-        if (!textures.contentEquals(other.textures)) return false
-        if (layer != other.layer) return false
-        if (resistance != other.resistance) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + textures.contentHashCode()
-        result = 31 * result + layer.hashCode()
-        result = 31 * result + resistance.hashCode()
-        return result
+        val handler = handlerClass.getDeclaredConstructor().newInstance()
+        return Instance(this, handler, world, position)
     }
 
     enum class Layer {
         SOLID,
+        TRANSPARENT,
         FOLIAGE,
         FLUID
     }
 
     class Instance(
+        val template: Block,
+        val handler: BlockListener,
+
         val world: World,
         val position: Vector3i,
-        val template: Block,
         var brightness: Float = 1f,
         var health: Float = 1f
     ) {
 
-        fun update() {
-            template.handler?.update(this)
+        fun update(time: SceneTime) {
+            handler.update(time, this)
         }
 
         fun destroy() {
-            template.handler?.onDestroy(this)
+            handler.onDestroy(this)
             world.blockManager.setBlock(position, null)
         }
 
-        fun damage(damage: Float): Float {
-            health -= damage * (1f - template.resistance)
+        fun damage(item: Item, damage: Float): Float {
+            val criteria = mutableListOf<String>()
+            criteria.add("item.${item.id}")
+            item.tags?.forEach { criteria.add("tag.$it") }
 
-            template.handler?.onDamage(this, damage)
+            var resistance = 1f
+            template.resistance.forEach { (crit, value) ->
+                if (!criteria.contains(crit))
+                    return@forEach
+
+                resistance = min(resistance, value)
+            }
+
+            health -= damage * (1f - resistance)
+            handler.onDamage(this, damage)
 
             val roundedHealth = ((health * 100f).roundToInt() / 100f)
             if (roundedHealth <= 0f) {

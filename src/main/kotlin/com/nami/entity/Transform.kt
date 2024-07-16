@@ -10,6 +10,12 @@ class Transform(
     var scale: Vector3f = Vector3f(1f)
 ) {
 
+    constructor(transform: Transform) : this(
+        Vector3f(transform.position),
+        Vector3f(transform.rotation),
+        Vector3f(transform.scale)
+    )
+
     //Rotation in Deg
 
     private val positionLast = Vector3f(Float.MAX_VALUE)

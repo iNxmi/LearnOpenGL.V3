@@ -1,0 +1,33 @@
+{
+  "timeInSeconds": {
+    "min": 1.0,
+    "max": 3.0
+  },
+  "scale": {
+    "min": 0.0625,
+    "max": 0.1875
+  },
+  "colors": [
+    {
+      "hex": "ffff00",
+      "brightness": {
+        "min": 0.75,
+        "max": 1.0
+      }
+    },
+    {
+      "hex": "ffa500",
+      "brightness": {
+        "min": 0.25,
+        "max": 0.75
+      }
+    },
+    {
+      "hex": "ff0000",
+      "brightness": {
+        "min": 0.25,
+        "max": 0.75
+      }
+    }
+  ]
+}

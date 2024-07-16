@@ -1,0 +1,12 @@
+{
+  "item": "block.birch_planks",
+  "variants": [
+    {
+      "amount": 4,
+      "duration": 1.0,
+      "ingredients": {
+        "block.birch_log": 1
+      }
+    }
+  ]
+}

@@ -1,12 +1,14 @@
 package com.nami.resources.texture
 
-import com.nami.resources.Resource
+import com.nami.resources.Resources
 import org.lwjgl.opengl.GL33.*
-import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.awt.image.BufferedImage
 
-class Texture(val image: BufferedImage) {
+class Texture(
+    id: String,
+    val image: BufferedImage
+) : ResourceTexture(id) {
 
     val pointer = glGenTextures()
 
@@ -16,8 +18,8 @@ class Texture(val image: BufferedImage) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
         val buffer = MemoryUtil.memAlloc(image.width * image.height * 4)
         for (y in (image.height - 1) downTo 0)
@@ -36,7 +38,7 @@ class Texture(val image: BufferedImage) {
 
         glGenerateMipmap(GL_TEXTURE_2D)
 
-        Resource.TEXTURE.unbind()
+        Resources.TEXTURE.unbind()
     }
 
     fun bind() {

@@ -1,0 +1,11 @@
+{
+  "item": "block.birch_workbench",
+  "variants": [
+    {
+      "duration": 1.0,
+      "ingredients": {
+        "block.birch_planks": 4
+      }
+    }
+  ]
+}

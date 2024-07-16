@@ -1,12 +1,17 @@
 package com.nami.world.chunk
 
+import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
+import com.nami.scene.SceneTime
 import com.nami.world.block.Block
 import com.nami.world.block.Face
+import com.nami.world.player.Player
 import de.articdive.jnoise.core.api.functions.Interpolation
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction
 import de.articdive.jnoise.pipeline.JNoise
+import org.joml.Matrix4f
 import org.joml.Vector3f
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
 import java.nio.FloatBuffer
@@ -17,266 +22,241 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
 
     val world = chunk.world
     val blockManager = world.blockManager
-    val chunkManager = world.chunkManager
-    val biomeManager = world.biomeManager
 
     var vao = 0
         private set
-    var vboPositions = 0
+    var vbo = 0
         private set
-    var vboNormals = 0
-        private set
-    var vboUVs = 0
-        private set
-    var vboColors = 0
-        private set
-    var vboBrightness = 0
-        private set
-    var vboHealth = 0
+    var bufferVbo: FloatBuffer? = null
         private set
     var ebo = 0
+        private set
+    var bufferEbo: IntBuffer? = null
         private set
     var indicesCount = 0
         private set
 
-    val whiteNoise = JNoise.newBuilder().value(1077, Interpolation.CUBIC, FadeFunction.NONE)
+    private val whiteNoise = JNoise.newBuilder().value(1077, Interpolation.CUBIC, FadeFunction.NONE)
         .scale(1.0)
-        .addModifier { v: Double -> ((v + 1) / 2.0) * 0.25 + 0.75 }
+        .addModifier { v: Double -> ((v + 1) / 2.0) * 0.15 + 0.85 }
         .build()
 
-    fun update() {
+    fun generate() {
         val generate = blockManager.faces[layer]!!.filterKeys {
             it.x in (chunk.position.x * Chunk.SIZE.x until (chunk.position.x + 1) * Chunk.SIZE.x) &&
                     it.y in (chunk.position.y * Chunk.SIZE.y until (chunk.position.y + 1) * Chunk.SIZE.y) &&
                     it.z in (chunk.position.z * Chunk.SIZE.z until (chunk.position.z + 1) * Chunk.SIZE.z)
         }
 
-        var size = 0
-        generate.forEach { (k, v) -> size += v.size }
-
+        var size = generate.map { it.value.size }.sum()
         if (size <= 0)
             return
 
-        val positions = MemoryUtil.memAllocFloat(size * 2 * 3 * 3)
-        val normals = MemoryUtil.memAllocFloat(size * 2 * 3 * 3)
-        val uvs = MemoryUtil.memAllocFloat(size * 2 * 3 * 2)
-        val colors = MemoryUtil.memAllocFloat(size * 2 * 3 * 3)
-        val brightness = MemoryUtil.memAllocFloat(size * 2 * 3)
-        val health = MemoryUtil.memAllocFloat(size * 2 * 3)
-        val indices = MemoryUtil.memAllocInt(size * 2 * 3)
+        //size * triangles_fer_face * points_per_triangle * (number_components_position + number_components_normal + number_components_uv + number_components_color + number_components_brightness)
+        bufferVbo = MemoryUtil.memAllocFloat(size * 2 * 3 * (3 + 3 + 2 + 3 + 1))
+        bufferEbo = MemoryUtil.memAllocInt(size * 2 * 3)
 
         var index = 0
-        generate.forEach { (position, faces) ->
+        for ((position, faces) in generate) {
             val chunkBlockPosition = Vector3f(position).sub(Vector3f(chunk.position).mul(Vector3f(Chunk.SIZE)))
-            val block = blockManager.getBlock(position)!!
+            val block = blockManager.getBlock(position) ?: continue
 
             val bright =
-                whiteNoise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble()).toFloat()
+                whiteNoise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble())
+                    .toFloat() * block.health
 
-            faces.forEach { face ->
+            for (face in faces) {
                 val texture: String = when (face) {
-                    Face.TOP -> block!!.template.textures[0]
-                    Face.BOTTOM -> block!!.template.textures[1]
-                    Face.NORTH -> block!!.template.textures[2]
-                    Face.EAST -> block!!.template.textures[3]
-                    Face.WEST -> block!!.template.textures[4]
-                    Face.SOUTH -> block!!.template.textures[5]
+                    Face.TOP -> block.template.textures[0]
+                    Face.BOTTOM -> block.template.textures[1]
+                    Face.NORTH -> block.template.textures[2]
+                    Face.EAST -> block.template.textures[3]
+                    Face.WEST -> block.template.textures[4]
+                    Face.SOUTH -> block.template.textures[5]
                 }
                 var color = Vector3f(1f)
-                if (texture == "blocks.grass_top" || texture == "blocks.leaves")
-                    color =
-                        Vector3f(0f, 0.8f, 0f)
+                if (arrayOf("block.grass_top", "block.oak_leaves", "block.birch_leaves", "block.jungle_leaves").contains(texture))
+                    color = Vector3f(0f, 0.8f, 0f)
 
                 val uv = TextureAtlas.getUV(texture)
 
                 var pos = Vector3f(face.triangle0[0]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs0[0].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs0[0].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs0[0].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs0[0].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
 
                 pos = Vector3f(face.triangle0[1]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs0[1].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs0[1].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs0[1].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs0[1].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
 
                 pos = Vector3f(face.triangle0[2]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs0[2].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs0[2].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs0[2].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs0[2].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
 
                 pos = Vector3f(face.triangle1[0]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs1[0].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs1[0].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs1[0].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs1[0].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
 
                 pos = Vector3f(face.triangle1[1]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs1[1].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs1[1].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs1[1].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs1[1].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
 
                 pos = Vector3f(face.triangle1[2]).add(chunkBlockPosition)
-                positions.put(pos.x)
-                positions.put(pos.y)
-                positions.put(pos.z)
-                normals.put(face.normal.x)
-                normals.put(face.normal.y)
-                normals.put(face.normal.z)
-                uvs.put((uv.position.x + uv.size.x * face.uvs1[2].x).coerceIn(0f, 1f))
-                uvs.put((uv.position.y + uv.size.y * face.uvs1[2].y).coerceIn(0f, 1f))
-                colors.put(color.x)
-                colors.put(color.y)
-                colors.put(color.z)
-                brightness.put(bright)
-                health.put(block.health)
-                indices.put(index)
+                bufferVbo!!.put(pos.x)
+                bufferVbo!!.put(pos.y)
+                bufferVbo!!.put(pos.z)
+                bufferVbo!!.put(face.normal.x)
+                bufferVbo!!.put(face.normal.y)
+                bufferVbo!!.put(face.normal.z)
+                bufferVbo!!.put((uv.position.x + uv.size.x * face.uvs1[2].x).coerceIn(0f, 1f))
+                bufferVbo!!.put((uv.position.y + uv.size.y * face.uvs1[2].y).coerceIn(0f, 1f))
+                bufferVbo!!.put(color.x)
+                bufferVbo!!.put(color.y)
+                bufferVbo!!.put(color.z)
+                bufferVbo!!.put(bright)
+                bufferEbo!!.put(index)
                 index++
             }
         }
 
-        positions.flip()
-        normals.flip()
-        uvs.flip()
-        colors.flip()
-        brightness.flip()
-        health.flip()
-        indices.flip()
-
-        chunkManager.sendToGPU(chunk.position) {
-            sendToGPU(
-                positions,
-                normals,
-                uvs,
-                colors,
-                brightness,
-                health,
-                indices
-            )
-        }
+        bufferVbo!!.flip()
+        bufferEbo!!.flip()
     }
 
-    fun sendToGPU(
-        positions: FloatBuffer,
-        normals: FloatBuffer,
-        uvs: FloatBuffer,
-        colors: FloatBuffer,
-        brightness: FloatBuffer,
-        health: FloatBuffer,
-        indices: IntBuffer
-    ) {
+    fun upload() {
+        if(bufferVbo == null || bufferVbo!!.limit() <= 0)
+            return
+        if(bufferEbo == null || bufferEbo!!.limit() <= 0)
+            return
+
         if (vao == 0) vao = glGenVertexArrays()
         glBindVertexArray(vao)
 
-        if (vboPositions == 0) vboPositions = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboPositions)
-        glBufferData(GL_ARRAY_BUFFER, positions, GL_DYNAMIC_DRAW)
+        if (vbo == 0) vbo = glGenBuffers()
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        glBufferData(GL_ARRAY_BUFFER, bufferVbo, GL_DYNAMIC_DRAW)
+
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 12 * Float.SIZE_BYTES, 0L * Float.SIZE_BYTES)
 
-        if (vboNormals == 0) vboNormals = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboNormals)
-        glBufferData(GL_ARRAY_BUFFER, normals, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(1)
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 12 * Float.SIZE_BYTES, 3L * Float.SIZE_BYTES)
 
-        if (vboUVs == 0) vboUVs = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboUVs)
-        glBufferData(GL_ARRAY_BUFFER, uvs, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(2)
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 12 * Float.SIZE_BYTES, 6L * Float.SIZE_BYTES)
 
-        if (vboColors == 0) vboColors = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboColors)
-        glBufferData(GL_ARRAY_BUFFER, colors, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(3)
-        glVertexAttribPointer(3, 3, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(3, 3, GL_FLOAT, false, 12 * Float.SIZE_BYTES, 8L * Float.SIZE_BYTES)
 
-        if (vboBrightness == 0) vboBrightness = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboBrightness)
-        glBufferData(GL_ARRAY_BUFFER, brightness, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(4)
-        glVertexAttribPointer(4, 1, GL_FLOAT, false, 0, 0)
-
-        if (vboHealth == 0) vboHealth = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboHealth)
-        glBufferData(GL_ARRAY_BUFFER, health, GL_DYNAMIC_DRAW)
-        glEnableVertexAttribArray(5)
-        glVertexAttribPointer(5, 1, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(4, 1, GL_FLOAT, false, 12 * Float.SIZE_BYTES, 11L * Float.SIZE_BYTES)
 
         if (ebo == 0) ebo = glGenBuffers()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_DYNAMIC_DRAW)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferEbo, GL_DYNAMIC_DRAW)
 
         glBindVertexArray(0)
 
-        indicesCount = indices.limit()
+        indicesCount = bufferEbo!!.limit()
 
-        MemoryUtil.memFree(positions)
-        MemoryUtil.memFree(normals)
-        MemoryUtil.memFree(uvs)
-        MemoryUtil.memFree(colors)
-        MemoryUtil.memFree(brightness)
-        MemoryUtil.memFree(health)
-        MemoryUtil.memFree(indices)
+        MemoryUtil.memFree(bufferVbo)
+        MemoryUtil.memFree(bufferEbo)
+
+        bufferVbo = null
+        bufferEbo = null
+    }
+
+    fun render(player: Player, time: SceneTime) {
+        if (indicesCount <= 0)
+            return
+
+        val shader = Resources.SHADER.get("chunk.solid").bind()
+        shader.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
+        shader.uniform.set("u_specular_exponent", 8.0f)
+
+        shader.uniform.set("u_projection_matrix", player.camera.projection())
+        shader.uniform.set("u_view_matrix", player.camera.view())
+
+        shader.uniform.set("u_camera_position", player.transform.position)
+
+        shader.uniform.set("u_time", time.time)
+
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, TextureAtlas.texture!!.pointer)
+        shader.uniform.set("u_texture_diffuse", 0)
+
+        val model = Matrix4f().translate(
+            (chunk.position.x * Chunk.SIZE.x).toFloat(),
+            (chunk.position.y * Chunk.SIZE.y).toFloat(),
+            (chunk.position.z * Chunk.SIZE.z).toFloat()
+        )
+
+        shader.uniform.set("u_model_matrix", model)
+
+        glBindVertexArray(vao)
+        GL11.glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0)
+        glBindVertexArray(0)
+
+        Resources.SHADER.unbind()
     }
 
 }

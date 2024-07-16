@@ -1,0 +1,20 @@
+{
+  "textures": {
+    "top": "block.sand",
+    "bottom": "block.sand",
+    "north": "block.sand",
+    "east": "block.sand",
+    "west": "block.sand",
+    "south": "block.sand"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.4,
+    "tag.shovel": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.sand"
+    }
+  ]
+}

@@ -1,22 +1,29 @@
 package com.nami.world.chunk
 
+import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.block.Block
+import com.nami.world.player.Player
+import de.articdive.jnoise.pipeline.JNoise
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.joml.Vector2i
 import org.joml.Vector3i
+import java.nio.file.Files
+import kotlin.io.path.createDirectories
 import kotlin.math.max
-import kotlin.math.roundToInt
 
 
 class Chunk(val world: World, val position: Vector3i) {
 
     private val log = KotlinLogging.logger { }
 
+    val path = world.path.resolve("chunks")
+
     private val biomeManager = world.biomeManager
     private val blockManager = world.blockManager
-
-    private val noiseGenerators = world.noiseGenerators
+    private val chunkManager = world.chunkManager
 
     companion object {
         @JvmStatic
@@ -29,168 +36,80 @@ class Chunk(val world: World, val position: Vector3i) {
         Block.Layer.values().forEach { meshes[it] = ChunkMesh(this, it) }
 
         //Generate blocks
-        for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x))
-            for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z)) {
-                for (y in (position.y * SIZE.y) until ((position.y + 1) * SIZE.y)) {
+        for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z)) {
+            for (y in (position.y * SIZE.y) until ((position.y + 1) * SIZE.y))
+                for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x)) {
                     val position = Vector3i(x, y, z)
                     biomeManager.generate(position)
 
                     val biome = biomeManager.getBiome(position) ?: continue
                     val block = biome.generate() ?: continue
 
-                    blockManager.setBlock(position, block, false)
+                    blockManager.setBlock(position, block)
+                }
+        }
+
+        //Place Features
+        for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z))
+            for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x)) {
+                val y = blockManager.getHeight(Vector2i(x, z), 512, setOf(Block.Layer.SOLID))
+                val biome = biomeManager.getBiome(Vector3i(x, y, z)) ?: continue
+                val block = world.blockManager.getBlock(Vector3i(x, y, z)) ?: continue
+
+                for (feature in biome.template.features) {
+                    val fy = blockManager.getHeight(Vector2i(x, z), 512, setOf(Block.Layer.SOLID))
+                    if (y != fy)
+                        continue
+
+                    val fblock = world.blockManager.getBlock(Vector3i(x, fy, z)) ?: continue
+
+                    if (feature.base != null)
+                        if (!feature.base.contains(fblock.template))
+                            continue
+
+                    if (!canSpawnFeature(Vector2i(x, z), feature.radius, feature.noise(world.seed)))
+                        continue
+
+                    feature.feature.create().handler.generate(world, Vector3i(x, y, z))
+                    break
                 }
             }
 
-        //Place Trees
-        for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x))
-            for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z)) {
-
-                val height = blockManager.getHeight(Vector2i(x, z), 512, listOf(Block.Layer.SOLID))
-                val r = when (biomeManager.getBiome(Vector3i(x, height, z))?.template?.id) {
-                    "desert" -> 5
-                    "snow_forest" -> 6
-                    "forest" -> 5
-                    "mushroom_forest" -> 5
-                    "beach" -> 7
-                    else -> 0
-                }
-                var max = 0f
-                for (za in z - r until z + r)
-                    for (xa in x - r until x + r) {
-                        val noise = noiseGenerators.treeNoise.evaluateNoise(
-                            xa.toDouble(),
-                            za.toDouble(),
-                        ).toFloat()
-
-                        max = max(max, noise)
-                    }
-
-                if (noiseGenerators.treeNoise.evaluateNoise(
-                        x.toDouble(),
-                        z.toDouble(),
-                    ).toFloat() == max
-                )
-                    placeTree(x, z)
-
-            }
-
-        updateMesh()
+        chunkManager.meshGenerator.addToQueue(position)
     }
 
-    fun placeTree(x: Int, z: Int) {
-        val height = blockManager.getHeight(Vector2i(x, z), 512, listOf(Block.Layer.SOLID))
+    private fun canSpawnFeature(position: Vector2i, radius: Int, noise: JNoise): Boolean {
+        var max = 0f
+        for (z in position.y - radius until position.y + radius)
+            for (x in position.x - radius until position.x + radius) {
+                val noise = noise.evaluateNoise(
+                    x.toDouble(),
+                    z.toDouble(),
+                ).toFloat()
 
-        val block = blockManager.getBlock(Vector3i(x, height, z))
-        val biome = biomeManager.getBiome(Vector3i(x, height, z))?.template
-
-        if (biome?.id == "forest" && block?.template?.id == "grass") {
-            val baseHeight = (noiseGenerators.treeRandom.nextFloat() * 2 + 4).roundToInt()
-            for (i in 0 until baseHeight)
-                blockManager.setBlock(Vector3i(x, height + 1 + i, z), "log", false)
-
-            for (i in 0 until 5) {
-                val position = Vector3i(x, height + baseHeight, z)
-                for (j in 5 until 15) {
-                    val rand = noiseGenerators.treeRandom.nextFloat()
-
-                    if ((0f..0.4f).contains(rand))
-                        position.y += 1
-
-                    if ((0.4f..0.55f).contains(rand))
-                        position.x += 1
-                    if ((0.55f..0.7f).contains(rand))
-                        position.x -= 1
-
-                    if ((0.7f..0.85f).contains(rand))
-                        position.z += 1
-                    if ((0.85f..1f).contains(rand))
-                        position.z -= 1
-
-                    blockManager.setBlock(Vector3i(position), "log", false)
-
-                    if (blockManager.getBlock(Vector3i(position).add(1, 0, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(1, 0, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(-1, 0, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(-1, 0, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 1, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 1, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, -1, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, -1, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 0, 1)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 0, 1), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 0, -1)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 0, -1), "leaves", false)
-                }
+                max = max(max, noise)
             }
-        } else if (biome?.id == "desert" && block?.template?.id == "sand") {
-            for (i in 0 until (Math.random() * 2).roundToInt() + 2) {
-                val y = height + i + 1
-                blockManager.setBlock(Vector3i(x, y, z), "cactus", false)
-            }
-        } else if (biome?.id == "snow_forest" && block?.template?.id == "snow") {
-            val baseHeight = (noiseGenerators.treeRandom.nextFloat() * 4 + 4).roundToInt()
-            for (i in 0 until baseHeight)
-                blockManager.setBlock(Vector3i(x, height + 1 + i, z), "log", false)
 
-            for (i in 0 until 5) {
-                val position = Vector3i(x, height + baseHeight, z)
-                for (j in 5 until 15) {
-                    val rand = noiseGenerators.treeRandom.nextFloat()
-
-                    if ((0f..0.6f).contains(rand))
-                        position.y += 1
-
-                    if ((0.6f..0.7f).contains(rand))
-                        position.x += 1
-                    if ((0.7f..0.8f).contains(rand))
-                        position.x -= 1
-
-                    if ((0.8f..0.9f).contains(rand))
-                        position.z += 1
-                    if ((0.9f..1f).contains(rand))
-                        position.z -= 1
-
-                    blockManager.setBlock(Vector3i(position), "log", false)
-
-                    if (blockManager.getBlock(Vector3i(position).add(1, 0, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(1, 0, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(-1, 0, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(-1, 0, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 1, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 1, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, -1, 0)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, -1, 0), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 0, 1)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 0, 1), "leaves", false)
-                    if (blockManager.getBlock(Vector3i(position).add(0, 0, -1)) == null)
-                        blockManager.setBlock(Vector3i(position).add(0, 0, -1), "leaves", false)
-                }
-            }
-        } else if (biome?.id == "mushroom_forest" && block?.template?.id == "mycelium") {
-
-            val stemHeight = (Math.random() * 4).roundToInt() + 7
-            for (i in 0 until stemHeight) {
-                val y = height + i + 1
-                blockManager.setBlock(Vector3i(x, y, z), "mushroom_stem", false)
-
-                val radius = (Math.random() * (4 - 2) + 2).roundToInt()
-                if (i == stemHeight - 1) {
-                    for (zo in -radius..radius)
-                        for (xo in -radius..radius)
-                            if (zo * zo + xo * xo <= radius * radius)
-                                blockManager.setBlock(Vector3i(x + xo, y + 1, z + zo), "mushroom", false)
-                }
-            }
-        }
+        return noise.evaluateNoise(
+            position.x.toDouble(),
+            position.y.toDouble(),
+        ).toFloat() == max
     }
 
     fun update() {
 
     }
 
-    fun updateMesh() {
-        meshes.forEach { it.value.update() }
+    fun render(player: Player, time: SceneTime, layer: Block.Layer) {
+        meshes[layer]?.render(player, time)
+    }
+
+    fun generateMesh() {
+        meshes.forEach { it.value.generate() }
+    }
+
+    fun uploadMesh() {
+        meshes.forEach { it.value.upload() }
     }
 
 }

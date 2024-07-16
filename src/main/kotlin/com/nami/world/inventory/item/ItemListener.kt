@@ -4,8 +4,8 @@ import com.nami.world.player.Player
 
 interface ItemListener {
 
-    fun onPrimaryUse(player: Player): Boolean
+    fun onPrimaryUse(item: Item.Instance, player: Player): Boolean
 
-    fun onSecondaryUse(player: Player): Boolean
+    fun onSecondaryUse(item: Item.Instance, player: Player): Boolean
 
 }

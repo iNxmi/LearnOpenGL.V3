@@ -1,0 +1,11 @@
+{
+  "textures": {
+    "top": "block.water",
+    "bottom": "block.water",
+    "north": "block.water",
+    "east": "block.water",
+    "west": "block.water",
+    "south": "block.water"
+  },
+  "layer": "fluid"
+}

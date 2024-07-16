@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "top": "block.ice",
+    "bottom": "block.ice",
+    "north": "block.ice",
+    "east": "block.ice",
+    "west": "block.ice",
+    "south": "block.ice"
+  },
+  "layer": "transparent",
+  "resistance": {
+    "tag.pickaxe": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.ice"
+    }
+  ]
+}

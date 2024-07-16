@@ -1,36 +1,23 @@
 package com.nami.world.chunk
 
+import com.nami.scene.SceneTime
 import com.nami.world.World
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.nami.world.block.Block
+import com.nami.world.player.Player
 import org.joml.Vector3f
 import org.joml.Vector3i
-import java.util.concurrent.ConcurrentLinkedQueue
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.GL_CULL_FACE
+import java.util.*
 
 class ChunkManager(val world: World) {
 
-    companion object {
-        const val CHUNK_GENERATION_THREADS = 8
-    }
+    val chunks = mutableMapOf<Vector3i, Chunk>()
+    val generator = ChunkGenerator(world, 8)
+    val meshGenerator = ChunkMeshGenerator(world, this, 1f)
 
-    private val generationQueue = ConcurrentLinkedQueue<Vector3i>()
-    private val updateMeshQueue = ConcurrentLinkedQueue<Runnable>()
-    val chunks = mutableMapOf<Vector3i, Chunk?>()
-
-    fun generate(position: Vector3i) {
-        if (!(0 until World.SIZE.x).contains(position.x) || !(0 until World.SIZE.y).contains(position.y) || !(0 until World.SIZE.z).contains(
-                position.z
-            )
-        )
-            chunks[position] = null
-
-        if (!chunks.containsKey(position) && !generationQueue.contains(position))
-            generationQueue.add(position)
-    }
-
-    fun sendToGPU(position: Vector3i, runnable: Runnable) {
-        updateMeshQueue.add(runnable)
+    fun setChunk(position: Vector3i, chunk: Chunk) {
+        chunks[position] = chunk
     }
 
     fun getByChunkPosition(position: Vector3i): Chunk? {
@@ -47,61 +34,59 @@ class ChunkManager(val world: World) {
         )
     }
 
-    private var jobs = MutableList<Job?>(CHUNK_GENERATION_THREADS) { null }
-    fun updateGeneration() {
-        if (generationQueue.isEmpty())
-            return
+    fun update(time: SceneTime, player: Player, chunkRadius: Int) {
+        for (z in -chunkRadius..chunkRadius)
+            for (y in -chunkRadius..chunkRadius)
+                for (x in -chunkRadius..chunkRadius) {
+                    if (x * x + y * y + z * z > chunkRadius * chunkRadius)
+                        continue
 
-        for (i in jobs.indices) {
-            if (generationQueue.isEmpty())
-                break
-
-            val job = jobs[i]
-            if (job != null && !job.isCompleted)
-                continue
-
-            var pair: Pair<Vector3i, Float>? = null
-            for (position in generationQueue) {
-
-                val distance =
-                    Vector3f(world.player.transform.position).sub(
-                        Vector3f(position).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).mul(0.5f))
+                    val pos = Vector3i(
+                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
                     )
-                        .length()
 
-                if (distance > 200) {
-                    generationQueue.remove(position)
-                    continue
+                    if (!(0 until world.size.x).contains(pos.x)) continue
+                    if (!(0 until world.size.y).contains(pos.y)) continue
+                    if (!(0 until world.size.z).contains(pos.z)) continue
+
+                    if (!chunks.containsKey(pos))
+                        generator.addToQueue(pos)
+
+                    getByChunkPosition(pos)?.update()
                 }
 
-                val p = Pair(position, distance)
+        generator.update()
+        meshGenerator.update()
+    }
 
-                if (pair == null || pair.second > p.second)
-                    pair = p
-            }
+    fun render(time: SceneTime, player: Player, chunkRadius: Int) {
+        val chunks = TreeMap<Float, Chunk>()
+        for (z in -chunkRadius..chunkRadius)
+            for (y in -chunkRadius..chunkRadius)
+                for (x in -chunkRadius..chunkRadius)
+                    if (x * x + y * y + z * z <= chunkRadius * chunkRadius) {
+                        val chunkPosition = Vector3i(
+                            player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                            player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                            player.transform.position.z.toInt() / Chunk.SIZE.z + z
+                        )
 
-            if (pair == null)
-                break
+                        val chunk = getByChunkPosition(chunkPosition) ?: continue
 
-            val position = pair.first
-            generationQueue.remove(position)
+                        val distance =
+                            Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
+                                .sub(player.transform.position).length()
+                        chunks[distance] = chunk
+                    }
 
-            jobs[i] = GlobalScope.launch {
-                val chunk = Chunk(world, Vector3i(pair.first))
-                chunks[pair.first] = chunk
-
-                for (z in -1..1)
-                    for (y in -1..1)
-                        for (x in -1..1)
-                            getByChunkPosition(Vector3i(pair.first).add(x, y, z))?.updateMesh()
-            }
+        chunks.forEach { (_, chunk) -> chunk.render(player, time, Block.Layer.SOLID) }
+        chunks.forEach { (_, chunk) ->
+            chunk.render(player, time, Block.Layer.TRANSPARENT)
+            chunk.render(player, time, Block.Layer.FOLIAGE)
+            chunk.render(player, time, Block.Layer.FLUID)
         }
     }
-
-    fun updateSendToGPU() {
-        for (i in updateMeshQueue.indices)
-            updateMeshQueue.remove().run()
-    }
-
 
 }

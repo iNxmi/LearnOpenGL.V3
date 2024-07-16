@@ -2,7 +2,7 @@ package com.nami
 
 import com.nami.imgui.ImGUIManager
 import com.nami.input.Input
-import com.nami.resources.Resource
+import com.nami.resources.Resources
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.LoadingScene
 import com.nami.scene.scenes.MainMenuScene
@@ -21,6 +21,11 @@ class Game {
         var DELTA_TIME = 0F
 
         val QUEUE = ConcurrentLinkedQueue<Runnable>()
+
+        @JvmStatic
+        fun runLater(runnable: Runnable) {
+            QUEUE.add(runnable)
+        }
     }
 
     private val log = KotlinLogging.logger {}
@@ -39,11 +44,22 @@ class Game {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         SceneManager.selected = LoadingScene({
-            Resource.SHADER.load()
-            Resource.TEXTURE.load()
-            Resource.ITEM.load()
-            Resource.BLOCK.load()
-            Resource.BIOME.load()
+            var errorCount = 0
+            errorCount += Resources.SHADER.load()
+            errorCount += Resources.TEXTURE.load()
+            errorCount += Resources.ITEM.load()
+            errorCount += Resources.BLOCK.load()
+            errorCount += Resources.FEATURE.load()
+            errorCount += Resources.BIOME.load()
+            errorCount += Resources.MODEL.load()
+            errorCount += Resources.PARTICLE.load()
+            errorCount += Resources.RECIPE.load()
+            errorCount += Resources.LANGUAGE.load()
+
+            if (errorCount != 0)
+                log.warn { "Completed loading with $errorCount errors" }
+            else
+                log.info { "Completed loading with $errorCount errors" }
         }, MainMenuScene())
 
         glfwShowWindow(Window.pointer)
@@ -65,10 +81,9 @@ class Game {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
             lastTime = glfwGetTime().toFloat()
 
-            for (i in 0 until 3) {
-                if (QUEUE.isNotEmpty())
-                    QUEUE.remove().run()
-            }
+            if (QUEUE.isNotEmpty())
+                QUEUE.remove().run()
+
             Input.update()
 
             SceneManager.update()

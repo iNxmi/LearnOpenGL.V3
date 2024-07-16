@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "top": "block.stone",
+    "bottom": "block.stone",
+    "north": "block.stone",
+    "east": "block.stone",
+    "west": "block.stone",
+    "south": "block.stone"
+  },
+  "layer": "solid",
+  "resistance": {
+    "tag.pickaxe": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.cobblestone"
+    }
+  ]
+}

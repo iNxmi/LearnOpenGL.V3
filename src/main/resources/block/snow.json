@@ -1,0 +1,20 @@
+{
+  "textures": {
+    "top": "block.snow",
+    "bottom": "block.snow",
+    "north": "block.snow",
+    "east": "block.snow",
+    "west": "block.snow",
+    "south": "block.snow"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.5,
+    "tag.shovel": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.snow"
+    }
+  ]
+}

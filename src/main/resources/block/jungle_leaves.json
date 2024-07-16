@@ -1,0 +1,37 @@
+{
+  "textures": {
+    "top": "block.jungle_leaves",
+    "bottom": "block.jungle_leaves",
+    "north": "block.jungle_leaves",
+    "east": "block.jungle_leaves",
+    "west": "block.jungle_leaves",
+    "south": "block.jungle_leaves"
+  },
+  "layer": "foliage",
+  "resistance": {
+    "item.hand": 0.25,
+    "tag.shears": 0.0
+  },
+  "drops": [
+    {
+      "item": "leaf",
+      "amount": {
+        "min": 1,
+        "max": 3
+      },
+      "rate": 1.0
+    },
+    {
+      "item": "acorn",
+      "rate": 0.1
+    },
+    {
+      "item": "stick",
+      "amount": {
+        "min": 1,
+        "max": 2
+      },
+      "rate": 0.33
+    }
+  ]
+}

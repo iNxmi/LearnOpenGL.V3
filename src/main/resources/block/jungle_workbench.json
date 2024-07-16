@@ -1,0 +1,23 @@
+{
+  "textures": {
+    "top": "block.jungle_workbench_top",
+    "bottom": "block.jungle_planks",
+    "north": "block.jungle_workbench_front",
+    "east": "block.jungle_workbench_side",
+    "west": "block.jungle_workbench_side",
+    "south": "block.jungle_workbench_side"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.0,
+    "tag.axe": 0.0
+  },
+  "tags": [
+    "workstation"
+  ],
+  "drops": [
+    {
+      "item": "block.jungle_workbench"
+    }
+  ]
+}

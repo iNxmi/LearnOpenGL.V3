@@ -1,0 +1,24 @@
+{
+  "textures": {
+    "top": "block.gravel",
+    "bottom": "block.gravel",
+    "north": "block.gravel",
+    "east": "block.gravel",
+    "west": "block.gravel",
+    "south": "block.gravel"
+  },
+  "layer": "solid",
+  "resistance": {
+    "item.hand": 0.4,
+    "tag.shovel": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.gravel"
+    },
+    {
+      "item": "flint",
+      "rate": 0.1
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "top": "block.oak_planks",
+    "bottom": "block.oak_planks",
+    "north": "block.oak_planks",
+    "east": "block.oak_planks",
+    "west": "block.oak_planks",
+    "south": "block.oak_planks"
+  },
+  "layer": "solid",
+  "resistance": {
+    "tag.axe": 0.0
+  },
+  "drops": [
+    {
+      "item": "block.oak_planks"
+    }
+  ]
+}

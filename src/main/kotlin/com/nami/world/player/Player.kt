@@ -5,7 +5,8 @@ import com.nami.camera.Camera
 import com.nami.constants.Directions
 import com.nami.entity.Transform
 import com.nami.input.Input
-import com.nami.resources.item.Items
+import com.nami.resources.Resource
+import com.nami.resources.Resources
 import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.block.Block
@@ -27,7 +28,7 @@ class Player(val world: World) {
         const val SENSIVITY = 0.075f
         const val HEIGHT = 2.8f
         const val RANGE = 4
-        const val MAX_ITERATIONS = RANGE * 64
+        const val MAX_ITERATIONS = RANGE * 16
     }
 
     val log = KotlinLogging.logger { }
@@ -41,36 +42,38 @@ class Player(val world: World) {
 
     val inventory = Inventory(Vector2i(9, 4))
 
-    var selectedItem: Item = Items.HAND.get()
+    var selectedItem: Item.Instance = Resources.ITEM.get("tool.hand").create()
 
     init {
-        inventory.add(Items.HAND.get(), 1)
-        inventory.add(Items.get("tnt"), 64)
+        inventory.add(selectedItem, 1)
+        inventory.add(Resources.ITEM.get("lighter").create(), 1)
+        inventory.add(Resources.ITEM.get("block.tnt").create(), 20)
     }
 
     fun update(time: SceneTime) {
         //Primary
-        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN)
-            if (inventory.get(selectedItem) > 0) {
-                val handler = selectedItem.handler
-                if (handler != null) {
-                    val consumed = handler.onPrimaryUse(this)
-                    if (consumed)
-                        inventory.remove(selectedItem, 1)
-                }
+        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
+//            if (inventory.get(selectedItem) > 0) {
+            val handler = selectedItem.handler
+            if (handler != null) {
+                val consumed = handler.onPrimaryUse(selectedItem, this)
+//                    if (consumed)
+//                        inventory.remove(selectedItem, 1)
             }
+//            }
+        }
 
         //Secondary
-        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_RIGHT] == Input.State.DOWN)
-            if (inventory.get(selectedItem) > 0) {
-                val handler = selectedItem.handler
-                if (handler != null) {
-                    val consumed = handler.onSecondaryUse(this)
-                    if (consumed)
-                        inventory.remove(selectedItem, 1)
-                }
+        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_RIGHT] == Input.State.DOWN) {
+//            if (inventory.get(selectedItem) > 0) {
+            val handler = selectedItem.handler
+            if (handler != null) {
+                val consumed = handler.onSecondaryUse(selectedItem, this)
+//                    if (consumed)
+//                        inventory.remove(selectedItem, 1)
             }
-
+//            }
+        }
         inputDirection()
         inputMovement(time)
     }
@@ -78,7 +81,7 @@ class Player(val world: World) {
     fun getFacingBlock(): Block.Instance? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
+                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
             val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
 
             val block = blockManager.getBlock(blockPos) ?: continue
@@ -88,19 +91,21 @@ class Player(val world: World) {
         return null
     }
 
-    fun getBlockBeforeFacingBlock(): Block.Instance? {
+    fun getPositionBeforeFacingBlock(): Vector3i? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                .add(Vector3f(camera.directionFront).mul(i.toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
+                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
             val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+
+            if (blockManager.getBlock(blockPos) == null)
+                continue
 
             val lastPos =
                 Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                    .add(Vector3f(camera.directionFront).mul((i - 1).toFloat() / MAX_ITERATIONS.toFloat() * RANGE))
+                    .add(Vector3f(camera.directionFront).mul(((i - 1).toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
             val lastBlockPos = Vector3i(lastPos.x.toInt(), lastPos.y.toInt(), lastPos.z.toInt())
 
-            val block = blockManager.getBlock(lastBlockPos) ?: continue
-            return block
+            return lastBlockPos
         }
 
         return null
@@ -141,8 +146,17 @@ class Player(val world: World) {
         if (Input.isKeyInStates(GLFW_KEY_D, Input.State.DOWN, Input.State.HOLD))
             move.add(Vector3f(dir).cross(Directions.UP).normalize().mul(0.6f))
 
-        if (move.length() != 0f)
+        if (move.length() != 0f) {
             position.add(Vector3f(move).normalize().mul(speed))
+//            world.particleManager.spawn(
+//                "walk", world.time, Vector3f(position).add(0f, 1f, 0f).add(
+//                    Vector3f(
+//                        ((Math.random() * 2 - 1) * 0.5).toFloat(),
+//                        ((Math.random() * 2 - 1) * 0.5).toFloat(), ((Math.random() * 2 - 1) * 0.5).toFloat()
+//                    ).normalize().mul(Math.random().toFloat())
+//                )
+//            )
+        }
 
         if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
             if (position.y <= 0f)
@@ -152,7 +166,7 @@ class Player(val world: World) {
             blockManager.getHeight(
                 Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
                 transform.position.y.toInt() + HEIGHT.toInt(),
-                listOf(Block.Layer.SOLID, Block.Layer.FOLIAGE)
+                setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
             ).toFloat()
 
         if (position.y > height)
@@ -167,8 +181,8 @@ class Player(val world: World) {
 
         position.add(Vector3f(acceleration).mul(time.delta))
 
-        position.x = position.x.coerceIn(0f, (World.SIZE.x * Chunk.SIZE.x).toFloat() - 0.1f)
-        position.z = position.z.coerceIn(0f, (World.SIZE.z * Chunk.SIZE.z).toFloat() - 0.1f)
+        position.x = position.x.coerceIn(0f, (world.size.x * Chunk.SIZE.x).toFloat() - 0.1f)
+        position.z = position.z.coerceIn(0f, (world.size.z * Chunk.SIZE.z).toFloat() - 0.1f)
 
         if (position.y < height) {
             position.y = height

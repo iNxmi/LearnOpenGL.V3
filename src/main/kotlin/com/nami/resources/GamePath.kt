@@ -14,19 +14,34 @@ class GamePath {
         private val resources: Path = root.resolve("src/main/resources")
 
         @JvmStatic
-        val shaders: Path = resources.resolve("shaders")
+        val shader: Path = resources.resolve("shader")
 
         @JvmStatic
-        val textures: Path = resources.resolve("textures")
+        val texture: Path = resources.resolve("texture")
 
         @JvmStatic
-        val blocks: Path = resources.resolve("blocks")
+        val block: Path = resources.resolve("block")
 
         @JvmStatic
-        val biomes: Path = resources.resolve("biomes")
+        val biome: Path = resources.resolve("biome")
 
         @JvmStatic
-        val items: Path = resources.resolve("items")
+        val item: Path = resources.resolve("item")
+
+        @JvmStatic
+        val model: Path = resources.resolve("model")
+
+        @JvmStatic
+        val particle: Path = resources.resolve("particle")
+
+        @JvmStatic
+        val recipe: Path = resources.resolve("recipe")
+
+        @JvmStatic
+        val feature: Path = resources.resolve("feature")
+
+        @JvmStatic
+        val language: Path = resources.resolve("language")
 
         //Data
         private val data: Path = root.resolve("data")

@@ -1,0 +1,12 @@
+{
+  "item": "tool.flint_axe",
+  "variants": [
+    {
+      "duration": 5.0,
+      "ingredients": {
+        "flint": 3,
+        "stick": 2
+      }
+    }
+  ]
+}
