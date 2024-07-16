@@ -2,12 +2,10 @@ package com.nami.world.chunk
 
 import com.nami.scene.SceneTime
 import com.nami.world.World
-import com.nami.world.block.Block
 import com.nami.world.player.Player
+import com.nami.world.resources.block.Block
 import org.joml.Vector3f
 import org.joml.Vector3i
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL11.GL_CULL_FACE
 import java.util.*
 
 class ChunkManager(val world: World) {

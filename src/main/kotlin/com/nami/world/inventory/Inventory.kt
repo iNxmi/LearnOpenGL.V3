@@ -1,6 +1,6 @@
 package com.nami.world.inventory
 
-import com.nami.world.inventory.item.Item
+import com.nami.world.resources.item.Item
 import org.joml.Vector2i
 
 class Inventory(val size: Vector2i) {

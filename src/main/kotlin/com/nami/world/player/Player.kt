@@ -5,14 +5,13 @@ import com.nami.camera.Camera
 import com.nami.constants.Directions
 import com.nami.entity.Transform
 import com.nami.input.Input
-import com.nami.resources.Resource
 import com.nami.resources.Resources
 import com.nami.scene.SceneTime
 import com.nami.world.World
-import com.nami.world.block.Block
 import com.nami.world.chunk.Chunk
 import com.nami.world.inventory.Inventory
-import com.nami.world.inventory.item.Item
+import com.nami.world.resources.block.Block
+import com.nami.world.resources.item.Item
 import mu.KotlinLogging
 import org.joml.Vector2i
 import org.joml.Vector3f

@@ -2,16 +2,12 @@ package com.nami.world.chunk
 
 import com.nami.scene.SceneTime
 import com.nami.world.World
-import com.nami.world.block.Block
 import com.nami.world.player.Player
+import com.nami.world.resources.block.Block
 import de.articdive.jnoise.pipeline.JNoise
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.joml.Vector2i
 import org.joml.Vector3i
-import java.nio.file.Files
-import kotlin.io.path.createDirectories
 import kotlin.math.max
 
 
@@ -40,9 +36,7 @@ class Chunk(val world: World, val position: Vector3i) {
             for (y in (position.y * SIZE.y) until ((position.y + 1) * SIZE.y))
                 for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x)) {
                     val position = Vector3i(x, y, z)
-                    biomeManager.generate(position)
-
-                    val biome = biomeManager.getBiome(position) ?: continue
+                    val biome = biomeManager.getBiome(position)
                     val block = biome.generate() ?: continue
 
                     blockManager.setBlock(position, block)
@@ -53,7 +47,7 @@ class Chunk(val world: World, val position: Vector3i) {
         for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z))
             for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x)) {
                 val y = blockManager.getHeight(Vector2i(x, z), 512, setOf(Block.Layer.SOLID))
-                val biome = biomeManager.getBiome(Vector3i(x, y, z)) ?: continue
+                val biome = biomeManager.getBiome(Vector3i(x, y, z))
                 val block = world.blockManager.getBlock(Vector3i(x, y, z)) ?: continue
 
                 for (feature in biome.template.features) {

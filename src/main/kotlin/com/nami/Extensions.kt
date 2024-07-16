@@ -50,5 +50,3 @@ fun IntRange.overlaps(range: IntRange): Boolean {
     val result = kotlin.math.max(a2, b2) - kotlin.math.min(a1, b1) < (a2 - a1) + (b2 - b1)
     return result
 }
-
-

@@ -3,9 +3,9 @@ package com.nami.resources.particle
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.snakeToUpperCamelCase
-import com.nami.world.particle.Particle
-import com.nami.world.particle.ParticleColor
-import com.nami.world.particle.ParticleListener
+import com.nami.world.resources.particle.Particle
+import com.nami.world.resources.particle.ParticleColor
+import com.nami.world.resources.particle.ParticleListener
 import kotlinx.serialization.json.Json
 import org.joml.Vector3f
 import java.awt.Color
@@ -33,9 +33,9 @@ class ResourceLoaderParticle : Resources<Particle>(GamePath.particle, "particle"
 
         var handlerClass: Class<*> =
             try {
-                Class.forName("com.nami.world.particle.handlers.ParticleHandler${id.snakeToUpperCamelCase()}")
+                Class.forName("com.nami.world.resources.particle.handlers.ParticleHandler${id.snakeToUpperCamelCase()}")
             } catch (e: Exception) {
-                Class.forName("com.nami.world.particle.handlers.DefaultParticleHandler")
+                Class.forName("com.nami.world.resources.particle.handlers.DefaultParticleHandler")
             }
 
         return Particle(

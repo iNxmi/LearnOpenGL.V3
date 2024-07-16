@@ -3,9 +3,9 @@ package com.nami.resources.block
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.snakeToUpperCamelCase
-import com.nami.world.block.Block
-import com.nami.world.block.BlockDrop
-import com.nami.world.block.BlockListener
+import com.nami.world.resources.block.Block
+import com.nami.world.resources.block.BlockDrop
+import com.nami.world.resources.block.BlockListener
 import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import java.nio.file.Path
@@ -41,9 +41,9 @@ class ResourceLoaderBlock : Resources<Block>(GamePath.block, "block", arrayOf("j
 
         val handlerClass: Class<*> =
             try {
-                Class.forName("com.nami.world.block.handlers.BlockHandler${id.snakeToUpperCamelCase()}")
+                Class.forName("com.nami.world.resources.block.handlers.BlockHandler${id.snakeToUpperCamelCase()}")
             } catch (e: Exception) {
-                Class.forName("com.nami.world.block.handlers.DefaultBlockHandler")
+                Class.forName("com.nami.world.resources.block.handlers.DefaultBlockHandler")
             }
 
         val drops = mutableListOf<BlockDrop>()

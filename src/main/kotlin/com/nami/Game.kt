@@ -2,6 +2,7 @@ package com.nami
 
 import com.nami.imgui.ImGUIManager
 import com.nami.input.Input
+import com.nami.resources.Resource
 import com.nami.resources.Resources
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.LoadingScene
@@ -44,22 +45,11 @@ class Game {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         SceneManager.selected = LoadingScene({
-            var errorCount = 0
-            errorCount += Resources.SHADER.load()
-            errorCount += Resources.TEXTURE.load()
-            errorCount += Resources.ITEM.load()
-            errorCount += Resources.BLOCK.load()
-            errorCount += Resources.FEATURE.load()
-            errorCount += Resources.BIOME.load()
-            errorCount += Resources.MODEL.load()
-            errorCount += Resources.PARTICLE.load()
-            errorCount += Resources.RECIPE.load()
-            errorCount += Resources.LANGUAGE.load()
-
+            val errorCount = Resources.load()
             if (errorCount != 0)
                 log.warn { "Completed loading with $errorCount errors" }
             else
-                log.info { "Completed loading with $errorCount errors" }
+                log.info { "Completed loading with 0 errors" }
         }, MainMenuScene())
 
         glfwShowWindow(Window.pointer)

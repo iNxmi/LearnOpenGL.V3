@@ -8,9 +8,9 @@ import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
-import com.nami.world.block.Block
-import com.nami.world.inventory.item.Item
-import com.nami.world.recipe.RecipeVariant
+import com.nami.world.resources.block.Block
+import com.nami.world.resources.item.Item
+import com.nami.world.resources.recipe.RecipeVariant
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
@@ -124,7 +124,7 @@ class PlayScene(seed: Long) : Scene() {
 
             ImGui.text("Crafting")
             ImGui.text("Workstations in range: $workstations")
-            val recipes = mutableMapOf<Item, List<RecipeVariant>>()
+            val recipes = mutableMapOf<Item, Set<RecipeVariant>>()
             Resources.RECIPE.map.values.forEach { recipe -> recipes[recipe.item] = recipe.variants }
 
             recipes.forEach { (item, variants) ->

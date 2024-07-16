@@ -17,38 +17,41 @@ import kotlin.io.path.extension
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.isRegularFile
 
-abstract class Resources<T: Resource>(val path: Path, private val prefix: String, private val extensions: Array<String>) {
+abstract class Resources<T : Resource>(
+    val path: Path,
+    private val prefix: String,
+    private val extensions: Array<String>
+) {
 
     companion object {
-        @JvmStatic
         val SHADER = ResourceLoaderShader()
-
-        @JvmStatic
         val TEXTURE = ResourceLoaderTexture()
-
-        @JvmStatic
         val BLOCK = ResourceLoaderBlock()
-
-        @JvmStatic
         val BIOME = ResourceLoaderBiome()
-
-        @JvmStatic
         val ITEM = ResourceLoaderItem()
-
-        @JvmStatic
         val MODEL = ResourceLoaderModel()
-
-        @JvmStatic
         val PARTICLE = ResourceLoaderParticle()
-
-        @JvmStatic
         val RECIPE = ResourceLoaderRecipe()
-
-        @JvmStatic
         val FEATURE = ResourceLoaderFeature()
-
-        @JvmStatic
         val LANGUAGE = ResourceLoaderLanguage()
+
+        fun load(): Int {
+            val set = mutableSetOf(
+                SHADER,
+                TEXTURE,
+                ITEM,
+                BLOCK,
+                FEATURE,
+                BIOME,
+                MODEL,
+                PARTICLE,
+                RECIPE,
+                LANGUAGE
+            )
+
+            return set.sumOf { it.load() }
+        }
+
     }
 
     private val log = KotlinLogging.logger { }
@@ -59,26 +62,25 @@ abstract class Resources<T: Resource>(val path: Path, private val prefix: String
     protected abstract fun onLoadCompleted()
 
     fun load(): Int {
-        var errorCount = 0
-        Files.walk(path)
-            .filter { p ->
-                p.isRegularFile() && extensions.contains(p.extension)
-            }
-            .forEach { p ->
-                val id =
-                    p.subpath(path.nameCount, p.nameCount).invariantSeparatorsPathString.replace(
-                        ".${p.extension}",
-                        ""
-                    ).replace("/", ".")
-                log.info { "Loading '$p' as '$id'" }
+        val paths = Files.walk(path)
+            .filter { p -> p.isRegularFile() && extensions.contains(p.extension) }
 
-                try {
-                    map[id] = onLoad(id, p)
-                } catch (e: Exception) {
-                    errorCount++
-                    log.warn { "Failed to load '$p'\n${e.message}" }
-                }
+        var errorCount = 0
+        paths.forEach { p ->
+            val id =
+                p.subpath(path.nameCount, p.nameCount).invariantSeparatorsPathString.replace(
+                    ".${p.extension}",
+                    ""
+                ).replace("/", ".")
+            log.info { "Loading '$p' as '$id'" }
+
+            try {
+                map[id] = onLoad(id, p)
+            } catch (e: Exception) {
+                errorCount++
+                log.warn { "Failed to load '$p'\n${e.stackTraceToString()}" }
             }
+        }
 
         onLoadCompleted()
 

@@ -1,8 +1,6 @@
 package com.nami.world.chunk
 
-import com.nami.Game
 import com.nami.world.World
-import kotlinx.coroutines.*
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.glfw.GLFW.glfwGetTime

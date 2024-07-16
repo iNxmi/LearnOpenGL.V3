@@ -3,9 +3,9 @@ package com.nami.world.chunk
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
 import com.nami.scene.SceneTime
-import com.nami.world.block.Block
-import com.nami.world.block.Face
 import com.nami.world.player.Player
+import com.nami.world.resources.block.Block
+import com.nami.world.resources.block.Face
 import de.articdive.jnoise.core.api.functions.Interpolation
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction
 import de.articdive.jnoise.pipeline.JNoise
@@ -75,7 +75,13 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
                     Face.SOUTH -> block.template.textures[5]
                 }
                 var color = Vector3f(1f)
-                if (arrayOf("block.grass_top", "block.oak_leaves", "block.birch_leaves", "block.jungle_leaves").contains(texture))
+                if (arrayOf(
+                        "block.grass_top",
+                        "block.oak_leaves",
+                        "block.birch_leaves",
+                        "block.jungle_leaves"
+                    ).contains(texture)
+                )
                     color = Vector3f(0f, 0.8f, 0f)
 
                 val uv = TextureAtlas.getUV(texture)
@@ -183,9 +189,9 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
     }
 
     fun upload() {
-        if(bufferVbo == null || bufferVbo!!.limit() <= 0)
+        if (bufferVbo == null || bufferVbo!!.limit() <= 0)
             return
-        if(bufferEbo == null || bufferEbo!!.limit() <= 0)
+        if (bufferEbo == null || bufferEbo!!.limit() <= 0)
             return
 
         if (vao == 0) vao = glGenVertexArrays()
