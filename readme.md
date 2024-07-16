@@ -1,5 +1,13 @@
-# Voxel Game (not then name)
-A little project of mine for learning LWJGL 3 and OpenGL
+# Title: mix(minecraft, terraria, stardew_valley)
+A little project of mine for learning LWJGL 3 and OpenGL.
+Over the course of developing this little minecraft clone i have set the goal to try implementing a mix of minecraft, terraria and stardew valley into one game. 
+
+- all "dimensions" of minecraft (overworld, nether, the end) should not be separated by a teleporting portal. they should all be seamlessly connected vial theri respective y-levels
+- it should contain a wide variety of interesting and challenging opponents and bosses like terraria
+- but also be chill like stardew valley. no pressure for doing chit. no forced events like in terraria (maybe being able to skip the veent via a time speedup in bed)
+- some sort of automation for resources (coal, iron, diamond, etc.) as i hate to mine in minecraft (kinda ironic ik)
+- but it should also be completly customizable by a "resource pack". everything that is in the resources folder should be able to be replaces by such a resource pack. textures, sounds, models, items, blocks, recipes, etc.
+- real nps which may be ai controlled not just mindless stupid villagers. maybe a guide like in terraria which generates a guide procedurally via ai/
 
 ## Visuals
 + [data/screenshots](data/screenshots)
