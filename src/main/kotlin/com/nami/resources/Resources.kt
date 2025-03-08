@@ -35,8 +35,8 @@ abstract class Resources<T : Resource>(
         val FEATURE = ResourceLoaderFeature()
         val LANGUAGE = ResourceLoaderLanguage()
 
-        fun load(): Int {
-            val set = mutableSetOf(
+        fun load(
+            resources: Set<Resources<*>> = mutableSetOf(
                 SHADER,
                 TEXTURE,
                 ITEM,
@@ -48,8 +48,8 @@ abstract class Resources<T : Resource>(
                 RECIPE,
                 LANGUAGE
             )
-
-            return set.sumOf { it.load() }
+        ): Int {
+            return resources.sumOf { it.load() }
         }
 
     }
@@ -75,7 +75,8 @@ abstract class Resources<T : Resource>(
             log.info { "Loading '$p' as '$id'" }
 
             try {
-                map[id] = onLoad(id, p)
+                val resource = onLoad(id, p)
+                map[id] = resource
             } catch (e: Exception) {
                 errorCount++
                 log.warn { "Failed to load '$p'\n${e.stackTraceToString()}" }
@@ -85,14 +86,6 @@ abstract class Resources<T : Resource>(
         onLoadCompleted()
 
         return errorCount
-    }
-
-    fun add(key: String, value: T): Boolean {
-        if (map.containsKey(key))
-            return false
-
-        map[key] = value
-        return true
     }
 
     fun get(key: String): T {

@@ -9,11 +9,24 @@
   },
   "colors": [
     {
-      "hex": "ffffff",
+      "color": {
+        "hex": "ffffff"
+      },
       "brightness": {
         "min": 0.0,
         "max": 1.0
       }
     }
-  ]
+  ],
+  "easing": {
+    "segments": [
+      {
+        "range": {
+          "min": 0.0,
+          "max": 1.0
+        },
+        "equation": "sin(t * pi)"
+      }
+    ]
+  }
 }

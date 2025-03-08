@@ -10,7 +10,7 @@ data class BlockDrop(
     val rate: Float
 ) {
 
-    fun drop(): Int {
+    fun count(): Int {
         if (Math.random() > rate)
             return 0
 

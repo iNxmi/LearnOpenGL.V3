@@ -1,6 +1,5 @@
 package com.nami.world.resources.particle.handlers
 
-import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.particle.Particle
@@ -15,7 +14,7 @@ class ParticleHandlerLeaf : ParticleListener {
 
     val particleSpeed = Vector3f(0f, -1f, 0f)
 
-    override fun update(particle: Particle.Instance, world: World, time: SceneTime) {
+    override fun update(particle: Particle.Instance, world: World) {
         val position = particle.transform.position
 
         val height = world.blockManager.getHeight(
@@ -27,7 +26,7 @@ class ParticleHandlerLeaf : ParticleListener {
         if (position.y == height.toFloat() + 1)
             return
 
-        val move = Vector3f(particleSpeed).add(Vector3f(windDirection).mul(windSpeed)).mul(time.delta)
+        val move = Vector3f(particleSpeed).add(Vector3f(windDirection).mul(windSpeed)).mul(world.time.delta)
         position.add(move)
 
         if (position.y < height.toFloat() + 1)

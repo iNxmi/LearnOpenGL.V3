@@ -1,18 +1,17 @@
 package com.nami.world.player
 
+import com.nami.Directions
+import com.nami.Transform
 import com.nami.Window
-import com.nami.camera.Camera
-import com.nami.constants.Directions
-import com.nami.entity.Transform
-import com.nami.input.Input
+import com.nami.camera.CameraPerspective
+import com.nami.input.Keyboard
+import com.nami.input.Mouse
 import com.nami.resources.Resources
-import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
-import com.nami.world.inventory.Inventory
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
-import mu.KotlinLogging
+import kotlinx.serialization.Serializable
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
@@ -20,61 +19,36 @@ import org.lwjgl.glfw.GLFW.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Player(val world: World) {
+class Player(
+    val world: World,
+    val transform: Transform = Transform()
+) {
 
     companion object {
         const val SPEED = 3.0f
-        const val SENSIVITY = 0.075f
+        const val SENSITIVITY = 0.075f
         const val HEIGHT = 2.8f
         const val RANGE = 4
         const val MAX_ITERATIONS = RANGE * 16
     }
 
-    val log = KotlinLogging.logger { }
-
     private val blockManager = world.blockManager
 
-    val camera = Camera(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
-
-    val transform = Transform()
+    val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
     val acceleration = Vector3f(0f, 0f, 0f)
 
-    val inventory = Inventory(Vector2i(9, 4))
-
-    var selectedItem: Item.Instance = Resources.ITEM.get("tool.hand").create()
+    val items = mutableMapOf<Item, Item.Instance>()
+    var selectedItem = Resources.ITEM.get("tool.hand")
 
     init {
-        inventory.add(selectedItem, 1)
-        inventory.add(Resources.ITEM.get("lighter").create(), 1)
-        inventory.add(Resources.ITEM.get("block.tnt").create(), 20)
+        items[Resources.ITEM.get("tool.hand")] = Resources.ITEM.get("tool.hand").create(count = 1)
+        items[Resources.ITEM.get("lighter")] = Resources.ITEM.get("lighter").create(count = 1)
+        items[Resources.ITEM.get("block.tnt")] = Resources.ITEM.get("block.tnt").create(count = 64)
     }
 
-    fun update(time: SceneTime) {
-        //Primary
-        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == Input.State.DOWN) {
-//            if (inventory.get(selectedItem) > 0) {
-            val handler = selectedItem.handler
-            if (handler != null) {
-                val consumed = handler.onPrimaryUse(selectedItem, this)
-//                    if (consumed)
-//                        inventory.remove(selectedItem, 1)
-            }
-//            }
-        }
-
-        //Secondary
-        if (Input.mouseButtonStates[GLFW_MOUSE_BUTTON_RIGHT] == Input.State.DOWN) {
-//            if (inventory.get(selectedItem) > 0) {
-            val handler = selectedItem.handler
-            if (handler != null) {
-                val consumed = handler.onSecondaryUse(selectedItem, this)
-//                    if (consumed)
-//                        inventory.remove(selectedItem, 1)
-            }
-//            }
-        }
+    fun update() {
         inputDirection()
-        inputMovement(time)
+        inputMovement()
     }
 
     fun getFacingBlock(): Block.Instance? {
@@ -113,8 +87,8 @@ class Player(val world: World) {
     private val eulerAngles = Vector3f()
     private fun inputDirection() {
         if (glfwGetInputMode(Window.pointer, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-            eulerAngles.y += Input.posDelta.x * SENSIVITY
-            eulerAngles.x -= Input.posDelta.y * SENSIVITY
+            eulerAngles.y += Mouse.posDelta.x * SENSITIVITY
+            eulerAngles.x -= Mouse.posDelta.y * SENSITIVITY
             eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
 
             camera.directionFront.set(
@@ -125,41 +99,28 @@ class Player(val world: World) {
         }
     }
 
-    private fun inputMovement(time: SceneTime) {
+    private fun inputMovement() {
         val position = transform.position
 
-        var speed = SPEED * time.delta
-        if (Input.isKeyInStates(GLFW_KEY_LEFT_SHIFT, Input.State.DOWN, Input.State.HOLD))
+        var speed = SPEED * world.time.delta
+        if (Keyboard.isKeyInStates(GLFW_KEY_LEFT_SHIFT, Keyboard.State.DOWN, Keyboard.State.HOLD))
             speed *= 2f
 
         val dir = Vector3f(camera.directionFront.x, 0f, camera.directionFront.z).normalize()
         val move = Vector3f()
 
-        if (Input.isKeyInStates(GLFW_KEY_W, Input.State.DOWN, Input.State.HOLD))
+        if (Keyboard.isKeyInStates(GLFW_KEY_W, Keyboard.State.DOWN, Keyboard.State.HOLD))
             move.add(Vector3f(dir).mul(1f, 0f, 1f))
-        if (Input.isKeyInStates(GLFW_KEY_S, Input.State.DOWN, Input.State.HOLD))
+        if (Keyboard.isKeyInStates(GLFW_KEY_S, Keyboard.State.DOWN, Keyboard.State.HOLD))
             move.add(Vector3f(dir).mul(1f, 0f, 1f).mul(-1f))
 
-        if (Input.isKeyInStates(GLFW_KEY_A, Input.State.DOWN, Input.State.HOLD))
+        if (Keyboard.isKeyInStates(GLFW_KEY_A, Keyboard.State.DOWN, Keyboard.State.HOLD))
             move.add(Vector3f(dir).cross(Directions.UP).normalize().mul(0.6f).mul(-1f))
-        if (Input.isKeyInStates(GLFW_KEY_D, Input.State.DOWN, Input.State.HOLD))
+        if (Keyboard.isKeyInStates(GLFW_KEY_D, Keyboard.State.DOWN, Keyboard.State.HOLD))
             move.add(Vector3f(dir).cross(Directions.UP).normalize().mul(0.6f))
 
-        if (move.length() != 0f) {
+        if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))
-//            world.particleManager.spawn(
-//                "walk", world.time, Vector3f(position).add(0f, 1f, 0f).add(
-//                    Vector3f(
-//                        ((Math.random() * 2 - 1) * 0.5).toFloat(),
-//                        ((Math.random() * 2 - 1) * 0.5).toFloat(), ((Math.random() * 2 - 1) * 0.5).toFloat()
-//                    ).normalize().mul(Math.random().toFloat())
-//                )
-//            )
-        }
-
-        if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
-            if (position.y <= 0f)
-                acceleration.add(0f, 5f, 0f)
 
         val height =
             blockManager.getHeight(
@@ -169,16 +130,16 @@ class Player(val world: World) {
             ).toFloat()
 
         if (position.y > height)
-            acceleration.add(0f, -21f * time.delta, 0f)
+            acceleration.add(0f, -21f * world.time.delta, 0f)
 
-        if (Input.isKeyInStates(GLFW_KEY_SPACE, Input.State.DOWN, Input.State.HOLD))
+        if (Keyboard.isKeyInStates(GLFW_KEY_SPACE, Keyboard.State.DOWN, Keyboard.State.HOLD))
             if (position.y <= height)
                 acceleration.add(0f, 7.5f, 0f)
 
         if (acceleration.y <= -100f)
             acceleration.y = -100f
 
-        position.add(Vector3f(acceleration).mul(time.delta))
+        position.add(Vector3f(acceleration).mul(world.time.delta))
 
         position.x = position.x.coerceIn(0f, (world.size.x * Chunk.SIZE.x).toFloat() - 0.1f)
         position.z = position.z.coerceIn(0f, (world.size.z * Chunk.SIZE.z).toFloat() - 0.1f)
@@ -189,6 +150,19 @@ class Player(val world: World) {
         }
 
         camera.transform.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
+    }
+
+    @Serializable
+    data class JSON(
+        val transform: Transform.JSON
+    ) {
+
+        constructor(player: Player) : this(player.transform.json())
+
+        fun create(world: World): Player {
+            return Player(world, transform.create())
+        }
+
     }
 
 }

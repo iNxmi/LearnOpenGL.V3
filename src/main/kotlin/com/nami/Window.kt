@@ -1,6 +1,7 @@
 package com.nami
 
-import com.nami.input.Input
+import com.nami.input.Keyboard
+import com.nami.input.Mouse
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWVidMode
@@ -51,10 +52,10 @@ class Window {
                 GL11.glViewport(0, 0, width, height)
             }
 
-            glfwSetKeyCallback(pointer, Input::onKeyCallback)
-            glfwSetMouseButtonCallback(pointer, Input::onMouseButtonCallback)
-            glfwSetCursorPosCallback(pointer, Input::onCursorPosCallback)
-            glfwSetScrollCallback(pointer, Input::onScrollCallback)
+            glfwSetKeyCallback(pointer, Keyboard::onKeyCallback)
+            glfwSetMouseButtonCallback(pointer, Mouse::onMouseButtonCallback)
+            glfwSetCursorPosCallback(pointer, Mouse::onCursorPosCallback)
+            glfwSetScrollCallback(pointer, Mouse::onScrollCallback)
 
             glfwMakeContextCurrent(pointer)
 

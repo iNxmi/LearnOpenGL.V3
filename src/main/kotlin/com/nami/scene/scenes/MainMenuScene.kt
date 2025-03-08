@@ -7,21 +7,21 @@ import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose
 
-class MainMenuScene : Scene() {
+class MainMenuScene : Scene {
 
-    override fun onInit() {
-
-    }
-
-    override fun onUpdate() {
+    override fun enable() {
 
     }
 
-    override fun onRender() {
+    override fun update() {
 
     }
 
-    override fun onRenderHUD() {
+    override fun render() {
+
+    }
+
+    override fun renderHUD() {
         ImGui.setNextWindowPos(0f, 0f)
         ImGui.setNextWindowSize(1920f, 1080f)
 
@@ -29,12 +29,16 @@ class MainMenuScene : Scene() {
         ImGui.begin("Main Menu", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
         if (ImGui.button("Play"))
-            SceneManager.selected = SelectWorldScene()
+            SceneManager.set(SelectWorldScene())
 
         if (ImGui.button("Quit"))
             glfwSetWindowShouldClose(Window.pointer, true)
 
         ImGui.end()
+    }
+
+    override fun disable() {
+
     }
 
 }

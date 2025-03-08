@@ -1,6 +1,5 @@
 package com.nami.world.chunk
 
-import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.player.Player
 import com.nami.world.resources.block.Block
@@ -8,11 +7,14 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.*
 
-class ChunkManager(val world: World) {
+class ChunkManager(
+    val world: World
+) {
 
     val chunks = mutableMapOf<Vector3i, Chunk>()
     val generator = ChunkGenerator(world, 8)
     val meshGenerator = ChunkMeshGenerator(world, this, 1f)
+    val saver = ChunkSaver(world, 8)
 
     fun setChunk(position: Vector3i, chunk: Chunk) {
         chunks[position] = chunk
@@ -32,7 +34,7 @@ class ChunkManager(val world: World) {
         )
     }
 
-    fun update(time: SceneTime, player: Player, chunkRadius: Int) {
+    fun update(player: Player, chunkRadius: Int) {
         for (z in -chunkRadius..chunkRadius)
             for (y in -chunkRadius..chunkRadius)
                 for (x in -chunkRadius..chunkRadius) {
@@ -57,9 +59,10 @@ class ChunkManager(val world: World) {
 
         generator.update()
         meshGenerator.update()
+        saver.update()
     }
 
-    fun render(time: SceneTime, player: Player, chunkRadius: Int) {
+    fun render(player: Player, chunkRadius: Int) {
         val chunks = TreeMap<Float, Chunk>()
         for (z in -chunkRadius..chunkRadius)
             for (y in -chunkRadius..chunkRadius)
@@ -79,11 +82,11 @@ class ChunkManager(val world: World) {
                         chunks[distance] = chunk
                     }
 
-        chunks.forEach { (_, chunk) -> chunk.render(player, time, Block.Layer.SOLID) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.SOLID) }
         chunks.forEach { (_, chunk) ->
-            chunk.render(player, time, Block.Layer.TRANSPARENT)
-            chunk.render(player, time, Block.Layer.FOLIAGE)
-            chunk.render(player, time, Block.Layer.FLUID)
+            chunk.render(player, Block.Layer.TRANSPARENT)
+            chunk.render(player, Block.Layer.FOLIAGE)
+            chunk.render(player, Block.Layer.FLUID)
         }
     }
 

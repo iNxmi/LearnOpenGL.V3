@@ -9,25 +9,42 @@
   },
   "colors": [
     {
-      "hex": "ffff00",
+      "color": {
+        "hex": "FFFF00"
+      },
       "brightness": {
         "min": 0.75,
         "max": 1.0
       }
     },
     {
-      "hex": "ffa500",
+      "color": {
+        "hex": "FFA500"
+      },
       "brightness": {
         "min": 0.25,
         "max": 0.75
       }
     },
     {
-      "hex": "ff0000",
+      "color": {
+        "hex": "FF0000"
+      },
       "brightness": {
         "min": 0.25,
         "max": 0.75
       }
     }
-  ]
+  ],
+  "easing": {
+    "segments": [
+      {
+        "range": {
+          "min": 0.0,
+          "max": 1.0
+        },
+        "equation": "sin(t * pi * 16)"
+      }
+    ]
+  }
 }

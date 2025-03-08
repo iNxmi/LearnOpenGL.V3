@@ -1,0 +1,32 @@
+{
+  "timeInSeconds": {
+    "min": 3.0,
+    "max": 6.5
+  },
+  "scale": {
+    "min": 0.02,
+    "max": 0.04
+  },
+  "colors": [
+    {
+      "color": {
+        "hex": "FFFFFF"
+      },
+      "brightness": {
+        "min": 1.0,
+        "max": 1.0
+      }
+    }
+  ],
+  "easing": {
+    "segments": [
+      {
+        "range": {
+          "min": 0.0,
+          "max": 1.0
+        },
+        "equation": "sin(t * pi)"
+      }
+    ]
+  }
+}

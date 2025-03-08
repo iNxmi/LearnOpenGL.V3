@@ -2,10 +2,7 @@ package com.nami.resources.block
 
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
-import com.nami.snakeToUpperCamelCase
 import com.nami.world.resources.block.Block
-import com.nami.world.resources.block.BlockDrop
-import com.nami.world.resources.block.BlockListener
 import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import java.nio.file.Path
@@ -14,53 +11,9 @@ class ResourceLoaderBlock : Resources<Block>(GamePath.block, "block", arrayOf("j
 
     override fun onLoad(id: String, path: Path): Block {
         val jsonString = Files.readString(path)
-        val json: BlockJSON = Json.decodeFromString<BlockJSON>(jsonString)
+        val json: Block.JSON = Json.decodeFromString<Block.JSON>(jsonString)
 
-        val textures: List<String> = listOf(
-            json.textures.top,
-            json.textures.bottom,
-
-            json.textures.north,
-            json.textures.east,
-            json.textures.west,
-            json.textures.south
-        )
-
-        textures.forEach { t ->
-            if (!TEXTURE.map.containsKey(t))
-                throw IllegalStateException("Unknown texture '$t' in '$path'")
-        }
-
-        val layer = when (json.layer) {
-            "solid" -> Block.Layer.SOLID
-            "transparent" -> Block.Layer.TRANSPARENT
-            "foliage" -> Block.Layer.FOLIAGE
-            "fluid" -> Block.Layer.FLUID
-            else -> throw Exception("Unknown layer '${json.layer}' in '$path'")
-        }
-
-        val handlerClass: Class<*> =
-            try {
-                Class.forName("com.nami.world.resources.block.handlers.BlockHandler${id.snakeToUpperCamelCase()}")
-            } catch (e: Exception) {
-                Class.forName("com.nami.world.resources.block.handlers.DefaultBlockHandler")
-            }
-
-        val drops = mutableListOf<BlockDrop>()
-        json.drops?.forEach { drops.add(BlockDrop(ITEM.get(it.item), it.amount.min, it.amount.max, it.rate)) }
-
-        val block = Block(
-            id,
-            handlerClass as Class<BlockListener>,
-
-            textures,
-            layer,
-            json.tags,
-            json.resistance,
-            drops
-        )
-
-        return block
+        return json.create(id)
     }
 
     override fun onLoadCompleted() {

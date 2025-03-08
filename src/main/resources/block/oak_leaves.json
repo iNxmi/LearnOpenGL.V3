@@ -9,7 +9,7 @@
   },
   "layer": "foliage",
   "resistance": {
-    "item.hand": 0.25,
+    "item.tool.hand": 0.25,
     "tag.shears": 0.0
   },
   "drops": [

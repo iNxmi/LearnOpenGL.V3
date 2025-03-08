@@ -1,36 +1,30 @@
 package com.nami.world.resources.particle
 
-import com.nami.entity.Transform
+import com.nami.Transform
 import com.nami.resources.Resources
-import com.nami.scene.SceneTime
 import com.nami.world.World
 import com.nami.world.player.Player
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11.GL_UNSIGNED_INT
 import org.lwjgl.opengl.GL31.glDrawElementsInstanced
 import org.lwjgl.opengl.GL33
-import kotlin.math.sin
 
 class ParticleManager(val world: World) {
 
     val particles = mutableListOf<Particle.Instance>()
 
-    fun spawn(id: String, sceneTime: SceneTime, position: Vector3f) {
+    fun spawn(id: String, position: Vector3f) {
         val particle = Resources.PARTICLE.get(id)
-        val instance = particle.create(sceneTime, position)
+        val instance = particle.create(world.time, position)
         particles.add(instance)
     }
 
-    fun update(time: SceneTime) {
-        particles.removeAll {
-            it.startTime + it.durationInSeconds < time.time
-        }
-        particles.forEach {
-            it.update(world, time)
-        }
+    fun update() {
+        particles.removeAll { it.startTime + it.durationInSeconds < world.time.time }
+        particles.forEach { it.update(world) }
     }
 
-    fun render(player: Player, time: SceneTime) {
+    fun render(player: Player) {
         particles.withIndex().groupBy { it.index / 128 }.values.forEach { list ->
             val shader = Resources.SHADER.get("particle").bind()
 
@@ -38,12 +32,16 @@ class ParticleManager(val world: World) {
             shader.uniform.set("u_view_matrix", player.camera.view())
 
             list.withIndex().forEach { (i, it) ->
-                val x = (time.time - it.value.startTime) / it.value.durationInSeconds
-                val transform = Transform(it.value.transform)
-                transform.scale.mul(sin(x * Math.PI).toFloat())
+                val particle = it.value
 
-                shader.uniform.set("u_model_matrices[${i}]", transform.modelMatrix())
-                shader.uniform.set("u_colors[${i}]", it.value.color)
+                val t = (world.time.time - particle.startTime) / particle.durationInSeconds
+                val x = particle.template.easing.evaluate(t)
+
+                val transform = Transform(particle.transform)
+                transform.scale.mul(x)
+
+                shader.uniform.set("u_model_matrices[${i}]", transform.matrix())
+                shader.uniform.set("u_colors[${i}]", particle.color)
             }
 
             val model = Resources.MODEL.get("particle.cube")

@@ -1,4 +1,4 @@
-package com.nami.constants
+package com.nami
 
 import org.joml.Vector3f
 

@@ -12,8 +12,6 @@ class ImGUIManager {
 
     companion object {
 
-        private val log = KotlinLogging.logger { }
-
         private var init = false
 
         @JvmStatic

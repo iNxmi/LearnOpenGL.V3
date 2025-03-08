@@ -42,5 +42,13 @@
   "item.tool.hand.name": "Hand",
   "item.tool.pickaxe.name": "Spitzhacke",
   "item.tool.shears.name": "Schere",
-  "item.tool.shovel.name": "Schaufel"
+  "item.tool.shovel.name": "Schaufel",
+
+
+  "language.english.name": "English",
+  "language.dutch.name": "Dutch",
+  "language.french.name": "French",
+  "language.german.name": "German",
+  "language.hungarian.name": "Hungarian",
+  "language.russian.name": "Russian"
 }

@@ -1,12 +1,12 @@
 package com.nami
 
 import com.nami.imgui.ImGUIManager
-import com.nami.input.Input
-import com.nami.resources.Resource
+import com.nami.input.Keyboard
+import com.nami.input.Mouse
 import com.nami.resources.Resources
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.LoadingScene
-import com.nami.scene.scenes.MainMenuScene
+import com.nami.scene.scenes.SelectWorldScene
 import mu.KotlinLogging
 import org.lwjgl.Version
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
@@ -14,19 +14,11 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL13.GL_MULTISAMPLE
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class Game {
 
     companion object {
         var DELTA_TIME = 0F
-
-        val QUEUE = ConcurrentLinkedQueue<Runnable>()
-
-        @JvmStatic
-        fun runLater(runnable: Runnable) {
-            QUEUE.add(runnable)
-        }
     }
 
     private val log = KotlinLogging.logger {}
@@ -44,13 +36,14 @@ class Game {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        SceneManager.selected = LoadingScene({
+        val loadingScene = LoadingScene({
             val errorCount = Resources.load()
             if (errorCount != 0)
                 log.warn { "Completed loading with $errorCount errors" }
             else
                 log.info { "Completed loading with 0 errors" }
-        }, MainMenuScene())
+        }, SelectWorldScene())
+        SceneManager.set(loadingScene)
 
         glfwShowWindow(Window.pointer)
 
@@ -71,16 +64,14 @@ class Game {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
             lastTime = glfwGetTime().toFloat()
 
-            if (QUEUE.isNotEmpty())
-                QUEUE.remove().run()
-
-            Input.update()
+            Keyboard.update()
+            Mouse.update()
 
             SceneManager.update()
 
             render()
 
-            Input.endFrame()
+            Mouse.endFrame()
             glfwPollEvents()
         }
     }

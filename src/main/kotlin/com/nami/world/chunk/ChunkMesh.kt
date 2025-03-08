@@ -1,8 +1,8 @@
 package com.nami.world.chunk
 
+import com.nami.Time
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
-import com.nami.scene.SceneTime
 import com.nami.world.player.Player
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.block.Face
@@ -231,7 +231,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
         bufferEbo = null
     }
 
-    fun render(player: Player, time: SceneTime) {
+    fun render(player: Player, time: Time) {
         if (indicesCount <= 0)
             return
 

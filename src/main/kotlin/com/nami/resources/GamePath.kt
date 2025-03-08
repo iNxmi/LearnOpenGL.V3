@@ -43,6 +43,9 @@ class GamePath {
         @JvmStatic
         val language: Path = resources.resolve("language")
 
+        @JvmStatic
+        val creature: Path = resources.resolve("creature")
+
         //Data
         private val data: Path = root.resolve("data")
 
@@ -53,7 +56,9 @@ class GamePath {
         val maps: Path = data.resolve("maps")
 
         @JvmStatic
-        val worlds: Path = data.resolve("worlds")
+        val worlds: Path = Paths.get("C:\\Users\\memph\\Desktop\\worlds")
+//        val worlds: Path = Paths.get("D:/Windows/Desktop/worlds")
+//        val worlds: Path = data.resolve("worlds")
 
     }
 

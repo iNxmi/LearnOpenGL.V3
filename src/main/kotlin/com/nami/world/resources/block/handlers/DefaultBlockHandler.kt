@@ -1,6 +1,6 @@
 package com.nami.world.resources.block.handlers
 
-import com.nami.scene.SceneTime
+import com.nami.Time
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.block.BlockListener
 
@@ -26,7 +26,7 @@ class DefaultBlockHandler : BlockListener {
 
     }
 
-    override fun update(time: SceneTime, block: Block.Instance) {
+    override fun update(time: Time, block: Block.Instance) {
 
     }
 

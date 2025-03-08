@@ -1,10 +1,7 @@
 package com.nami.resources.shader
 
 import mu.KotlinLogging
-import org.joml.Matrix3f
-import org.joml.Matrix4f
-import org.joml.Vector2f
-import org.joml.Vector3f
+import org.joml.*
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryStack
 
@@ -42,6 +39,11 @@ class Uniform(private val shader: Shader) {
 
     fun set(name: String, value: Vector3f): Uniform {
         glUniform3f(location(name), value.x, value.y, value.z)
+        return this
+    }
+
+    fun set(name: String, value: Vector4f): Uniform {
+        glUniform4f(location(name), value.x, value.y, value.z, value.w)
         return this
     }
 

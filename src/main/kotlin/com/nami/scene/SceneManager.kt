@@ -5,24 +5,24 @@ import com.nami.imgui.ImGUIManager
 class SceneManager {
 
     companion object {
-        @JvmStatic
-        var selected: Scene? = null
-            set(value) {
-                field = value
-                value?.init()
-            }
 
-        @JvmStatic
+        private var selected: Scene? = null
+
+        fun set(scene: Scene) {
+            selected?.disable()
+
+            selected = scene
+            selected?.enable()
+        }
+
         fun update() {
             selected?.update()
         }
 
-        @JvmStatic
         fun render() {
             selected?.render()
         }
 
-        @JvmStatic
         fun renderHUD() {
             ImGUIManager.newFrame()
             selected?.renderHUD()

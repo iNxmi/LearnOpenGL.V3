@@ -2,7 +2,7 @@ package com.nami.scene.scenes
 
 import com.nami.Game
 import com.nami.Window
-import com.nami.input.Input
+import com.nami.input.Keyboard
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.scene.Scene
@@ -29,15 +29,15 @@ import java.util.*
 import javax.imageio.ImageIO
 
 
-class PlayScene(seed: Long) : Scene() {
+class PlayScene(val world: World) : Scene {
 
     private val log = KotlinLogging.logger { }
-
-    private val world = World(seed, seed.toString(), time, Vector3i(512, 512, 512), 64)
 
     private var polygonMode = GL_FILL
 
     private var menu: String? = null
+
+    private val languageID = ImInt()
 
     private val menus = mapOf(
         Pair("settings", Runnable {
@@ -48,16 +48,17 @@ class PlayScene(seed: Long) : Scene() {
             ImGui.getFont().scale = 2f
             ImGui.begin("settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-            if (ImGui.collapsingHeader("World")) {
-                if (ImGui.button("Save")){
+            if (ImGui.collapsingHeader("Language")) {
+                val languages = Resources.LANGUAGE.map.values.toList()
+                ImGui.listBox("Language", languageID, languages.map { it.language("name") }.toTypedArray())
 
-                }
-//                    world.save()
+                if (ImGui.button("Select"))
+                    Resources.LANGUAGE.select(languages[languageID.get()].id)
             }
 
             if (ImGui.collapsingHeader("Time")) {
                 if (ImGui.sliderFloat("Scale", timeScale, 0f, 5f))
-                    time.scale = timeScale[0]
+                    world.time.scale = timeScale[0]
             }
 
             if (ImGui.collapsingHeader("OpenGL"))
@@ -81,7 +82,7 @@ class PlayScene(seed: Long) : Scene() {
             }
 
             if (ImGui.button("Main Menu"))
-                SceneManager.selected = MainMenuScene()
+                SceneManager.set(MainMenuScene())
 
             ImGui.end()
         }),
@@ -115,11 +116,9 @@ class PlayScene(seed: Long) : Scene() {
             ImGui.begin("inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
             ImGui.text("Inventory")
-            ImGui.text("Weight: ${world.player.inventory.weight}kg")
-            world.player.inventory.map.forEach { (item, amount) ->
-                if (ImGui.button("${item.template.language("name")}: $amount * ${item.template.weight} = ${amount * item.template.weight}kg")) {
+            world.player.items.forEach { (item, itemInstance) ->
+                if (ImGui.button("${itemInstance.template.language("name")}: ${itemInstance.count} * ${item.weight} = ${itemInstance.count * item.weight}kg"))
                     world.player.selectedItem = item
-                }
             }
 
             ImGui.text("Crafting")
@@ -134,8 +133,6 @@ class PlayScene(seed: Long) : Scene() {
                     if (variant.workstations != null)
                         if (!variant.workstations.any { it in workstations }) return@forEach
 
-                    val inventory = world.player.inventory
-//                    val success = variant.ingredients.all { (item, amount) -> inventory.get(item) >= amount }
                     val success = false
 
                     val buttonName = variant.ingredients.map { (item, amount) -> "${item.language("name")}($amount) " }
@@ -176,22 +173,22 @@ class PlayScene(seed: Long) : Scene() {
         })
     )
 
-    override fun onInit() {
+    override fun enable() {
         glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 //
 //        if (glfwRawMouseMotionSupported())
 //            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
-    override fun onUpdate() {
-        if (Input.keyStates[GLFW_KEY_ESCAPE] == Input.State.DOWN)
+    override fun update() {
+        if (Keyboard.keys[GLFW_KEY_ESCAPE] == Keyboard.State.DOWN)
             menu = if (menu == null) "settings" else null
 
         if (menu == null) {
-            if (Input.keyStates[GLFW_KEY_E] == Input.State.DOWN)
+            if (Keyboard.keys[GLFW_KEY_E] == Keyboard.State.DOWN)
                 menu = "inventory"
 
-            if (Input.keyStates[GLFW_KEY_F3] == Input.State.DOWN)
+            if (Keyboard.keys[GLFW_KEY_F3] == Keyboard.State.DOWN)
                 menu = "info"
         }
 
@@ -201,7 +198,7 @@ class PlayScene(seed: Long) : Scene() {
             if (menu != null) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
         )
 
-        if (Input.keyStates[GLFW_KEY_F2] == Input.State.DOWN) {
+        if (Keyboard.keys[GLFW_KEY_F2] == Keyboard.State.DOWN) {
             val width = Window.width
             val height = Window.height
 
@@ -234,26 +231,29 @@ class PlayScene(seed: Long) : Scene() {
             }
         }
 
-        world.update(time)
+        world.update()
     }
 
-    override fun onRender() {
+    override fun render() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
 
-        world.render(time)
+        world.render()
     }
 
     private val comboPolyMode = ImInt()
     private val timeScale = floatArrayOf(1.0f)
     private val fullscreen = ImBoolean(false)
-    private val selectedItem = ImInt(0)
 
-    override fun onRenderHUD() {
+    override fun renderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         menus[menu]?.run()
+    }
+
+    override fun disable() {
+
     }
 
 }

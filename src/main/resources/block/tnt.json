@@ -9,7 +9,7 @@
   },
   "layer": "solid",
   "resistance": {
-    "item.hand": 0.1
+    "item.tool.hand": 0.1
   },
   "drops": [
     {

@@ -1,8 +1,6 @@
-package com.nami.scene
+package com.nami
 
-import com.nami.Game
-
-class SceneTime {
+class Time {
 
     var time = 0f
         private set

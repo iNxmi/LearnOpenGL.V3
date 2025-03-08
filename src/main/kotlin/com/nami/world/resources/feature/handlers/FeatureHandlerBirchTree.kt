@@ -1,19 +1,21 @@
 package com.nami.world.resources.feature.handlers
 
 import com.nami.random
+import com.nami.resources.Resources
 import com.nami.world.World
+import com.nami.world.resources.block.Block
 import com.nami.world.resources.feature.FeatureListener
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 
 class FeatureHandlerBirchTree : FeatureListener {
 
-    override fun generate(world: World, position: Vector3i) {
-        val blockManager = world.blockManager
+    override fun generate(world: World, position: Vector3i): Map<Vector3i, Block.Instance> {
+        val blocks = mutableMapOf<Vector3i, Block.Instance>()
 
         val baseHeight = Int.random(4..6)
         for (i in 0 until baseHeight)
-            blockManager.setBlock(Vector3i(position).add(0, i, 0), "birch_log")
+            blocks[Vector3i(position).add(0, i, 0)] =  Resources.BLOCK.get("birch_log").create(world, Vector3i(position).add(0, i, 0))
 
         for (i in 0 until 5) {
             val position = Vector3i(position).add(0, baseHeight, 0)
@@ -33,12 +35,12 @@ class FeatureHandlerBirchTree : FeatureListener {
                 if ((0.85f..1f).contains(rand))
                     position.z -= 1
 
-                blockManager.setBlock(Vector3i(position), "birch_log")
+                blocks[Vector3i(position)] = Resources.BLOCK.get("birch_log").create(world, Vector3i(position))
 
                 for (z in -1..1)
                     for (y in -1..1)
                         for (x in -1..1) {
-                            val position = Vector3i(position).add(x, y, z)
+                            val pos = Vector3i(position).add(x, y, z)
 
                             if (x.absoluteValue + y.absoluteValue + z.absoluteValue > 2)
                                 continue
@@ -46,14 +48,19 @@ class FeatureHandlerBirchTree : FeatureListener {
                             if (x.absoluteValue + y.absoluteValue + z.absoluteValue > 1)
                                 if (Math.random() >= 0.25) continue
 
-                            val block = blockManager.getBlock(Vector3i(position))
-                            if (block != null)
+                            if (
+                                (world.blockManager.getBlock(Vector3i(pos)) != null)
+                                ||
+                                (blocks[Vector3i(pos)] != null)
+                            )
                                 continue
 
-                            blockManager.setBlock(position, "birch_leaves")
+                            blocks[Vector3i(pos)] = Resources.BLOCK.get("birch_leaves").create(world, Vector3i(pos))
                         }
             }
         }
+
+        return blocks
     }
 
 }

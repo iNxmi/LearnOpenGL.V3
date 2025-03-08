@@ -9,7 +9,9 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.concurrent.ConcurrentHashMap
 
-class BiomeManager(val world: World) {
+class BiomeManager(
+    val world: World
+)  {
 
     private val biomes = ConcurrentHashMap<Vector3i, Biome.Instance>()
 
@@ -38,7 +40,10 @@ class BiomeManager(val world: World) {
         .clamp(-25.0, 50.0)
         .build()
 
-    private fun generate(position: Vector3i): Biome.Instance {
+    fun generate(position: Vector3i) {
+        if (biomes.containsKey(position))
+            return
+
         val elevation = elevation.evaluateNoise(
             position.x.toDouble(),
             position.z.toDouble()
@@ -57,18 +62,21 @@ class BiomeManager(val world: World) {
         ).toFloat()
 
         val factors = Vector3f(elevation, moisture, temperature)
-        val biome = Resources.BIOME.evaluate(factors)
+        val biome = Resources.BIOME.evaluate(factors) ?: return
 //        val biome = Resource.BIOME.get("jungle_forest")
-        return biome.create(world, position, factors)
+        biomes[position] = biome.create(world, position, factors)
     }
 
-    fun getBiome(position: Vector3i): Biome.Instance {
-        if (!biomes.contains(position)) {
-            val biome = generate(position)
-            biomes[position] = biome
-            return biome
-        }
-
-        return biomes[position]!!
+    fun setBiome(position: Vector3i, biome: Biome.Instance) {
+        biomes[position] = biome
     }
+
+    fun setBiomes(map: Map<Vector3i, Biome.Instance>) {
+        biomes.putAll(map)
+    }
+
+    fun getBiome(position: Vector3i): Biome.Instance? {
+        return biomes[position]
+    }
+
 }
