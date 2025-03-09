@@ -4,9 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nami</groupId>
+    <groupId>com.nami.learnopengl.v3</groupId>
     <artifactId>LearnOpenGL.V3</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <developers>
         <developer>
@@ -14,6 +15,11 @@
             <name>Memphis Herghelegiu</name>
         </developer>
     </developers>
+    <modules>
+        <module>Client</module>
+        <module>Server</module>
+        <module>Core</module>
+    </modules>
 
     <properties>
         <maven.compiler.target>19</maven.compiler.target>
@@ -23,8 +29,8 @@
 
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>19</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.0.0</kotlin.version>
-        <kotlin.serialization.version>1.6.3</kotlin.serialization.version>
+        <kotlin.version>2.0.10</kotlin.version>
+        <kotlin.serialization.version>1.8.0</kotlin.serialization.version>
 
         <imgui.version>1.86.11</imgui.version>
 
@@ -51,7 +57,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-
     </repositories>
 
     <build>
@@ -204,7 +209,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit5</artifactId>
-            <version>1.9.22</version>
+            <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
