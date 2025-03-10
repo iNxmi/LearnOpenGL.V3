@@ -6,15 +6,15 @@ import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ResourceLoaderLanguage : Resources<Language>(GamePath.language, "language", arrayOf("json")) {
+class ResourceLoaderLanguage : Resources<com.nami.client.resources.language.Language>(GamePath.language, "language", arrayOf("json")) {
 
-    private var selected: Language? = null
+    private var selected: com.nami.client.resources.language.Language? = null
 
-    override fun onLoad(id: String, path: Path): Language {
+    override fun onLoad(id: String, path: Path): com.nami.client.resources.language.Language {
         val jsonString = Files.readString(path)
         val map = Json.decodeFromString<MutableMap<String, String>>(jsonString)
 
-        return Language(id, map)
+        return com.nami.client.resources.language.Language(id, map)
     }
 
     override fun onLoadCompleted() {

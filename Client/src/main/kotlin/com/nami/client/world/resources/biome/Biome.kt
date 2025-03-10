@@ -68,7 +68,7 @@ class Biome(
         val elevation: BiomeRangeJSON,
         val moisture: BiomeRangeJSON,
         val temperature: BiomeRangeJSON,
-        val features: List<BiomeFeatureJSON>? = null
+        val features: List<com.nami.client.resources.biome.BiomeFeatureJSON>? = null
     ) {
 
         fun create(id: String): Biome {

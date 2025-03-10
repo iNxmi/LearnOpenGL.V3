@@ -14,7 +14,7 @@ class ResourceLoaderTexture : Resources<Texture>(GamePath.texture, "texture", ar
     }
 
     override fun onLoadCompleted() {
-        TextureAtlas.generate()
+       TextureAtlas.Companion.generate()
     }
 
     fun unbind() {

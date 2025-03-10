@@ -5,7 +5,7 @@ import com.nami.client.resources.feature.ResourceFeature
 class Feature(
     id: String,
     private val handlerClass: Class<FeatureListener>
-) : ResourceFeature(id) {
+) : com.nami.client.resources.feature.ResourceFeature(id) {
 
     fun create(): Instance {
         val handler = handlerClass.getDeclaredConstructor().newInstance()

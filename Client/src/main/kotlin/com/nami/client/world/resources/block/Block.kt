@@ -24,7 +24,7 @@ class Block(
     val tags: Set<String>?,
     val resistance: Map<String, Float>,
     val drops: Set<BlockDrop>?
-) : ResourceBlock(id) {
+) : com.nami.client.resources.block.ResourceBlock(id) {
 
     fun create(
         world: World,
@@ -113,7 +113,7 @@ class Block(
         val textures: BlockTextureNamesJSON,
         val layer: String,
         val resistance: Map<String, Float> = mapOf(),
-        val drops: Set<BlockDropJSON>? = null,
+        val drops: Set<com.nami.client.resources.block.BlockDropJSON>? = null,
         val tags: Set<String>? = null
     ) {
 

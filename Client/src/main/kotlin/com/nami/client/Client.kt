@@ -6,6 +6,7 @@ import com.nami.client.input.Mouse
 import com.nami.client.resources.Resources
 import com.nami.client.scene.SceneManager
 import com.nami.client.scene.scenes.LoadingScene
+import com.nami.client.scene.scenes.MainMenuScene
 import com.nami.client.scene.scenes.SelectWorldScene
 import mu.KotlinLogging
 import org.lwjgl.Version
@@ -42,7 +43,7 @@ class Client {
                 log.warn { "Completed loading with $errorCount errors" }
             else
                 log.info { "Completed loading with 0 errors" }
-        }, SelectWorldScene())
+        }, MainMenuScene())
         SceneManager.set(loadingScene)
 
         glfwShowWindow(Window.pointer)

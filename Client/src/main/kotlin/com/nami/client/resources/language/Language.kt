@@ -5,7 +5,7 @@ import mu.KotlinLogging
 class Language(
     id: String,
     val map: MutableMap<String, String>
-) : ResourceLanguage(id) {
+) : com.nami.client.resources.language.ResourceLanguage(id) {
 
     private val log = KotlinLogging.logger {  }
 

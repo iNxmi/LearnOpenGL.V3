@@ -9,7 +9,7 @@ class Shader(
     val path: Path
 ) : ResourceShader(id) {
 
-    val uniform: Uniform = Uniform(this)
+    val uniform: com.nami.client.resources.shader.Uniform = com.nami.client.resources.shader.Uniform(this)
 
     fun bind(): Shader {
         glUseProgram(pointer)
