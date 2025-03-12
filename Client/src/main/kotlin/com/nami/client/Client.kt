@@ -3,11 +3,9 @@ package com.nami.client
 import com.nami.client.imgui.ImGUIManager
 import com.nami.client.input.Keyboard
 import com.nami.client.input.Mouse
-import com.nami.client.resources.Resources
 import com.nami.client.scene.SceneManager
 import com.nami.client.scene.scenes.LoadingScene
 import com.nami.client.scene.scenes.MainMenuScene
-import com.nami.client.scene.scenes.SelectWorldScene
 import mu.KotlinLogging
 import org.lwjgl.Version
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
@@ -37,14 +35,7 @@ class Client {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        val loadingScene = LoadingScene({
-            val errorCount = Resources.load()
-            if (errorCount != 0)
-                log.warn { "Completed loading with $errorCount errors" }
-            else
-                log.info { "Completed loading with 0 errors" }
-        }, MainMenuScene())
-        SceneManager.set(loadingScene)
+        SceneManager.set(MainMenuScene())
 
         glfwShowWindow(Window.pointer)
 

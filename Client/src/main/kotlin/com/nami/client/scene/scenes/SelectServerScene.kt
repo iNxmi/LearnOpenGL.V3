@@ -1,17 +1,42 @@
 package com.nami.client.scene.scenes
 
+import com.esotericsoftware.kryonet.Client
+import com.esotericsoftware.minlog.Log
+import com.nami.client.networking.PacketHandler
 import com.nami.client.scene.Scene
 import com.nami.client.scene.SceneManager
-import com.nami.core.networking.tcp.Connection
-import com.nami.core.networking.tcp.packet.Packet
+import com.nami.core.asID
+import com.nami.core.networking.packet.Packet
+import com.nami.core.networking.packet.handler.PacketHandlerPing
+import com.nami.core.networking.packet.request.PacketRequestChunk
+import com.nami.core.networking.packet.request.PacketRequestPing
+import com.nami.core.networking.packet.request.PacketRequestWorld
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImInt
 import imgui.type.ImString
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
+import org.joml.Vector3i
+import java.io.IOException
 
 class SelectServerScene : Scene {
+
+    private val client = Client(1024 * 16, 1024 * 16)
+
+    private val hostname = ImString("127.0.0.1")
+    private val port = ImInt(63071)
+    private val username = ImString("Memphis")
+    private var error = ""
+
+    init {
+        Log.set(Log.LEVEL_NONE)
+
+        Packet.register(client.kryo)
+
+        client.addListener(PacketHandler())
+        client.addListener(PacketHandlerPing())
+
+        client.start()
+    }
 
     override fun enable() {
 
@@ -25,12 +50,6 @@ class SelectServerScene : Scene {
 
     }
 
-    private var connection: Connection? = null
-
-    private val hostname = ImString("127.0.0.1")
-    private val port = ImInt(63071)
-    private val username = ImString("Memphis")
-
     override fun renderHUD() {
         ImGui.setNextWindowPos(0f, 0f)
         ImGui.setNextWindowSize(1920f, 1080f)
@@ -40,21 +59,41 @@ class SelectServerScene : Scene {
 
         ImGui.inputText("Hostname", hostname)
         ImGui.inputInt("Port", port)
-        if (ImGui.button("Connect"))
-            connection = Connection(hostname.get(), port.get())
-
-        ImGui.inputText("Username", username)
-        if (ImGui.button("Send Login Packet"))
-            if (connection != null) {
-                val write = Packet(Packet.Type.REQUEST_LOGIN, buildJsonObject {
-                    put("username", JsonPrimitive(username.get()))
-                })
-                connection!!.writePacket(write)
-
-                val read = connection!!.readPacket()
-                if (read.type == Packet.Type.SUCCESS_LOGIN)
-                    SceneManager.set()
+        if (error.isNotBlank())
+            ImGui.text("Error: $error")
+        if (ImGui.button("Connect")) {
+            try {
+                client.connect(5000, hostname.get(), port.get())
+//                SceneManager.set(ServerScene(client))
+                error = ""
+            } catch (e: IOException) {
+                error = "Can't 'connect to ${hostname.get()}:${port.get()}"
             }
+        }
+
+        ImGui.separator()
+
+        if (client.isConnected) {
+            if (ImGui.button("Send Ping Packet")) {
+                val request = PacketRequestPing(timeMsRequest = System.currentTimeMillis())
+                client.sendTCP(request)
+            }
+
+            if (ImGui.button("Send World Request")) {
+                val request = PacketRequestWorld()
+                client.sendTCP(request)
+            }
+
+            if (ImGui.button("Send Chunk Request Packet (0, 0, 0)")) {
+                val request = PacketRequestChunk(id = Vector3i(0, 0, 0).asID(Vector3i(16, 16, 16)))
+                client.sendTCP(request)
+            }
+
+            if (ImGui.button("Disconnect")) {
+                client.close()
+            }
+
+        }
 
         ImGui.end()
     }

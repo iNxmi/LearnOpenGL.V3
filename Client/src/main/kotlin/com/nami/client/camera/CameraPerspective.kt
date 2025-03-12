@@ -1,6 +1,6 @@
 package com.nami.client.camera
 
-import com.nami.client.Directions
+import com.nami.core.Directions
 import org.joml.Matrix4f
 import org.joml.Vector3f
 

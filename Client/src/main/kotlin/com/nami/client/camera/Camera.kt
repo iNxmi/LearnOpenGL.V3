@@ -1,6 +1,6 @@
 package com.nami.client.camera
 
-import com.nami.client.Transform
+import com.nami.core.Transform
 import org.joml.Matrix4f
 
 abstract class Camera(

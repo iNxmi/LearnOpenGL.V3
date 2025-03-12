@@ -1,7 +1,7 @@
 package com.nami
 
-import com.nami.server.Server
+import com.nami.server.GameServer
 
 fun main() {
-    Server()
+    GameServer()
 }

@@ -28,9 +28,6 @@ class MainMenuScene : Scene {
         ImGui.getFont().scale = 2.5f
         ImGui.begin("Main Menu", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-        if (ImGui.button("Singleplayer"))
-            SceneManager.set(SelectWorldScene())
-
         if (ImGui.button("Multiplayer"))
             SceneManager.set(SelectServerScene())
 
