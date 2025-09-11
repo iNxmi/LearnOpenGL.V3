@@ -56,8 +56,8 @@ class GamePath {
         val maps: Path = data.resolve("maps")
 
         @JvmStatic
-        val worlds: Path = Paths.get("C:\\Users\\memph\\Desktop\\worlds")
-//        val worlds: Path = Paths.get("D:/Windows/Desktop/worlds")
+//        val worlds: Path = Paths.get("C:\\Users\\memph\\Desktop\\worlds")
+        val worlds: Path = Paths.get("D:/Windows/Desktop/worlds")
 //        val worlds: Path = data.resolve("worlds")
 
     }

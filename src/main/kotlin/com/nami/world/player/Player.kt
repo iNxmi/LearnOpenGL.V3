@@ -38,7 +38,7 @@ class Player(
     val acceleration = Vector3f(0f, 0f, 0f)
 
     val items = mutableMapOf<Item, Item.Instance>()
-    var selectedItem = Resources.ITEM.get("tool.hand")
+    var selectedItem = Resources.ITEM.get("tool.hand").create(count=1)
 
     init {
         items[Resources.ITEM.get("tool.hand")] = Resources.ITEM.get("tool.hand").create(count = 1)
@@ -49,6 +49,30 @@ class Player(
     fun update() {
         inputDirection()
         inputMovement()
+
+        //Primary
+        if (Mouse.buttons[GLFW_MOUSE_BUTTON_LEFT] == Mouse.State.DOWN) {
+//            if (inventory.get(selectedItem) > 0) {
+            val handler = selectedItem.handler
+            if (handler != null) {
+                val consumed = handler.onPrimaryUse(selectedItem, this)
+//                    if (consumed)
+//                        inventory.remove(selectedItem, 1)
+            }
+//            }
+        }
+
+        //Secondary
+        if (Mouse.buttons[GLFW_MOUSE_BUTTON_RIGHT] == Mouse.State.DOWN) {
+//            if (inventory.get(selectedItem) > 0) {
+            val handler = selectedItem.handler
+            if (handler != null) {
+                val consumed = handler.onSecondaryUse(selectedItem, this)
+//                    if (consumed)
+//                        inventory.remove(selectedItem, 1)
+            }
+//            }
+        }
     }
 
     fun getFacingBlock(): Block.Instance? {

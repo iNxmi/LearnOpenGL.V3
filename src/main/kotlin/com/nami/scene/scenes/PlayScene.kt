@@ -118,7 +118,7 @@ class PlayScene(val world: World) : Scene {
             ImGui.text("Inventory")
             world.player.items.forEach { (item, itemInstance) ->
                 if (ImGui.button("${itemInstance.template.language("name")}: ${itemInstance.count} * ${item.weight} = ${itemInstance.count * item.weight}kg"))
-                    world.player.selectedItem = item
+                    world.player.selectedItem = item.create(count = 100)
             }
 
             ImGui.text("Crafting")
