@@ -14,7 +14,7 @@ class ItemHandlerLighter : ItemListener {
 
         for (i in 0 until Int.random(16..32))
             player.world.particleManager.spawn(
-                "snow", Vector3f(position).add(0.5f, 1f, 0.5f).add(
+                "fire", Vector3f(position).add(0.5f, 1f, 0.5f).add(
                     Vector3f(
                         ((Math.random() * 2 - 1) * 0.5).toFloat(),
                         ((Math.random() * 2 - 1) * 0.5).toFloat(), ((Math.random() * 2 - 1) * 0.5).toFloat()

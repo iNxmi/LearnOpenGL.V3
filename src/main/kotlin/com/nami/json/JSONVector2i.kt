@@ -11,8 +11,7 @@ class JSONVector2i(
 
     constructor(vector: Vector2i) : this(vector.x, vector.y)
 
-    fun create(): Vector2i {
-        return Vector2i(x, y)
-    }
+    fun create() =  Vector2i(x, y)
+
 
 }

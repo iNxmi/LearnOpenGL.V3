@@ -13,8 +13,7 @@ data class JSONQuaternionf(
 
     constructor(quaternion: Quaternionf) : this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
 
-    fun create(): Quaternionf {
-        return Quaternionf(x, y, z, w)
-    }
+    fun create() = Quaternionf(x, y, z, w)
+
 
 }

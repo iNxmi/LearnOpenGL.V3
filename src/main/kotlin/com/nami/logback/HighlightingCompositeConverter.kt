@@ -6,7 +6,7 @@ import ch.qos.logback.core.pattern.color.ANSIConstants
 import ch.qos.logback.core.pattern.color.ForegroundCompositeConverterBase
 
 
-class HighlightingCompositeConverterEx : ForegroundCompositeConverterBase<ILoggingEvent>() {
+class HighlightingCompositeConverter : ForegroundCompositeConverterBase<ILoggingEvent>() {
 
     override fun getForegroundColorCode(event: ILoggingEvent): String {
         val level: Level = event.level

@@ -12,8 +12,6 @@ class JSONVector3i(
 
     constructor(vector: Vector3i) : this(vector.x, vector.y, vector.z)
 
-    fun create(): Vector3i {
-        return Vector3i(x, y, z)
-    }
+    fun create() =Vector3i(x, y, z)
 
 }

@@ -139,9 +139,9 @@ class Player(
             move.add(Vector3f(dir).mul(1f, 0f, 1f).mul(-1f))
 
         if (Keyboard.isKeyInStates(GLFW_KEY_A, Keyboard.State.DOWN, Keyboard.State.HOLD))
-            move.add(Vector3f(dir).cross(Directions.UP).normalize().mul(0.6f).mul(-1f))
+            move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f).mul(-1f))
         if (Keyboard.isKeyInStates(GLFW_KEY_D, Keyboard.State.DOWN, Keyboard.State.HOLD))
-            move.add(Vector3f(dir).cross(Directions.UP).normalize().mul(0.6f))
+            move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f))
 
         if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))

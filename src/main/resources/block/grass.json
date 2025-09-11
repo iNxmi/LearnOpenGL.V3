@@ -12,6 +12,9 @@
     "item.tool.hand": 0.7,
     "tag.shovel": 0.0
   },
+  "tags": [
+    "soil"
+  ],
   "drops": [
     {
       "item": "block.dirt"

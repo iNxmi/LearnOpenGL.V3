@@ -19,9 +19,9 @@ class CameraPerspective(
     }
 
     override fun view(): Matrix4f {
-        directionRight.set(directionFront).cross(Directions.UP)
+        directionRight.set(directionFront).cross(Directions.UP.vector)
         return view.identity()
-            .lookAt(transform.position, Vector3f(transform.position).add(directionFront), Directions.UP)
+            .lookAt(transform.position, Vector3f(transform.position).add(directionFront), Directions.UP.vector)
     }
 
 }

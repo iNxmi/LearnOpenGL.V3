@@ -1,11 +1,11 @@
 <configuration>
 
-    <conversionRule conversionWord="highlightex" converterClass="com.nami.logback.HighlightingCompositeConverterEx" />
+    <conversionRule conversionWord="highlight" converterClass="com.nami.logback.HighlightingCompositeConverter" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <withJanis>true</withJanis>
         <encoder>
-            <pattern>%highlightex(%d{HH:mm:ss} [%logger | %level] %msg%n)</pattern>
+            <pattern>%highlight(%d{HH:mm:ss} [%logger | %level] %msg%n)</pattern>
         </encoder>
     </appender>
 

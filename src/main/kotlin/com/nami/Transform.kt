@@ -49,15 +49,9 @@ class Transform(
         val rotation: JSONQuaternionf,
         val scale: JSONVector3f
     ) {
-
-        fun create(): Transform {
-            return Transform(position.create(), rotation.create(), scale.create())
-        }
-
+        fun create() = Transform(position.create(), rotation.create(), scale.create())
     }
 
-    fun json(): JSON {
-        return JSON(position.json(), rotation.json(), scale.json())
-    }
+    fun json() = JSON(position.json(), rotation.json(), scale.json())
 
 }
