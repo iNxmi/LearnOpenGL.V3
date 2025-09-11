@@ -5,7 +5,7 @@ import com.nami.json.JSONVector3i
 import com.nami.resources.GamePath
 import com.nami.storage.Storage
 import com.nami.world.chunk.ChunkManager
-import com.nami.world.player.Player
+import com.nami.world.entity.player.Player
 import com.nami.world.resources.biome.BiomeManager
 import com.nami.world.resources.block.BlockManager
 import com.nami.world.resources.particle.ParticleManager
@@ -26,9 +26,8 @@ class World private constructor(
     val time = Time()
 
     companion object {
-        fun create(name: String, size: Vector3i, seed: Long = System.currentTimeMillis(), waterLevel: Int = 64): World {
-            return World(name, size, seed, waterLevel)
-        }
+        fun create(name: String, size: Vector3i, seed: Long = System.currentTimeMillis(), waterLevel: Int = 64) =
+            World(name, size, seed, waterLevel)
 
         fun load(name: String): World {
             val root = GamePath.worlds.resolve(name)
@@ -78,11 +77,7 @@ class World private constructor(
         val seed: Long,
         val waterLevel: Int
     ) {
-
-        fun create(): World {
-            return create(name, size.create(), seed, waterLevel)
-        }
-
+        fun create() = create(name, size.create(), seed, waterLevel)
     }
 
 }

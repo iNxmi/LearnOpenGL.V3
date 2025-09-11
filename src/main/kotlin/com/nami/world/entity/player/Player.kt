@@ -1,4 +1,4 @@
-package com.nami.world.player
+package com.nami.world.entity.player
 
 import com.nami.Directions
 import com.nami.Transform
@@ -38,7 +38,7 @@ class Player(
     val acceleration = Vector3f(0f, 0f, 0f)
 
     val items = mutableMapOf<Item, Item.Instance>()
-    var selectedItem = Resources.ITEM.get("tool.hand").create(count=1)
+    var selectedItem = Resources.ITEM.get("tool.hand").create(count = 1)
 
     init {
         items[Resources.ITEM.get("tool.hand")] = Resources.ITEM.get("tool.hand").create(count = 1)
@@ -146,12 +146,11 @@ class Player(
         if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))
 
-        val height =
-            blockManager.getHeight(
-                Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
-                transform.position.y.toInt() + HEIGHT.toInt(),
-                setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
-            ).toFloat()
+        val height = blockManager.getHeight(
+            Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
+            transform.position.y.toInt() + HEIGHT.toInt(),
+            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+        ).toFloat()
 
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)
@@ -180,13 +179,9 @@ class Player(
     data class JSON(
         val transform: Transform.JSON
     ) {
-
         constructor(player: Player) : this(player.transform.json())
 
-        fun create(world: World): Player {
-            return Player(world, transform.create())
-        }
-
+        fun create(world: World) = Player(world, transform.create())
     }
 
 }

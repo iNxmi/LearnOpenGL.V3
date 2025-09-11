@@ -11,17 +11,11 @@ import org.lwjgl.system.MemoryUtil
 class Window {
 
     companion object {
-
-        @JvmStatic
         var pointer: Long = 0L
 
-        @JvmStatic
         var width: Int = 0
-
-        @JvmStatic
         var height: Int = 0
 
-        @JvmStatic
         fun init(width: Int, height: Int) {
             this.width = width
             this.height = height

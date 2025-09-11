@@ -2,7 +2,7 @@ package com.nami.world.chunk
 
 import com.nami.storage.Storage
 import com.nami.world.World
-import com.nami.world.player.Player
+import com.nami.world.entity.player.Player
 import com.nami.world.resources.biome.Biome
 import com.nami.world.resources.block.Block
 import de.articdive.jnoise.pipeline.JNoise
@@ -24,14 +24,13 @@ class Chunk(val world: World, val position: Vector3i) {
     private val chunkManager = world.chunkManager
 
     companion object {
-        @JvmStatic
         val SIZE = Vector3i(16, 16, 16)
     }
 
     val meshes = mutableMapOf<Block.Layer, ChunkMesh>()
 
     init {
-        Block.Layer.values().forEach { meshes[it] = ChunkMesh(this, it) }
+        Block.Layer.entries.forEach { meshes[it] = ChunkMesh(this, it) }
 
         val biomes = mutableMapOf<Vector3i, Biome.Instance>()
         val blocks = mutableMapOf<Vector3i, Block.Instance>()

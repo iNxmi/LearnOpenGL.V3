@@ -59,9 +59,8 @@ class Storage {
             return bos.toByteArray()
         }
 
-        fun decompress(data: ByteArray): String {
-            return GZIPInputStream(data.inputStream()).bufferedReader(UTF_8).use { it.readText() }
-        }
+        fun decompress(data: ByteArray) =
+            GZIPInputStream(data.inputStream()).bufferedReader(UTF_8).use { it.readText() }
 
     }
 

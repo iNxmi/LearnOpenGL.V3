@@ -1,6 +1,6 @@
 package com.nami.world.resources.item
 
-import com.nami.world.player.Player
+import com.nami.world.entity.player.Player
 
 interface ItemListener {
 
