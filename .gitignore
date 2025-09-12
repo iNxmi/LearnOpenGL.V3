@@ -22,7 +22,7 @@ imgui.ini
 *.ipr
 .idea/
 
-/data/worlds/
+/data/worlds/*
 
 ### Eclipse ###
 .apt_generated
