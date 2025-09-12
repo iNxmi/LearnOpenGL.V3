@@ -22,7 +22,7 @@ import kotlin.math.sin
 class Player(
     val world: World,
     val transform: Transform = Transform()
-) {
+) : Entity {
 
     companion object {
         const val SPEED = 3.0f
