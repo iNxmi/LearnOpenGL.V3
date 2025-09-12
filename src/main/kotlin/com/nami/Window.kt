@@ -45,10 +45,10 @@ class Window {
                 GL11.glViewport(0, 0, width, height)
             }
 
-            glfwSetKeyCallback(pointer, SceneManager::onKeyCallback)
-            glfwSetMouseButtonCallback(pointer, SceneManager::onMouseButtonCallback)
-            glfwSetCursorPosCallback(pointer, SceneManager::onCursorPosCallback)
-            glfwSetScrollCallback(pointer, SceneManager::onScrollCallback)
+            glfwSetKeyCallback(pointer, Input::onKeyCallback)
+            glfwSetMouseButtonCallback(pointer, Input::onMouseButtonCallback)
+            glfwSetCursorPosCallback(pointer, Input::onCursorPosCallback)
+            glfwSetScrollCallback(pointer, Input::onScrollCallback)
 
             glfwMakeContextCurrent(pointer)
 

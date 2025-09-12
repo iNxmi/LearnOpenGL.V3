@@ -59,13 +59,14 @@ class Game {
     private fun loop() {
         var lastTime = 0f
         while (!glfwWindowShouldClose(Window.pointer)) {
+            glfwPollEvents()
+        
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
             lastTime = glfwGetTime().toFloat()
 
             SceneManager.update()
             render()
-
-            glfwPollEvents()
+            Input.endFrame()
         }
     }
 

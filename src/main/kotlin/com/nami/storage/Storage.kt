@@ -36,17 +36,13 @@ class Storage {
             val secondary = path.resolve("${name}_secondary.json")
 
             if (primary.exists()) {
-
                 val compressedData = Files.readAllBytes(primary)
                 val jsonString = decompress(compressedData)
                 return Json.decodeFromString<T>(jsonString)
-
             } else if (secondary.exists()) {
-
                 val compressedData = Files.readAllBytes(secondary)
                 val jsonString = decompress(compressedData)
                 return Json.decodeFromString<T>(jsonString)
-
             }
 
             return null

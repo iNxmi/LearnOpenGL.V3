@@ -1,6 +1,7 @@
 package com.nami.scene.scenes
 
 import com.nami.Game
+import com.nami.Input
 import com.nami.Window
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
@@ -26,7 +27,6 @@ import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
-
 
 class PlayScene(val world: World) : Scene() {
 
@@ -174,21 +174,31 @@ class PlayScene(val world: World) : Scene() {
 
     override fun onEnable() {
         glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-//
-//        if (glfwRawMouseMotionSupported())
-//            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
+
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
-    override fun onKeyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    override fun onUpdate() {
+        if (Input.isKeyPressed(GLFW_KEY_ESCAPE)) {
             menu = if (menu == null) "settings" else null
-        } else if (menu == null) {
-            if (key == GLFW_KEY_E && action == GLFW_PRESS)
+
+            glfwSetInputMode(
+                Window.pointer,
+                GLFW_CURSOR,
+                if (menu != null) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
+            )
+        }
+
+        if (menu == null) {
+            if (Input.isKeyPressed(GLFW_KEY_E))
                 menu = "inventory"
 
-            if (key == GLFW_KEY_F3 && action == GLFW_PRESS)
+            if (Input.isKeyPressed(GLFW_KEY_F3))
                 menu = "info"
-        } else if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+        }
+
+        if (Input.isKeyPressed(GLFW_KEY_F2)) {
             val width = Window.width
             val height = Window.height
 
@@ -219,23 +229,7 @@ class PlayScene(val world: World) : Scene() {
 
                 log.info { "Screenshot saved at '$path'" }
             }
-        } else {
-            world.player.onKeyCallback(window, key, scancode, action, mods)
         }
-    }
-
-    override fun onCursorPosCallback(window: Long, x: Double, y: Double) =
-        world.player.onCursorPosCallback(window, x, y)
-
-    override fun onMouseButtonCallback(window: Long, button: Int, action: Int, mods: Int) =
-        world.player.onMouseButtonCallback(window, button, action, mods)
-
-    override fun onUpdate() {
-        glfwSetInputMode(
-            Window.pointer,
-            GLFW_CURSOR,
-            if (menu != null) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
-        )
 
         world.update()
     }
