@@ -8,6 +8,7 @@ import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
+import com.nami.world.chunk.Chunk
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
 import com.nami.world.resources.recipe.RecipeVariant
@@ -18,11 +19,13 @@ import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import org.joml.Vector2i
 import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
+import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -130,15 +133,18 @@ class PlayScene(val world: World) : Scene() {
 
                 variants.forEach { variant ->
                     if (variant.workstations != null)
-                        if (!variant.workstations.any { it in workstations }) return@forEach
+                        if (!variant.workstations.any { it in workstations })
+                            return@forEach
 
                     val success = false
 
                     val buttonName = variant.ingredients.map { (item, amount) -> "${item.language("name")}($amount) " }
                         .joinToString { it } + "= ${item.language("name")}(${variant.amount}) Workstations(${variant.workstations}) Success($success)"
-                    if (!ImGui.button(buttonName)) return@forEach
+                    if (!ImGui.button(buttonName))
+                        return@forEach
 
-                    if (!success) return@forEach
+                    if (!success)
+                        return@forEach
 
 //                    variant.ingredients.forEach { (item, amount) -> inventory.remove(item, amount) }
 //                    inventory.add(item, variant.amount)
@@ -229,6 +235,64 @@ class PlayScene(val world: World) : Scene() {
 
                 log.info { "Screenshot saved at '$path'" }
             }
+        }
+
+        if (Input.isKeyPressed(GLFW_KEY_F12)) {
+            val instances = mutableMapOf<Vector3i, Block.Instance>()
+            world.chunkManager.chunks.forEach { (positionChunk, chunk) ->
+                for (z in 0..Chunk.SIZE.z)
+                    for (x in 0..Chunk.SIZE.x) {
+                        val y = world.blockManager.getHeight(Vector2i(x, z), 512, Block.Layer.entries.toSet())
+                        val positionGlobal =
+                            Vector3i(positionChunk.x * Chunk.SIZE.x + x, y, positionChunk.z * Chunk.SIZE.z + z)
+                        val instance = world.blockManager.getBlock(positionGlobal)
+
+                        if (instance != null)
+                            instances[positionGlobal] = instance
+                    }
+            }
+
+            val colors = mutableMapOf<String, Color>()
+            instances.map { it.value.template }.toSet().forEach { template ->
+                val textureID = template.textures[0]
+                val texture = Resources.TEXTURE.get(textureID)
+                val image = texture.image
+
+                var r = 0
+                var g = 0
+                var b = 0
+                for (y in 0 until image.height)
+                    for (x in 0 until image.width) {
+                        val rgb = image.getRGB(x, y)
+                        val color = Color(rgb)
+                        r += color.red
+                        g += color.green
+                        b += color.blue
+                    }
+
+                val count = image.height * image.width
+                val finalColor = Color(r / count, g / count, b / count)
+                colors[textureID] = finalColor
+            }
+
+            val width = instances.maxOf { it.key.x }
+            val height = instances.maxOf { it.key.z }
+
+            val result = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+            for ((position, instance) in instances) {
+                val textureID = instance.template.textures[0]
+                try {
+                    result.setRGB(position.x, position.z, colors[textureID]!!.rgb)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            val path = GamePath.maps
+                .resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+            ImageIO.write(result, "png", path.toFile())
+
+            log.info { "Screenshot saved at '$path'" }
         }
 
         world.update()

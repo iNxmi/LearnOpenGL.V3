@@ -21,7 +21,7 @@ class BiomeHandlerBirchForest : BiomeListener {
                 return Resources.BLOCK.get("dirt")
 
             if ((height - 1 until height).contains(y))
-                return Resources.BLOCK.get("grass")
+                return Resources.BLOCK.get("podzol")
         } else {
             if ((height - 4 until height).contains(y))
                 return Resources.BLOCK.get("gravel")
