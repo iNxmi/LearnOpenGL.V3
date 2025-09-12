@@ -1,8 +1,6 @@
 package com.nami
 
 import com.nami.imgui.ImGUIManager
-import com.nami.input.Keyboard
-import com.nami.input.Mouse
 import com.nami.resources.Resources
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.LoadingScene
@@ -64,14 +62,9 @@ class Game {
             DELTA_TIME = glfwGetTime().toFloat() - lastTime
             lastTime = glfwGetTime().toFloat()
 
-            Keyboard.update()
-            Mouse.update()
-
             SceneManager.update()
-
             render()
 
-            Mouse.endFrame()
             glfwPollEvents()
         }
     }

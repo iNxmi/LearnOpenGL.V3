@@ -1,16 +1,6 @@
 package com.nami.scene
 
 import com.nami.imgui.ImGUIManager
-import com.nami.input.Keyboard
-import com.nami.input.Keyboard.Companion.keys
-import com.nami.input.Mouse.Companion.pos
-import com.nami.input.Mouse.Companion.posDelta
-import com.nami.input.Mouse.Companion.posLast
-import com.nami.input.Mouse.Companion.scroll
-import com.nami.input.Mouse.Companion.scrollDelta
-import com.nami.input.Mouse.Companion.scrollLast
-import org.lwjgl.glfw.GLFW
-import kotlin.collections.set
 
 class SceneManager {
 
@@ -19,10 +9,10 @@ class SceneManager {
         private var selected: Scene? = null
 
         fun set(scene: Scene) {
-            selected?.disable()
+            selected?.onDisable()
 
             selected = scene
-            selected?.enable()
+            selected?.onEnable()
         }
 
         fun onKeyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) =
@@ -37,11 +27,11 @@ class SceneManager {
         fun onScrollCallback(window: Long, x: Double, y: Double) =
             selected?.onScrollCallback(window, x, y)
 
-        fun update() = selected?.update()
-        fun render() = selected?.render()
+        fun update() = selected?.onUpdate()
+        fun render() = selected?.onRender()
         fun renderHUD() {
             ImGUIManager.newFrame()
-            selected?.renderHUD()
+            selected?.onRenderHUD()
             ImGUIManager.render()
         }
 

@@ -22,6 +22,8 @@ imgui.ini
 *.ipr
 .idea/
 
+/data/worlds/
+
 ### Eclipse ###
 .apt_generated
 .classpath
