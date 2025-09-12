@@ -7,21 +7,9 @@ import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose
 
-class MainMenuScene : Scene {
+class MainMenuScene : Scene() {
 
-    override fun enable() {
-
-    }
-
-    override fun update() {
-
-    }
-
-    override fun render() {
-
-    }
-
-    override fun renderHUD() {
+    override fun onRenderHUD() {
         ImGui.setNextWindowPos(0f, 0f)
         ImGui.setNextWindowSize(1920f, 1080f)
 
@@ -35,10 +23,6 @@ class MainMenuScene : Scene {
             glfwSetWindowShouldClose(Window.pointer, true)
 
         ImGui.end()
-    }
-
-    override fun disable() {
-
     }
 
 }

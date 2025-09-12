@@ -14,25 +14,12 @@ import org.joml.Vector3i
 import java.nio.file.Files
 import kotlin.io.path.name
 
-class SelectWorldScene : Scene {
-
-
-    override fun enable() {
-
-    }
-
-    override fun update() {
-
-    }
-
-    override fun render() {
-
-    }
+class SelectWorldScene : Scene() {
 
     val state = ImInt()
     val seed = ImString(System.currentTimeMillis().toString())
     val name = ImString()
-    override fun renderHUD() {
+    override fun onRenderHUD() {
         ImGui.setNextWindowPos(0f, 0f)
         ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
 
@@ -81,10 +68,6 @@ class SelectWorldScene : Scene {
         }
 
         ImGui.end()
-    }
-
-    override fun disable() {
-
     }
 
 }

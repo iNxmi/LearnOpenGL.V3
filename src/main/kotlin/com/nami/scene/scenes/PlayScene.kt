@@ -29,7 +29,7 @@ import java.util.*
 import javax.imageio.ImageIO
 
 
-class PlayScene(val world: World) : Scene {
+class PlayScene(val world: World) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
@@ -173,14 +173,14 @@ class PlayScene(val world: World) : Scene {
         })
     )
 
-    override fun enable() {
+    override fun onEnable() {
         glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 //
 //        if (glfwRawMouseMotionSupported())
 //            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
-    override fun update() {
+    override fun onUpdate() {
         if (Keyboard.keys[GLFW_KEY_ESCAPE] == Keyboard.State.DOWN)
             menu = if (menu == null) "settings" else null
 
@@ -234,7 +234,7 @@ class PlayScene(val world: World) : Scene {
         world.update()
     }
 
-    override fun render() {
+    override fun onRender() {
         glPolygonMode(GL_FRONT_AND_BACK, polygonMode)
         glEnable(GL_CULL_FACE)
         glCullFace(GL_BACK)
@@ -246,14 +246,10 @@ class PlayScene(val world: World) : Scene {
     private val timeScale = floatArrayOf(1.0f)
     private val fullscreen = ImBoolean(false)
 
-    override fun renderHUD() {
+    override fun onRenderHUD() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         menus[menu]?.run()
-    }
-
-    override fun disable() {
-
     }
 
 }

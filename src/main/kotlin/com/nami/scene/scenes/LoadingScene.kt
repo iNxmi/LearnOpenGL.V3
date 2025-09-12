@@ -12,14 +12,14 @@ import kotlin.math.sin
 class LoadingScene(
     private val task: () -> Unit,
     private val nextScene: Scene
-) : Scene {
+) : Scene() {
 
-    override fun enable() {
+    override fun onEnable() {
         task.invoke()
         SceneManager.set(nextScene)
     }
 
-    override fun update() {
+    override fun onUpdate() {
         val t: Float = (glfwGetTime().toFloat() * 3.14f) / 3f
         val brightness = (sin(t) * 0.5f + 0.5f) * 0.5f
 
@@ -30,11 +30,7 @@ class LoadingScene(
         glClearColor(color.x, color.y, color.z, 1f)
     }
 
-    override fun render() {
-
-    }
-
-    override fun renderHUD() {
+    override fun onRenderHUD() {
         ImGui.setNextWindowSize(1920f, 1080f)
         ImGui.setNextWindowPos(0f, 0f)
         ImGui.setNextWindowBgAlpha(0.0f)
@@ -52,10 +48,6 @@ class LoadingScene(
         ImGui.text(text)
 
         ImGui.end()
-    }
-
-    override fun disable() {
-
     }
 
 }

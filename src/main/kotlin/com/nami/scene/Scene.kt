@@ -1,15 +1,17 @@
 package com.nami.scene
 
-interface Scene {
+abstract class Scene {
 
-    fun enable()
+    open fun onEnable() {}
+    open fun onDisable() {}
 
-    fun update()
+    open fun onKeyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {}
+    open fun onMouseButtonCallback(window: Long, button: Int, action: Int, mods: Int) {}
+    open fun onCursorPosCallback(window: Long, x: Double, y: Double) {}
+    open fun onScrollCallback(window: Long, x: Double, y: Double) {}
 
-    fun render()
-
-    fun renderHUD()
-
-    fun disable()
+    open fun onUpdate() {}
+    open fun onRender() {}
+    open fun onRenderHUD() {}
 
 }

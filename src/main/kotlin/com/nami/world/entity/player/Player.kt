@@ -9,6 +9,7 @@ import com.nami.input.Mouse
 import com.nami.resources.Resources
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
+import com.nami.world.entity.Entity
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
 import kotlinx.serialization.Serializable
@@ -22,7 +23,7 @@ import kotlin.math.sin
 class Player(
     val world: World,
     val transform: Transform = Transform()
-) : Entity {
+) : Entity() {
 
     companion object {
         const val SPEED = 3.0f
@@ -123,6 +124,42 @@ class Player(
         }
     }
 
+    fun getGroundHeight() = getGroundHeight(
+        Vector3i(
+            transform.position.x.toInt(),
+            transform.position.y.toInt(),
+            transform.position.z.toInt()
+        )
+    )
+
+    fun getGroundHeight(position: Vector3i) = blockManager.getHeight(
+        Vector2i(position.x, position.z),
+        position.y + HEIGHT.toInt(),
+        setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+    ).toFloat()
+
+    fun jump() {
+        val position = transform.position
+        if (position.y <= getGroundHeight())
+            acceleration.add(0f, 7.5f, 0f)
+    }
+
+    fun forward() {
+
+    }
+
+    fun backward() {
+
+    }
+
+    fun right() {
+
+    }
+
+    fun left() {
+
+    }
+
     private fun inputMovement() {
         val position = transform.position
 
@@ -146,18 +183,13 @@ class Player(
         if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))
 
-        val height = blockManager.getHeight(
-            Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
-            transform.position.y.toInt() + HEIGHT.toInt(),
-            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
-        ).toFloat()
+        val height = getGroundHeight()
 
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)
 
         if (Keyboard.isKeyInStates(GLFW_KEY_SPACE, Keyboard.State.DOWN, Keyboard.State.HOLD))
-            if (position.y <= height)
-                acceleration.add(0f, 7.5f, 0f)
+            jump()
 
         if (acceleration.y <= -100f)
             acceleration.y = -100f
