@@ -16,9 +16,9 @@ class Shader(
         return this
     }
 
-    enum class Type(val id: Int, val regex: String) {
-        VERTEX_SHADER(GL_VERTEX_SHADER, "//BEGIN_VS(.*)//END_VS"),
-        FRAGMENT_SHADER(GL_FRAGMENT_SHADER, "//BEGIN_FS(.*)//END_FS")
+    enum class Type(val id: Int, val regex: Regex) {
+        VERTEX_SHADER(GL_VERTEX_SHADER, Regex("\\/\\/BEGIN_VS\\s([\\s\\S]*?)\\s\\/\\/END_VS")),
+        FRAGMENT_SHADER(GL_FRAGMENT_SHADER, Regex("\\/\\/BEGIN_FS\\s([\\s\\S]*?)\\s\\/\\/END_FS"))
     }
 
 }

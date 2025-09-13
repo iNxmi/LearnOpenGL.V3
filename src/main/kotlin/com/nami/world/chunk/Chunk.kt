@@ -7,21 +7,18 @@ import com.nami.world.resources.biome.Biome
 import com.nami.world.resources.block.Block
 import de.articdive.jnoise.pipeline.JNoise
 import kotlinx.serialization.Serializable
-import mu.KotlinLogging
 import org.joml.Vector2i
 import org.joml.Vector3i
 import kotlin.math.max
 
 class Chunk(val world: World, val position: Vector3i) {
 
-    private val log = KotlinLogging.logger { }
-
     private val root = world.root.resolve("chunks")
     private val fileName = "${position.x}_${position.y}_${position.z}"
 
-    private val biomeManager = world.biomeManager
-    private val blockManager = world.blockManager
-    private val chunkManager = world.chunkManager
+    val biomeManager = world.biomeManager
+    val blockManager = world.blockManager
+    val chunkManager = world.chunkManager
 
     companion object {
         val SIZE = Vector3i(16, 16, 16)
@@ -168,17 +165,11 @@ class Chunk(val world: World, val position: Vector3i) {
 
     }
 
-    fun render(player: Player, layer: Block.Layer) {
-        meshes[layer]?.render(player, world.time)
-    }
+    fun render(player: Player, layer: Block.Layer) = meshes[layer]?.render(player, world.time)
 
-    fun generateMesh() {
-        meshes.forEach { it.value.generate() }
-    }
+    fun generateMesh() = meshes.forEach { it.value.generate() }
 
-    fun uploadMesh() {
-        meshes.forEach { it.value.upload() }
-    }
+    fun uploadMesh() = meshes.forEach { it.value.upload() }
 
     @Serializable
     data class JSON(

@@ -33,9 +33,7 @@ class ResourceLoaderShader : Resources<Shader>(GamePath.shader, "shader", arrayO
     }
 
     private fun loadSubShader(path: Path, source: String, type: Shader.Type): Int {
-        val regex = type.regex.toRegex(setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
-
-        val source: MatchResult = regex.find(source)
+        val source: MatchResult = type.regex.find(source)
             ?: throw RuntimeException("Could not identify $type in '$path'")
 
         val pointer = glCreateShader(type.id)

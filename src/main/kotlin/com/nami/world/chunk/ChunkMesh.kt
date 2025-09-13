@@ -48,7 +48,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
                     it.z in (chunk.position.z * Chunk.SIZE.z until (chunk.position.z + 1) * Chunk.SIZE.z)
         }
 
-        var size = generate.map { it.value.size }.sum()
+        val size = generate.map { it.value.size }.sum()
         if (size <= 0)
             return
 

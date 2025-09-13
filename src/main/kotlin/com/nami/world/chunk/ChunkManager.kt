@@ -3,6 +3,7 @@ package com.nami.world.chunk
 import com.nami.world.World
 import com.nami.world.entity.player.Player
 import com.nami.world.resources.block.Block
+import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.*
@@ -11,28 +12,24 @@ class ChunkManager(
     val world: World
 ) {
 
+    private val log = KotlinLogging.logger { }
+
     val chunks = mutableMapOf<Vector3i, Chunk>()
     val generator = ChunkGenerator(world, 8)
     val meshGenerator = ChunkMeshGenerator(world, this, 1f)
     val saver = ChunkSaver(world, 8)
 
-    fun setChunk(position: Vector3i, chunk: Chunk) {
-        chunks[position] = chunk
-    }
+    fun setChunk(position: Vector3i, chunk: Chunk) = chunks.set(position, chunk)
 
-    fun getByChunkPosition(position: Vector3i): Chunk? {
-        return chunks[position]
-    }
+    fun getByChunkPosition(position: Vector3i) = chunks[position]
 
-    fun getByBlockPosition(position: Vector3i): Chunk? {
-        return getByChunkPosition(
-            Vector3i(
-                position.x / Chunk.SIZE.x,
-                position.y / Chunk.SIZE.y,
-                position.z / Chunk.SIZE.z
-            )
+    fun getByBlockPosition(position: Vector3i) = getByChunkPosition(
+        Vector3i(
+            position.x / Chunk.SIZE.x,
+            position.y / Chunk.SIZE.y,
+            position.z / Chunk.SIZE.z
         )
-    }
+    )
 
     fun update(player: Player, chunkRadius: Int) {
         for (z in -chunkRadius..chunkRadius)
@@ -76,9 +73,12 @@ class ChunkManager(
 
                         val chunk = getByChunkPosition(chunkPosition) ?: continue
 
-                        val distance =
-                            Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
-                                .sub(player.transform.position).length()
+                        val distance = Vector3f(chunkPosition)
+                            .mul(Vector3f(Chunk.SIZE))
+                            .add(Vector3f(Chunk.SIZE).div(2.0f))
+                            .sub(player.transform.position)
+                            .length()
+
                         chunks[distance] = chunk
                     }
 
