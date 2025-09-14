@@ -149,7 +149,7 @@ class Block(
                 }
 
             val itemDrops = mutableSetOf<BlockDrop>()
-            drops?.forEach { itemDrops.add(BlockDrop(ITEM.get(it.item), it.amount.min, it.amount.max, it.probability)) }
+            drops?.forEach { itemDrops.add(BlockDrop(ITEM.get(it.item), it.amount.start, it.amount.endInclusive, it.probability)) }
 
             return Block(
                 id,

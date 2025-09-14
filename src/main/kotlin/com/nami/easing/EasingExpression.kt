@@ -12,16 +12,16 @@ data class EasingExpression(
 ) {
 
     fun toEasingFunction(): EasingFunction {
-        val segmentsTree = TreeRangeMap.create<Float, Expression>()
+        val map = TreeRangeMap.create<Float, Expression>()
         segments.forEach { json ->
             val expression = ExpressionBuilder(json.equation)
                 .variables("t")
                 .build()
 
-            segmentsTree.put(Range.closed(json.range.start, json.range.endInclusive), expression)
+            map.put(Range.closed(json.range.start, json.range.endInclusive), expression)
         }
 
-        return EasingFunction(segmentsTree)
+        return EasingFunction(map)
     }
 
 }

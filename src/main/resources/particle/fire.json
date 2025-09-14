@@ -43,7 +43,7 @@
           "min": 0.0,
           "max": 1.0
         },
-        "equation": "sin(t * pi * 16)"
+        "equation": "sin(t * pi)"
       }
     ]
   }

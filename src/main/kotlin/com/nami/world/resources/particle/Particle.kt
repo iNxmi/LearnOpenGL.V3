@@ -2,11 +2,9 @@ package com.nami.world.resources.particle
 
 import com.nami.Time
 import com.nami.Transform
-import com.nami.easing.EasingFunction
-import com.nami.easing.JSONEasingExpression
-import com.nami.serializer.JSONRange
+import com.nami.easing.EasingExpression
 import com.nami.random
-import com.nami.resources.particle.ParticleColorJSON
+import com.nami.resources.particle.ParticleColor
 import com.nami.resources.particle.ResourceParticle
 import com.nami.snakeToUpperCamelCase
 import com.nami.world.World
@@ -14,6 +12,8 @@ import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 import kotlin.math.roundToInt
 
+
+@Serializable
 class Particle(
     id: String,
     val handlerClass: Class<ParticleListener>,
@@ -21,7 +21,7 @@ class Particle(
     val timeInSeconds: ClosedFloatingPointRange<Float>,
     val scale: ClosedFloatingPointRange<Float>,
     val colors: List<ParticleColor>,
-    val easing: EasingFunction
+    val easing: EasingExpression
 ) : ResourceParticle(id) {
 
     fun create(time: Time, position: Vector3f): Instance {
@@ -65,10 +65,10 @@ class Particle(
 
     @Serializable
     data class JSON(
-        val timeInSeconds: JSONRange<Float>,
-        val scale: JSONRange<Float> = JSONRange(1f, 1f),
-        val colors: List<ParticleColorJSON>,
-        val easing: JSONEasingExpression
+        val timeInSeconds: ClosedFloatingPointRange<Float>,
+        val scale: ClosedFloatingPointRange<Float> = 1f..1f,
+        val colors: List<ParticleColor>,
+        val easing: EasingExpression
     ) {
 
         fun create(id: String): Particle {
@@ -79,14 +79,12 @@ class Particle(
                     Class.forName("com.nami.world.resources.particle.handlers.DefaultParticleHandler")
                 }
 
-            val col = mutableListOf<ParticleColor>()
+            val color = mutableListOf<ParticleColor>()
             colors.forEach {
-                val color = it.color.toVector()
-
-                col.add(
+                color.add(
                     ParticleColor(
-                        Vector3f(color.x, color.y, color.z),
-                        it.brightness.min..it.brightness.max
+                        it.color,
+                        it.brightness
                     )
                 )
             }
@@ -95,9 +93,9 @@ class Particle(
                 id,
                 handlerClass as Class<ParticleListener>,
 
-                timeInSeconds.min..timeInSeconds.max,
-                scale.min..scale.max,
-                col,
+                timeInSeconds,
+                scale,
+                color,
                 easing.toEasingFunction()
             )
         }

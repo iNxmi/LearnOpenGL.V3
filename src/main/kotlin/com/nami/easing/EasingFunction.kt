@@ -1,6 +1,7 @@
 package com.nami.easing
 
 import com.google.common.collect.RangeMap
+import kotlinx.serialization.Serializable
 import net.objecthunter.exp4j.Expression
 
 class EasingFunction(
