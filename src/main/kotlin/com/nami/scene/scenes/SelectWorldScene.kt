@@ -4,6 +4,7 @@ import com.nami.Window
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
+import com.nami.storage.Storage
 import com.nami.world.World
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
@@ -34,10 +35,12 @@ class SelectWorldScene : Scene() {
 
         if (ImGui.button("Load")) {
             val name = names[state.get()]
-            if (name.isNotEmpty()) {
-                val world = World.load(name)
+
+            val worldPath = GamePath.worlds.resolve(name)
+            val world = Storage.read<World>(worldPath, "world")
+
+            if (world != null)
                 SceneManager.set(PlayScene(world))
-            }
         }
 
         ImGui.sameLine()
@@ -56,14 +59,10 @@ class SelectWorldScene : Scene() {
             if (!name.get().all { char -> char.isDigit() || char.isLetter() })
                 name.set("")
 
-        if (ImGui.inputText("Seed", seed))
-            if (!seed.get().all { char -> char.isDigit() })
-                seed.set("")
-
         if (ImGui.button("Create")) {
             val name = this.name.get().trim()
             if (name.isNotBlank() && !names.contains(name)) {
-                val world = World.create(name, Vector3i(512, 512, 512), seed.get().toLong(), 64)
+                val world = World(name, Vector3i(16), seed.get().hashCode().toLong(), 64)
                 SceneManager.set(PlayScene(world))
             }
         }

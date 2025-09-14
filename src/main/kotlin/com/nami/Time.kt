@@ -1,5 +1,8 @@
 package com.nami
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class Time {
 
     var time = 0f

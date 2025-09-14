@@ -1,10 +1,9 @@
 package com.nami.easing
 
-import com.nami.json.JSONRange
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class JSONEasingSegment(
-    val range: JSONRange<Float>,
+data class EasingSegment(
+    val range: ClosedFloatingPointRange<Float>,
     val equation: String
 )

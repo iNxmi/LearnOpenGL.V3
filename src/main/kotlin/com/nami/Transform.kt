@@ -1,16 +1,22 @@
 package com.nami
 
-import com.nami.json.JSONQuaternionf
-import com.nami.json.JSONVector3f
+import com.nami.serializer.SerializerMatrix3f
+import com.nami.serializer.SerializerMatrix4f
+import com.nami.serializer.SerializerQuaternionf
+import com.nami.serializer.SerializerVector3f
 import kotlinx.serialization.Serializable
 import org.joml.Matrix3f
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
 
+@Serializable
 class Transform(
+    @Serializable(with = SerializerVector3f::class)
     val position: Vector3f = Vector3f(),
+    @Serializable(with = SerializerQuaternionf::class)
     val rotation: Quaternionf = Quaternionf(),
+    @Serializable(with = SerializerVector3f::class)
     val scale: Vector3f = Vector3f(1f)
 ) {
 
@@ -22,12 +28,14 @@ class Transform(
 
     //Rotation in Deg
 
+    @Serializable(with = SerializerMatrix4f::class)
     private val matrix = Matrix4f()
     fun matrix(): Matrix4f {
         update()
         return matrix
     }
 
+    @Serializable(with = SerializerMatrix3f::class)
     private val normalMatrix = Matrix3f()
     fun normalMatrix(): Matrix3f {
         update()
@@ -42,16 +50,5 @@ class Transform(
 
         normalMatrix.set(Matrix4f(matrix).invert().transpose())
     }
-
-    @Serializable
-    data class JSON(
-        val position: JSONVector3f,
-        val rotation: JSONQuaternionf,
-        val scale: JSONVector3f
-    ) {
-        fun create() = Transform(position.create(), rotation.create(), scale.create())
-    }
-
-    fun json() = JSON(position.json(), rotation.json(), scale.json())
 
 }

@@ -5,6 +5,7 @@ import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
+import com.nami.serializer.SerializerVector3f
 import com.nami.resources.Resources
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
@@ -12,6 +13,7 @@ import com.nami.world.entity.Entity
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
@@ -19,10 +21,8 @@ import org.lwjgl.glfw.GLFW.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Player(
-    val world: World,
-    val transform: Transform = Transform()
-) : Entity() {
+@Serializable
+class Player : Entity() {
 
     companion object {
         const val SPEED = 3.0f
@@ -32,12 +32,18 @@ class Player(
         const val MAX_ITERATIONS = RANGE * 16
     }
 
-    private val blockManager = world.blockManager
+    val transform: Transform = Transform()
 
-    val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1023.0f)
+    @Transient
+    val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
+
+    @Serializable(with = SerializerVector3f::class)
     val acceleration = Vector3f(0f, 0f, 0f)
 
+    @Transient
     val items = mutableMapOf<Item, Item.Instance>()
+
+    @Transient
     var selectedItem = Resources.ITEM.get("tool.hand").create(count = 1)
 
     init {
@@ -46,14 +52,17 @@ class Player(
         items[Resources.ITEM.get("block.tnt")] = Resources.ITEM.get("block.tnt").create(count = 64)
     }
 
-    fun update() {
+    fun update(world: World) {
         inputDirection()
-        inputMovement()
-        inputAction()
+        inputMovement(world)
+        inputAction(world)
     }
 
+    @Serializable(with = SerializerVector3f::class)
     private val eulerAngles = Vector3f()
+    @Transient
     private val mousePositionLast = Vector2i()
+    @Transient
     private var first = true
     private fun inputDirection() {
         val mousePosition = Input.position()
@@ -80,7 +89,7 @@ class Player(
         mousePositionLast.set(mousePosition)
     }
 
-    private fun inputMovement() {
+    private fun inputMovement(world: World) {
         val position = transform.position
 
         var speed = SPEED * world.time.delta
@@ -103,12 +112,14 @@ class Player(
         if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))
 
-        val height =
-            blockManager.getHeight(
-                Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
-                transform.position.y.toInt() + HEIGHT.toInt(),
-                setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
-            ).toFloat()
+
+        val blockManager = world.blockManager
+
+        val height = blockManager.getHeight(
+            Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
+            transform.position.y.toInt() + HEIGHT.toInt(),
+            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+        ).toFloat()
 
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)
@@ -133,26 +144,28 @@ class Player(
         camera.transform.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
     }
 
-    fun inputAction() {
+    fun inputAction(world: World) {
         //Primary
         if (Input.isMousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
             val handler = selectedItem.handler
-            val consumed = handler.onPrimaryUse(selectedItem, this)
+            val consumed = handler.onPrimaryUse(world, selectedItem, this)
         }
 
         //Secondary
         if (Input.isMousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
             val handler = selectedItem.handler
-            val consumed = handler.onSecondaryUse(selectedItem, this)
+            val consumed = handler.onSecondaryUse(world, selectedItem, this)
         }
     }
 
-    fun getFacingBlock(): Block.Instance? {
+    fun getFacingBlock(world: World): Block.Instance? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
                 .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
             val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
 
+
+            val blockManager = world.blockManager
             val block = blockManager.getBlock(blockPos) ?: continue
             return block
         }
@@ -160,12 +173,13 @@ class Player(
         return null
     }
 
-    fun getPositionBeforeFacingBlock(): Vector3i? {
+    fun getPositionBeforeFacingBlock(world: World): Vector3i? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
                 .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
             val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
 
+            val blockManager = world.blockManager
             if (blockManager.getBlock(blockPos) == null)
                 continue
 
@@ -180,7 +194,8 @@ class Player(
         return null
     }
 
-    fun getGroundHeight() = getGroundHeight(
+    fun getGroundHeight(world: World) = getGroundHeight(
+        world,
         Vector3i(
             transform.position.x.toInt(),
             transform.position.y.toInt(),
@@ -188,19 +203,13 @@ class Player(
         )
     )
 
-    fun getGroundHeight(position: Vector3i) = blockManager.getHeight(
-        Vector2i(position.x, position.z),
-        position.y + HEIGHT.toInt(),
-        setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
-    ).toFloat()
-
-    @Serializable
-    data class JSON(
-        val transform: Transform.JSON
-    ) {
-        constructor(player: Player) : this(player.transform.json())
-
-        fun create(world: World) = Player(world, transform.create())
+    fun getGroundHeight(world: World, position: Vector3i): Float {
+        val blockManager = world.blockManager
+        return blockManager.getHeight(
+            Vector2i(position.x, position.z),
+            position.y + HEIGHT.toInt(),
+            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+        ).toFloat()
     }
 
 }

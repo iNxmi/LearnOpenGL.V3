@@ -7,6 +7,7 @@ import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
+import com.nami.storage.Storage
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
 import com.nami.world.resources.block.Block
@@ -83,8 +84,10 @@ class PlayScene(val world: World) : Scene() {
                 world.chunkManager.chunks.forEach { (_, chunk) -> world.chunkManager.meshGenerator.addToQueue(chunk.position) }
             }
 
-            if (ImGui.button("Main Menu"))
+            if (ImGui.button("Main Menu")) {
+
                 SceneManager.set(MainMenuScene())
+            }
 
             ImGui.end()
         }),
@@ -185,6 +188,10 @@ class PlayScene(val world: World) : Scene() {
             glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
+    override fun onDisable() {
+        world.write()
+    }
+
     override fun onUpdate() {
         if (Input.isKeyPressed(GLFW_KEY_ESCAPE)) {
             menu = if (menu == null) "settings" else null
@@ -197,11 +204,15 @@ class PlayScene(val world: World) : Scene() {
         }
 
         if (menu == null) {
-            if (Input.isKeyPressed(GLFW_KEY_E))
+            if (Input.isKeyPressed(GLFW_KEY_E)) {
                 menu = "inventory"
+                glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+            }
 
-            if (Input.isKeyPressed(GLFW_KEY_F3))
+            if (Input.isKeyPressed(GLFW_KEY_F3)) {
                 menu = "info"
+                glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+            }
         }
 
         if (Input.isKeyPressed(GLFW_KEY_F2)) {
@@ -292,7 +303,7 @@ class PlayScene(val world: World) : Scene() {
                 .resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
             ImageIO.write(result, "png", path.toFile())
 
-            log.info { "Screenshot saved at '$path'" }
+            log.info { "Map saved at '$path'" }
         }
 
         world.update()

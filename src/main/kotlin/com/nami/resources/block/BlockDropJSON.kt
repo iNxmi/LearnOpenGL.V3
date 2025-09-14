@@ -1,6 +1,6 @@
 package com.nami.resources.block
 
-import com.nami.json.JSONRange
+import com.nami.serializer.JSONRange
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -2,6 +2,7 @@ package com.nami.storage
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import mu.KotlinLogging
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,6 +16,9 @@ class Storage {
 
     companion object {
 
+        val log = KotlinLogging.logger {}
+        val raw = true
+
         inline fun <reified T> write(value: T, path: Path, name: String) {
             path.createDirectories()
 
@@ -26,6 +30,11 @@ class Storage {
 
             val secondary = path.resolve("${name}_secondary.json")
             Files.write(secondary, compressedString)
+
+            if(raw) {
+                val raw = path.resolve("${name}_raw.json")
+                Files.writeString(raw, jsonString)
+            }
         }
 
         inline fun <reified T> read(path: Path, name: String): T? {

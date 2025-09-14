@@ -4,7 +4,7 @@ import com.nami.Time
 import com.nami.Transform
 import com.nami.easing.EasingFunction
 import com.nami.easing.JSONEasingExpression
-import com.nami.json.JSONRange
+import com.nami.serializer.JSONRange
 import com.nami.random
 import com.nami.resources.particle.ParticleColorJSON
 import com.nami.resources.particle.ResourceParticle

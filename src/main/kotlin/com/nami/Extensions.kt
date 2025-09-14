@@ -1,6 +1,5 @@
 package com.nami
 
-import com.nami.json.*
 import org.joml.*
 import java.lang.Math
 import java.util.*
@@ -24,31 +23,8 @@ fun Vector3i.toIntArray(): IntArray {
     return intArrayOf(this.x, this.y, this.z)
 }
 
-
-fun Vector2f.json(): JSONVector2f {
-    return JSONVector2f(this)
-}
-
-fun Vector2i.json(): JSONVector2i {
-    return JSONVector2i(this)
-}
-
-
-fun Vector3f.json(): JSONVector3f {
-    return JSONVector3f(this)
-}
-
-fun Vector3i.json(): JSONVector3i {
-    return JSONVector3i(this)
-}
-
-fun Quaternionf.json(): JSONQuaternionf {
-    return JSONQuaternionf(this)
-}
-
-
 fun String.snakeToUpperCamelCase(): String {
-    val pattern = "_([a-z])".toRegex()
+    val pattern = Regex("_([a-z])")
     return (replace(pattern) { it.groupValues[1].uppercase() }).replaceFirstChar {
         if (it.isLowerCase()) it.titlecase(
             Locale.getDefault()

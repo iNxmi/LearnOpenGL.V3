@@ -1,7 +1,7 @@
 package com.nami.resources.particle
 
-import com.nami.json.JSONColor
-import com.nami.json.JSONRange
+import com.nami.serializer.JSONColor
+import com.nami.serializer.JSONRange
 import kotlinx.serialization.Serializable
 
 @Serializable

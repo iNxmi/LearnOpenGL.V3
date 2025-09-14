@@ -7,8 +7,8 @@ import net.objecthunter.exp4j.Expression
 import net.objecthunter.exp4j.ExpressionBuilder
 
 @Serializable
-data class JSONEasingExpression(
-    val segments: List<JSONEasingSegment>
+data class EasingExpression(
+    val segments: List<EasingSegment>
 ) {
 
     fun toEasingFunction(): EasingFunction {
@@ -18,7 +18,7 @@ data class JSONEasingExpression(
                 .variables("t")
                 .build()
 
-            segmentsTree.put(Range.closed(json.range.min, json.range.max), expression)
+            segmentsTree.put(Range.closed(json.range.start, json.range.endInclusive), expression)
         }
 
         return EasingFunction(segmentsTree)

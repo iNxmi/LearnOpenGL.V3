@@ -1,4 +1,4 @@
-package com.nami.json
+package com.nami.serializer
 
 import kotlinx.serialization.Serializable
 
