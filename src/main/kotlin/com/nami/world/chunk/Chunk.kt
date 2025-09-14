@@ -161,9 +161,7 @@ class Chunk(val world: World, val position: Vector3i) {
         ).toFloat() == max
     }
 
-    fun update() {
-
-    }
+    fun update() {}
 
     fun render(player: Player, layer: Block.Layer) = meshes[layer]?.render(player, world.time)
 

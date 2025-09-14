@@ -138,7 +138,7 @@ class Block(
                 "transparent" -> Layer.TRANSPARENT
                 "foliage" -> Layer.FOLIAGE
                 "fluid" -> Layer.FLUID
-                else -> throw Exception("Unknown layer '${layer}' in '$id'")
+                else -> throw Exception("Unknown layer '$layer' in '$id'")
             }
 
             val handlerClass: Class<*> =
@@ -149,7 +149,7 @@ class Block(
                 }
 
             val itemDrops = mutableSetOf<BlockDrop>()
-            drops?.forEach { itemDrops.add(BlockDrop(ITEM.get(it.item), it.amount.min, it.amount.max, it.rate)) }
+            drops?.forEach { itemDrops.add(BlockDrop(ITEM.get(it.item), it.amount.min, it.amount.max, it.probability)) }
 
             return Block(
                 id,

@@ -18,7 +18,7 @@
     },
     {
       "item": "flint",
-      "rate": 0.35
+      "probability": 0.35
     }
   ]
 }

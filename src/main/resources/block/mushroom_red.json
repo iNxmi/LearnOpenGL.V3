@@ -14,7 +14,7 @@
   "drops": [
     {
       "item": "mushroom",
-      "rate": 0.25
+      "probability": 0.25
     }
   ]
 }

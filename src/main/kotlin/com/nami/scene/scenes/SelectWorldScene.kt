@@ -61,8 +61,9 @@ class SelectWorldScene : Scene() {
                 seed.set("")
 
         if (ImGui.button("Create")) {
-            if (!names.contains(name.get())) {
-                val world = World.create(name.get(), Vector3i(512, 512, 512), seed.get().toLong(), 64)
+            val name = this.name.get().trim()
+            if (name.isNotBlank() && !names.contains(name)) {
+                val world = World.create(name, Vector3i(512, 512, 512), seed.get().toLong(), 64)
                 SceneManager.set(PlayScene(world))
             }
         }

@@ -4,6 +4,7 @@ import com.nami.world.World
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.*
@@ -12,6 +13,8 @@ class ChunkGenerator(
     val world: World,
     var numberOfThreads: Int
 ) {
+
+    private val log = KotlinLogging.logger {}
 
     private val queue = mutableSetOf<Vector3i>()
     private val finished = mutableSetOf<Vector3i>()
@@ -31,13 +34,20 @@ class ChunkGenerator(
 
     private var jobs = mutableListOf<Job>()
     fun update() {
+        log.debug { "queue.size=${queue.size}" }
+
         jobs.removeAll { it.isCompleted }
 
         val positions = TreeMap<Float, Vector3i>()
         for (position in queue) {
-            val distance =
-                Vector3f(world.player.transform.position).sub(
-                    Vector3f(position).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2f))
+            val distance = Vector3f(world.player.transform.position)
+                .sub(
+                    Vector3f(position)
+                        .mul(Vector3f(Chunk.SIZE))
+                        .add(
+                            Vector3f(Chunk.SIZE)
+                                .div(2f)
+                        )
                 ).length()
 
             positions[distance] = position

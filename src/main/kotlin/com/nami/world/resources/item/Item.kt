@@ -31,17 +31,10 @@ class Item(
             val id: String,
             val data: Map<String, String>
         ) {
-
-            fun create(): Instance {
-                val template = Resources.ITEM.get(id)
-                return template.create(data)
-            }
-
+            fun create() = Resources.ITEM.get(id).create(data)
         }
 
-        fun json(): JSON {
-            return JSON(template.id, data)
-        }
+        fun json() = JSON(template.id, data)
 
     }
 
@@ -60,7 +53,7 @@ class Item(
                 else -> "com.nami.world.resources.item.handlers.ItemHandler${id.snakeToUpperCamelCase()}"
             }
 
-            var handlerClass: Class<ItemListener> = try {
+            val handlerClass: Class<ItemListener> = try {
                 Class.forName(handlerPath)
             } catch (e: Exception) {
                 Class.forName("com.nami.world.resources.item.handlers.DefaultItemHandler")

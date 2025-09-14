@@ -22,7 +22,8 @@ class ChunkMeshGenerator(
         if (!(0 until world.size.y).contains(position.y)) return
         if (!(0 until world.size.z).contains(position.z)) return
 
-        if (queue.contains(position)) return
+        if (queue.contains(position))
+            return
 
         queue.add(position)
     }

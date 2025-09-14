@@ -11,7 +11,6 @@ import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFuncti
 import de.articdive.jnoise.pipeline.JNoise
 import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
 import java.nio.FloatBuffer
@@ -36,7 +35,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
     var indicesCount = 0
         private set
 
-    private val whiteNoise = JNoise.newBuilder().value(1077, Interpolation.CUBIC, FadeFunction.NONE)
+    private val noise = JNoise.newBuilder().value(world.seed, Interpolation.CUBIC, FadeFunction.NONE)
         .scale(1.0)
         .addModifier { v: Double -> ((v + 1) / 2.0) * 0.15 + 0.85 }
         .build()
@@ -62,7 +61,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
             val block = blockManager.getBlock(position) ?: continue
 
             val bright =
-                whiteNoise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble())
+                noise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble())
                     .toFloat() * block.health
 
             for (face in faces) {
@@ -259,7 +258,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
         shader.uniform.set("u_model_matrix", model)
 
         glBindVertexArray(vao)
-        GL11.glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0)
+        glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0)
         glBindVertexArray(0)
 
         Resources.SHADER.unbind()

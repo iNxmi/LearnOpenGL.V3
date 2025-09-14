@@ -1,5 +1,8 @@
 <configuration>
 
+    <!-- Disable logback default logs -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
     <conversionRule conversionWord="highlight" converterClass="com.nami.logback.HighlightingCompositeConverter" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">

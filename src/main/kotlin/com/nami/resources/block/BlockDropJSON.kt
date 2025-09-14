@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class BlockDropJSON(
     val item: String,
     val amount: JSONRange<Int> = JSONRange(1, 1),
-    val rate: Float = 1.0f
+    val probability: Float = 1.0f
 )

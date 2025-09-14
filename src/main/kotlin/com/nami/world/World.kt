@@ -7,7 +7,7 @@ import com.nami.storage.Storage
 import com.nami.world.chunk.ChunkManager
 import com.nami.world.entity.player.Player
 import com.nami.world.resources.biome.BiomeManager
-import com.nami.world.resources.block.BlockManager
+import com.nami.world.resources.block.BlockManagerSlow
 import com.nami.world.resources.particle.ParticleManager
 import kotlinx.serialization.Serializable
 import org.joml.Vector3f
@@ -43,7 +43,7 @@ class World private constructor(
     val fileName = "world"
 
     val biomeManager = BiomeManager(this)
-    val blockManager = BlockManager(this)
+    val blockManager = BlockManagerSlow(this)
     val chunkManager = ChunkManager(this)
     val particleManager = ParticleManager(this)
 

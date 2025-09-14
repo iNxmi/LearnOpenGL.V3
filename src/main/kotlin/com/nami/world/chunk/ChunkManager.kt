@@ -6,11 +6,13 @@ import com.nami.world.resources.block.Block
 import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
+import org.lwjgl.opengl.GL11.GL_CULL_FACE
+import org.lwjgl.opengl.GL11.glCullFace
+import org.lwjgl.opengl.GL11.glDisable
+import org.lwjgl.opengl.GL11.glEnable
 import java.util.*
 
-class ChunkManager(
-    val world: World
-) {
+class ChunkManager(val world: World) {
 
     private val log = KotlinLogging.logger { }
 
@@ -22,7 +24,6 @@ class ChunkManager(
     fun setChunk(position: Vector3i, chunk: Chunk) = chunks.set(position, chunk)
 
     fun getByChunkPosition(position: Vector3i) = chunks[position]
-
     fun getByBlockPosition(position: Vector3i) = getByChunkPosition(
         Vector3i(
             position.x / Chunk.SIZE.x,
@@ -63,14 +64,14 @@ class ChunkManager(
         val chunks = TreeMap<Float, Chunk>()
         for (z in -chunkRadius..chunkRadius)
             for (y in -chunkRadius..chunkRadius)
-                for (x in -chunkRadius..chunkRadius)
-                    if (x * x + y * y + z * z <= chunkRadius * chunkRadius) {
-                        val chunkPosition = Vector3i(
-                            player.transform.position.x.toInt() / Chunk.SIZE.x + x,
-                            player.transform.position.y.toInt() / Chunk.SIZE.y + y,
-                            player.transform.position.z.toInt() / Chunk.SIZE.z + z
-                        )
+                for (x in -chunkRadius..chunkRadius) {
+                    val chunkPosition = Vector3i(
+                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
+                    )
 
+                    if (x * x + y * y + z * z <= chunkRadius * chunkRadius) {
                         val chunk = getByChunkPosition(chunkPosition) ?: continue
 
                         val distance = Vector3f(chunkPosition)
@@ -81,13 +82,17 @@ class ChunkManager(
 
                         chunks[distance] = chunk
                     }
+                }
 
+//        log.debug { "${chunks.size} / ${this.chunks.size}" }
+
+        glEnable(GL_CULL_FACE)
         chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.SOLID) }
-        chunks.forEach { (_, chunk) ->
-            chunk.render(player, Block.Layer.TRANSPARENT)
-            chunk.render(player, Block.Layer.FOLIAGE)
-            chunk.render(player, Block.Layer.FLUID)
-        }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.TRANSPARENT) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.FLUID) }
+
+        glDisable(GL_CULL_FACE)
+        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.FOLIAGE) }
     }
 
 }
