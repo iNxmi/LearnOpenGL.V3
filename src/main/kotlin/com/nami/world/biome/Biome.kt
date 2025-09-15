@@ -18,11 +18,11 @@ abstract class Biome {
             BiomeSpruceForest,
         )
 
-        fun evaluate(elevation: Float, moisture: Float, temperature: Float): Biome? = register.first {
+        fun evaluate(elevation: Float, moisture: Float, temperature: Float): Biome = register.firstOrNull {
             it.elevation.contains(elevation)
                     && it.moisture.contains(moisture)
                     && it.temperature.contains(temperature)
-        }
+        } ?: BiomeInvalid
 
     }
 

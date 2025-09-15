@@ -176,7 +176,7 @@ class Chunk(val world: World, val position: Vector3i) {
 
     @Serializable
     data class JSON(
-        @Contextual val biomes: Map<Int, Vector3f>,
+        val biomes: Map<Int, @Contextual Vector3f>,
         val blocks: Map<Int, Block.Instance.JSON>
     )
 
