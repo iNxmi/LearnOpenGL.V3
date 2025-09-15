@@ -4,7 +4,6 @@ import com.nami.Time
 import com.nami.Transform
 import com.nami.easing.EasingExpression
 import com.nami.random
-import com.nami.resources.particle.ParticleColor
 import com.nami.resources.particle.ResourceParticle
 import com.nami.snakeToUpperCamelCase
 import com.nami.world.World
@@ -12,8 +11,6 @@ import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 import kotlin.math.roundToInt
 
-
-@Serializable
 class Particle(
     id: String,
     val handlerClass: Class<ParticleListener>,
@@ -96,7 +93,7 @@ class Particle(
                 timeInSeconds,
                 scale,
                 color,
-                easing.toEasingFunction()
+                easing
             )
         }
 

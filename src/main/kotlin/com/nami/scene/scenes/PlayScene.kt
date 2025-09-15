@@ -7,8 +7,8 @@ import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
-import com.nami.storage.Storage
 import com.nami.world.World
+import com.nami.world.biome.Biome
 import com.nami.world.chunk.Chunk
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
@@ -166,14 +166,17 @@ class PlayScene(val world: World) : Scene() {
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
-            val biome = world.biomeManager.getBiome(
+            val factors = world.biomeManager.getBiomeFactors(
                 Vector3i(
                     world.player.transform.position.x.toInt(),
                     world.player.transform.position.y.toInt(),
                     world.player.transform.position.z.toInt()
                 )
             )
-            ImGui.text("biome=${biome?.template?.id} (${biome?.template?.language("name")}) factors=${biome?.factors}")
+            if (factors != null) {
+                val biome = Biome.evaluate(factors.x, factors.y, factors.z)
+                ImGui.text("biome=$biome factors=$factors")
+            }
             ImGui.text("position=${world.player.transform.position}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
 

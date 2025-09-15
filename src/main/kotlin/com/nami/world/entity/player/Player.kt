@@ -5,8 +5,8 @@ import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
-import com.nami.serializer.SerializerVector3f
 import com.nami.resources.Resources
+import com.nami.serializer.SerializerVector3f
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
 import com.nami.world.entity.Entity

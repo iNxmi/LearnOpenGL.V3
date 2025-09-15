@@ -1,7 +1,7 @@
 package com.nami.world.resources.biome
 
-import com.nami.resources.Resources
 import com.nami.world.World
+import com.nami.world.biome.Biome
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
 import de.articdive.jnoise.pipeline.JNoise
@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 class BiomeManager(
     val world: World
-)  {
+) {
 
-    private val biomes = ConcurrentHashMap<Vector3i, Biome.Instance>()
+    private val biomes = ConcurrentHashMap<Vector3i, Vector3f>()
 
     private val elevation =
         JNoise.newBuilder()
@@ -61,22 +61,14 @@ class BiomeManager(
             position.z.toDouble()
         ).toFloat()
 
-        val factors = Vector3f(elevation, moisture, temperature)
-        val biome = Resources.BIOME.evaluate(factors) ?: return
+        val biome = Biome.evaluate(elevation, moisture, temperature) ?: return
 //        val biome = Resource.BIOME.get("jungle_forest")
-        biomes[position] = biome.create(world, position, factors)
+        biomes[position] = Vector3f(elevation, moisture, temperature)
     }
 
-    fun setBiome(position: Vector3i, biome: Biome.Instance) {
-        biomes[position] = biome
-    }
+    fun setBiomeFactor(position: Vector3i, factors: Vector3f) = biomes.set(position, factors)
+    fun setBiomeFactors(map: Map<Vector3i, Vector3f>) = biomes.putAll(map)
+    fun getBiomeFactors(position: Vector3i) = biomes[position]
 
-    fun setBiomes(map: Map<Vector3i, Biome.Instance>) {
-        biomes.putAll(map)
-    }
-
-    fun getBiome(position: Vector3i): Biome.Instance? {
-        return biomes[position]
-    }
 
 }

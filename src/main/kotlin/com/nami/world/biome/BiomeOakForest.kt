@@ -1,22 +1,39 @@
-package com.nami.world.resources.biome.handlers
+package com.nami.world.biome
 
 import com.nami.resources.Resources
-import com.nami.world.World
-import com.nami.world.resources.biome.BiomeListener
 import com.nami.world.resources.block.Block
-import org.joml.Vector3f
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
-class BiomeHandlerOakForest : BiomeListener {
-    override fun onGenerateBlock(world: World, position: Vector3i, factors: Vector3f): Block? {
+/*
+  "features": [
+    {
+      "feature": "oak_tree",
+      "base": [
+        "grass",
+        "dirt"
+      ],
+      "scale": 1024.0,
+      "radius": 5
+    }
+  ]
+}
+ */
+
+object BiomeOakForest : Biome() {
+
+    override val elevation = 67f..256f
+    override val moisture = 0f..100f
+    override val temperature = 0f..35f
+
+    override fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
         val y = position.y
 
-        val height = factors.x.roundToInt()
+        val height = elevation.roundToInt()
         if ((0 until height - 4).contains(y))
             return Resources.BLOCK.get("stone")
 
-        if (factors.z > 0) {
+        if (temperature > 0) {
             if ((height - 4 until height - 1).contains(y))
                 return Resources.BLOCK.get("dirt")
 

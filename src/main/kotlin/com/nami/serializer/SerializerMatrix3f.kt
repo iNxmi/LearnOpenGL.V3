@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.joml.Matrix3f
 
-class SerializerMatrix3f : KSerializer<Matrix3f> {
+internal object SerializerMatrix3f : KSerializer<Matrix3f> {
 
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("Matrix3f") {

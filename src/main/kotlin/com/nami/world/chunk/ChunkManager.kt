@@ -6,10 +6,7 @@ import com.nami.world.resources.block.Block
 import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
-import org.lwjgl.opengl.GL11.GL_CULL_FACE
-import org.lwjgl.opengl.GL11.glCullFace
-import org.lwjgl.opengl.GL11.glDisable
-import org.lwjgl.opengl.GL11.glEnable
+import org.lwjgl.opengl.GL11.*
 import java.util.*
 
 class ChunkManager(val world: World) {

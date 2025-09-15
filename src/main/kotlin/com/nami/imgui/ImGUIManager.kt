@@ -6,7 +6,6 @@ import imgui.ImGui
 import imgui.gl3.ImGuiImplGl3
 import imgui.glfw.ImGuiImplGlfw
 import imgui.internal.ImGuiContext
-import mu.KotlinLogging
 
 class ImGUIManager {
 

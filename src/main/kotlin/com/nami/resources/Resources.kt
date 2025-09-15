@@ -1,6 +1,5 @@
 package com.nami.resources
 
-import com.nami.resources.biome.ResourceLoaderBiome
 import com.nami.resources.block.ResourceLoaderBlock
 import com.nami.resources.feature.ResourceLoaderFeature
 import com.nami.resources.item.ResourceLoaderItem
@@ -27,7 +26,6 @@ abstract class Resources<T : Resource>(
         val SHADER = ResourceLoaderShader()
         val TEXTURE = ResourceLoaderTexture()
         val BLOCK = ResourceLoaderBlock()
-        val BIOME = ResourceLoaderBiome()
         val ITEM = ResourceLoaderItem()
         val MODEL = ResourceLoaderModel()
         val PARTICLE = ResourceLoaderParticle()
@@ -42,7 +40,6 @@ abstract class Resources<T : Resource>(
                 ITEM,
                 BLOCK,
                 FEATURE,
-                BIOME,
                 MODEL,
                 PARTICLE,
                 RECIPE,

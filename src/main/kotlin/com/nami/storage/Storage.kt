@@ -1,5 +1,6 @@
 package com.nami.storage
 
+import com.nami.serializer.GlobalJSON
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
@@ -22,7 +23,7 @@ class Storage {
         inline fun <reified T> write(value: T, path: Path, name: String) {
             path.createDirectories()
 
-            val jsonString = Json { prettyPrint = true }.encodeToString(value)
+            val jsonString = GlobalJSON.instance.encodeToString(value)
             val compressedString = compress(jsonString)
 
             val primary = path.resolve("${name}_primary.json")
@@ -47,11 +48,11 @@ class Storage {
             if (primary.exists()) {
                 val compressedData = Files.readAllBytes(primary)
                 val jsonString = decompress(compressedData)
-                return Json.decodeFromString<T>(jsonString)
+                return GlobalJSON.instance.decodeFromString<T>(jsonString)
             } else if (secondary.exists()) {
                 val compressedData = Files.readAllBytes(secondary)
                 val jsonString = decompress(compressedData)
-                return Json.decodeFromString<T>(jsonString)
+                return GlobalJSON.instance.decodeFromString<T>(jsonString)
             }
 
             return null

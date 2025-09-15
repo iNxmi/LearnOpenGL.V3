@@ -1,7 +1,9 @@
 package com.nami
 
-import org.joml.*
-import java.lang.Math
+import org.joml.Vector2f
+import org.joml.Vector2i
+import org.joml.Vector3f
+import org.joml.Vector3i
 import java.util.*
 import kotlin.math.roundToInt
 

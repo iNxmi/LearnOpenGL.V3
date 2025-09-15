@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.joml.Quaternionf
 
-class SerializerQuaternionf: KSerializer<Quaternionf> {
+internal object SerializerQuaternionf: KSerializer<Quaternionf> {
 
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("Quaternionf") {

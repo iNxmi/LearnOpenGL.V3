@@ -35,7 +35,7 @@ class ParticleManager(val world: World) {
                 val particle = it.value
 
                 val t = (world.time.time - particle.startTime) / particle.durationInSeconds
-                val x = particle.template.easing.evaluate(t)
+                val x = particle.template.easing.toEasingFunction().evaluate(t)
 
                 val transform = Transform(particle.transform)
                 transform.scale.mul(x)
