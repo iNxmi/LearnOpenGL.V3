@@ -1,25 +1,30 @@
-package com.nami.world.resources.feature.handlers
+package com.nami.world.feature
 
 import com.nami.random
 import com.nami.resources.Resources
-import com.nami.world.World
 import com.nami.world.resources.block.Block
-import com.nami.world.resources.feature.FeatureListener
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 
-class FeatureHandlerOakTree : FeatureListener {
+object FeatureBirchTree : Feature() {
 
-    override fun generate(world: World, position: Vector3i): Map<Vector3i, Block.Instance> {
-        val blocks = mutableMapOf<Vector3i, Block.Instance>()
+    override fun shouldGenerate(): Boolean {
+        TODO()
+    }
+
+    override fun generate(
+        elevation: Float,
+        moisture: Float,
+        temperature: Float
+    ): Map<Vector3i, Block> {
+        val blocks = mutableMapOf<Vector3i, Block>()
 
         val baseHeight = Int.random(4..6)
         for (i in 0 until baseHeight)
-            blocks[Vector3i(position).add(0, i, 0)] =
-                Resources.BLOCK.get("oak_log").create(world, Vector3i(position).add(0, i, 0))
+            blocks[Vector3i(0, i, 0)] = Resources.BLOCK.get("birch_log")
 
         for (i in 0 until 5) {
-            val position = Vector3i(position).add(0, baseHeight, 0)
+            val position = Vector3i(0, baseHeight, 0)
             for (j in 5 until 15) {
                 val rand = Float.random(0f..1f)
 
@@ -36,7 +41,7 @@ class FeatureHandlerOakTree : FeatureListener {
                 if ((0.85f..1f).contains(rand))
                     position.z -= 1
 
-                blocks[Vector3i(position)] = Resources.BLOCK.get("oak_log").create(world, Vector3i(position))
+                blocks[Vector3i(position)] = Resources.BLOCK.get("birch_log")
 
                 for (z in -1..1)
                     for (y in -1..1)
@@ -49,20 +54,14 @@ class FeatureHandlerOakTree : FeatureListener {
                             if (x.absoluteValue + y.absoluteValue + z.absoluteValue > 1)
                                 if (Math.random() >= 0.25) continue
 
-                            if (
-                                (world.blockManager.getBlock(Vector3i(pos)) != null)
-                                ||
-                                (blocks[Vector3i(pos)] != null)
-                            )
+                            if (blocks[Vector3i(pos)] != null)
                                 continue
 
-                            blocks[Vector3i(pos)] =
-                                Resources.BLOCK.get("oak_leaves").create(world, Vector3i(pos))
+                            blocks[Vector3i(pos)] = Resources.BLOCK.get("birch_leaves")
                         }
             }
         }
 
         return blocks
     }
-
 }

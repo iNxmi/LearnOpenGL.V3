@@ -8,7 +8,6 @@ abstract class Feature {
     abstract fun shouldGenerate(): Boolean
 
     abstract fun generate(
-        position: Vector3i,
         elevation: Float,
         moisture: Float,
         temperature: Float

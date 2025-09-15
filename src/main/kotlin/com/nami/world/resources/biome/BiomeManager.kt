@@ -66,7 +66,7 @@ class BiomeManager(
 
     fun setBiomeFactor(position: Vector3i, factors: Vector3f) = biomes.set(position, factors)
     fun setBiomeFactors(map: Map<Vector3i, Vector3f>) = biomes.putAll(map)
-    fun getBiomeFactors(position: Vector3i) = biomes[position]
+    fun getBiomeFactors(position: Vector3i) = biomes[position]!!
 
 
 }

@@ -50,6 +50,7 @@ class Player : Entity() {
         items[Resources.ITEM.get("tool.hand")] = Resources.ITEM.get("tool.hand").create(count = 1)
         items[Resources.ITEM.get("lighter")] = Resources.ITEM.get("lighter").create(count = 1)
         items[Resources.ITEM.get("block.tnt")] = Resources.ITEM.get("block.tnt").create(count = 64)
+        items[Resources.ITEM.get("acorn")] = Resources.ITEM.get("acorn").create(count = 64)
     }
 
     fun update(world: World) {

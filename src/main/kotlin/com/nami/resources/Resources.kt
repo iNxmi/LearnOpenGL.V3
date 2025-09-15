@@ -1,7 +1,6 @@
 package com.nami.resources
 
 import com.nami.resources.block.ResourceLoaderBlock
-import com.nami.resources.feature.ResourceLoaderFeature
 import com.nami.resources.item.ResourceLoaderItem
 import com.nami.resources.language.ResourceLoaderLanguage
 import com.nami.resources.model.ResourceLoaderModel
@@ -30,7 +29,6 @@ abstract class Resources<T : Resource>(
         val MODEL = ResourceLoaderModel()
         val PARTICLE = ResourceLoaderParticle()
         val RECIPE = ResourceLoaderRecipe()
-        val FEATURE = ResourceLoaderFeature()
         val LANGUAGE = ResourceLoaderLanguage()
 
         fun load(
@@ -39,15 +37,13 @@ abstract class Resources<T : Resource>(
                 TEXTURE,
                 ITEM,
                 BLOCK,
-                FEATURE,
                 MODEL,
                 PARTICLE,
                 RECIPE,
                 LANGUAGE
             )
-        ): Int {
-            return resources.sumOf { it.load() }
-        }
+        ) = resources.sumOf { it.load() }
+
 
     }
 

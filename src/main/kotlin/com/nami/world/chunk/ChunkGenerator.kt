@@ -34,7 +34,7 @@ class ChunkGenerator(
 
     private var jobs = mutableListOf<Job>()
     fun update() {
-        log.debug { "queue.size=${queue.size}" }
+//        log.debug { "queue.size=${queue.size}" }
 
         jobs.removeAll { it.isCompleted }
 
