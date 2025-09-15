@@ -5,13 +5,14 @@ import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
-import com.nami.serializer.SerializerVector3f
 import com.nami.resources.Resources
+import com.nami.serializer.SerializerVector3f
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
 import com.nami.world.entity.Entity
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.joml.Vector2i
@@ -37,7 +38,7 @@ class Player : Entity() {
     @Transient
     val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
 
-    @Serializable(with = SerializerVector3f::class)
+    @Contextual
     val acceleration = Vector3f(0f, 0f, 0f)
 
     @Transient
@@ -58,7 +59,7 @@ class Player : Entity() {
         inputAction(world)
     }
 
-    @Serializable(with = SerializerVector3f::class)
+    @Contextual
     private val eulerAngles = Vector3f()
     @Transient
     private val mousePositionLast = Vector2i()

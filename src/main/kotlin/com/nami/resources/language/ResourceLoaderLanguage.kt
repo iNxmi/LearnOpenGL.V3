@@ -2,7 +2,7 @@ package com.nami.resources.language
 
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
-import kotlinx.serialization.json.Json
+import com.nami.serializer.GlobalJSON
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -12,7 +12,7 @@ class ResourceLoaderLanguage : Resources<Language>(GamePath.language, "language"
 
     override fun onLoad(id: String, path: Path): Language {
         val jsonString = Files.readString(path)
-        val map = Json.decodeFromString<MutableMap<String, String>>(jsonString)
+        val map = GlobalJSON.instance.decodeFromString<MutableMap<String, String>>(jsonString)
 
         return Language(id, map)
     }

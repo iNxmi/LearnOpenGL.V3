@@ -7,7 +7,7 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-class SerializerIntRange : KSerializer<IntRange> {
+internal object SerializerIntRange : KSerializer<IntRange> {
 
     override val descriptor = buildClassSerialDescriptor("IntRange") {
         element("start", Int.serializer().descriptor)

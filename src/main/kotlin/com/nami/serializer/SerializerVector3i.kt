@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.joml.Vector3i
 
-class SerializerVector3i : KSerializer<Vector3i> {
+internal object SerializerVector3i : KSerializer<Vector3i> {
 
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("Vector3i") {

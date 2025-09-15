@@ -3,17 +3,18 @@ package com.nami.world.resources.particle
 import com.nami.Time
 import com.nami.Transform
 import com.nami.easing.EasingExpression
+import com.nami.easing.EasingFunction
 import com.nami.random
 import com.nami.resources.particle.ParticleColor
 import com.nami.resources.particle.ResourceParticle
 import com.nami.snakeToUpperCamelCase
 import com.nami.world.World
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 import kotlin.math.roundToInt
 
 
-@Serializable
 class Particle(
     id: String,
     val handlerClass: Class<ParticleListener>,
@@ -21,7 +22,7 @@ class Particle(
     val timeInSeconds: ClosedFloatingPointRange<Float>,
     val scale: ClosedFloatingPointRange<Float>,
     val colors: List<ParticleColor>,
-    val easing: EasingExpression
+    val easing: EasingFunction
 ) : ResourceParticle(id) {
 
     fun create(time: Time, position: Vector3f): Instance {
@@ -65,7 +66,7 @@ class Particle(
 
     @Serializable
     data class JSON(
-        val timeInSeconds: ClosedFloatingPointRange<Float>,
+        @Contextual val timeInSeconds: ClosedFloatingPointRange<Float>,
         val scale: ClosedFloatingPointRange<Float> = 1f..1f,
         val colors: List<ParticleColor>,
         val easing: EasingExpression
@@ -79,9 +80,9 @@ class Particle(
                     Class.forName("com.nami.world.resources.particle.handlers.DefaultParticleHandler")
                 }
 
-            val color = mutableListOf<ParticleColor>()
-            colors.forEach {
-                color.add(
+            val colors = mutableListOf<ParticleColor>()
+            this@JSON.colors.forEach {
+                colors.add(
                     ParticleColor(
                         it.color,
                         it.brightness
@@ -95,7 +96,7 @@ class Particle(
 
                 timeInSeconds,
                 scale,
-                color,
+                colors,
                 easing.toEasingFunction()
             )
         }

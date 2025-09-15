@@ -7,7 +7,6 @@ import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
-import com.nami.storage.Storage
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
 import com.nami.world.resources.block.Block

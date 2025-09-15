@@ -1,7 +1,8 @@
 package com.nami.resources.particle
 
-import com.nami.serializer.SerializerClosedFloatingPointRangeFloat
+import com.nami.random
 import com.nami.serializer.SerializerVector3fHexadecimal
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 
@@ -9,6 +10,7 @@ import org.joml.Vector3f
 class ParticleColor(
     @Serializable(with = SerializerVector3fHexadecimal::class)
     val color: Vector3f,
-    @Serializable(with = SerializerClosedFloatingPointRangeFloat::class)
-    val brightness: ClosedFloatingPointRange<Float>
-)
+    @Contextual val brightness: ClosedFloatingPointRange<Float>
+) {
+    fun generate() = Vector3f(color).mul(Float.random(brightness))
+}

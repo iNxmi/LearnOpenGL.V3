@@ -7,7 +7,7 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-class SerializerClosedFloatingPointRangeFloat : KSerializer<ClosedFloatingPointRange<Float>> {
+internal object SerializerClosedFloatingPointRangeFloat : KSerializer<ClosedFloatingPointRange<Float>> {
 
     override val descriptor = buildClassSerialDescriptor("ClosedFloatingPointRangeFloat") {
         element("start", Float.serializer().descriptor)

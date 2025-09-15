@@ -7,7 +7,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.joml.Vector3i
 
-class SerializerVector3iHexadecimal : KSerializer<Vector3i> {
+internal object SerializerVector3iHexadecimal : KSerializer<Vector3i> {
 
     override val descriptor = PrimitiveSerialDescriptor("Vector3iHexadecimal", PrimitiveKind.STRING)
 

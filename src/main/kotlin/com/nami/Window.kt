@@ -1,6 +1,5 @@
 package com.nami
 
-import com.nami.scene.SceneManager
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWVidMode
