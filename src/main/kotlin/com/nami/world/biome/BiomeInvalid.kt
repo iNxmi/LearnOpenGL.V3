@@ -10,7 +10,7 @@ internal object BiomeInvalid : Biome() {
     override val moisture = 0f..0f
     override val temperature = 0f..0f
 
-    override fun generate(
+    override fun generateBlock(
         position: Vector3i,
         elevation: Float,
         moisture: Float,

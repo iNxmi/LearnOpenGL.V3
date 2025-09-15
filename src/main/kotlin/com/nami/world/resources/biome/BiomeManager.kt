@@ -61,8 +61,6 @@ class BiomeManager(
             position.z.toDouble()
         ).toFloat()
 
-        val biome = Biome.evaluate(elevation, moisture, temperature) ?: return
-//        val biome = Resource.BIOME.get("jungle_forest")
         biomes[position] = Vector3f(elevation, moisture, temperature)
     }
 

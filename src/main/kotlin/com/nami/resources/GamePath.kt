@@ -6,6 +6,11 @@ import java.nio.file.Paths
 class GamePath {
 
     companion object {
+
+        //AppData
+        private val appdata: Path = Paths.get(System.getenv("APPDATA"))
+        val worlds: Path = appdata.resolve("LearnOpenGL.V3").resolve("worlds")
+
         //Root
         private val root: Path = Paths.get("")
 
@@ -27,7 +32,7 @@ class GamePath {
         private val data: Path = root.resolve("data")
         val screenshots: Path = data.resolve("screenshots")
         val maps: Path = data.resolve("maps")
-        val worlds: Path = data.resolve("worlds")
+
     }
 
 }

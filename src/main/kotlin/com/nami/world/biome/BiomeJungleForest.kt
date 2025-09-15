@@ -27,7 +27,7 @@ object BiomeJungleForest : Biome() {
     override val moisture = 75f..100f
     override val temperature = 20f..50f
 
-    override fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
+    override fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
         val y = position.y
 
         val height = elevation.roundToInt()

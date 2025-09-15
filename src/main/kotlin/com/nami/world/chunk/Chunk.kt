@@ -110,7 +110,7 @@ class Chunk(val world: World, val position: Vector3i) {
 
                     val factors = biomeManager.getBiomeFactors(blockPosition) ?: continue
                     val biome = Biome.evaluate(factors.x, factors.y, factors.z) ?: continue
-                    val block = biome.generate(blockPosition, factors.x, factors.y, factors.z) ?: continue
+                    val block = biome.generateBlock(blockPosition, factors.x, factors.y, factors.z) ?: continue
 
                     blocks[blockPosition] = block.create(world, blockPosition)
                 }

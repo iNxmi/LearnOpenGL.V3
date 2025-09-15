@@ -6,8 +6,7 @@ import com.nami.resources.texture.TextureAtlas
 import com.nami.world.entity.player.Player
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.block.Face
-import de.articdive.jnoise.core.api.functions.Interpolation
-import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction
+import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
 import de.articdive.jnoise.pipeline.JNoise
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -35,8 +34,9 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
     var indicesCount = 0
         private set
 
-    private val noise = JNoise.newBuilder().value(world.seed, Interpolation.CUBIC, FadeFunction.NONE)
-        .scale(1.0)
+    private val noise = JNoise.newBuilder()
+        .superSimplex(SuperSimplexNoiseGenerator.newBuilder().setSeed(world.seed).build())
+        .scale(1.0 / 2.0)
         .addModifier { v: Double -> ((v + 1) / 2.0) * 0.15 + 0.85 }
         .build()
 
@@ -60,9 +60,11 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
             val chunkBlockPosition = Vector3f(position).sub(Vector3f(chunk.position).mul(Vector3f(Chunk.SIZE)))
             val block = blockManager.getBlock(position) ?: continue
 
-            val bright =
-                noise.evaluateNoise(position.x.toDouble(), position.y.toDouble(), position.z.toDouble())
-                    .toFloat() * block.health
+            val bright = noise.evaluateNoise(
+                position.x.toDouble(),
+                position.y.toDouble(),
+                position.z.toDouble()
+            ).toFloat() * block.health
 
             for (face in faces) {
                 val texture: String = when (face) {
@@ -74,7 +76,7 @@ class ChunkMesh(private val chunk: Chunk, val layer: Block.Layer) {
                     Face.SOUTH -> block.template.textures[5]
                 }
                 var color = Vector3f(1f)
-                if (arrayOf(
+                if (setOf(
                         "block.grass_top",
                         "block.oak_leaves",
                         "block.birch_leaves",

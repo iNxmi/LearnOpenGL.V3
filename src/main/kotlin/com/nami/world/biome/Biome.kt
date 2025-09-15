@@ -1,6 +1,7 @@
 package com.nami.world.biome
 
 import com.nami.world.resources.block.Block
+import com.nami.world.resources.feature.Feature
 import org.joml.Vector3i
 
 abstract class Biome {
@@ -18,7 +19,7 @@ abstract class Biome {
             BiomeSpruceForest,
         )
 
-        fun evaluate(elevation: Float, moisture: Float, temperature: Float): Biome = register.firstOrNull {
+        fun evaluate(elevation: Float, moisture: Float, temperature: Float) = register.firstOrNull {
             it.elevation.contains(elevation)
                     && it.moisture.contains(moisture)
                     && it.temperature.contains(temperature)
@@ -30,6 +31,7 @@ abstract class Biome {
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
 
-    abstract fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block?
+    open fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
+    open fun generateFeature(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Feature? = null
 
 }
