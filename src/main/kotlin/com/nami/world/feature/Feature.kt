@@ -5,6 +5,23 @@ import org.joml.Vector3i
 
 abstract class Feature(val id:String) {
 
+    companion object {
+
+        val set = setOf(
+            FeatureBirchTree,
+            FeatureCactus,
+            FeatureGiantMushroomRed,
+            FeatureGiantMushroomYellow,
+            FeatureJungleTree,
+            FeatureOakTree
+        )
+
+        val map = set.associateBy { it.id }
+
+        fun get(id: String) = map[id]
+
+    }
+
     abstract fun shouldGenerate(): Boolean
 
     abstract fun generate(

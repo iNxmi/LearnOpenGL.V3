@@ -1,7 +1,6 @@
-package com.nami.world.resources.biome
+package com.nami.world.biome
 
 import com.nami.world.World
-import com.nami.world.biome.Biome
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
 import de.articdive.jnoise.pipeline.JNoise
@@ -9,7 +8,7 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.concurrent.ConcurrentHashMap
 
-class BiomeManager(
+class iomeManager(
     val world: World
 ) {
 

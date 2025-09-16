@@ -6,7 +6,7 @@ import com.nami.serializer.SerializerVector3i
 import com.nami.storage.Storage
 import com.nami.world.chunk.ChunkManager
 import com.nami.world.entity.player.Player
-import com.nami.world.resources.biome.BiomeManager
+import com.nami.world.biome.BiomeManager
 import com.nami.world.resources.block.BlockManagerSlow
 import com.nami.world.resources.particle.ParticleManager
 import kotlinx.serialization.Serializable

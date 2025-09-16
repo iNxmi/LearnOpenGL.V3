@@ -7,7 +7,7 @@ abstract class Biome(val id: String) {
 
     companion object {
 
-        val register = setOf(
+        val set = setOf(
             BiomeBeach,
             BiomeBirchForest,
             BiomeDesert,
@@ -18,12 +18,14 @@ abstract class Biome(val id: String) {
             BiomeSpruceForest,
         )
 
-        fun evaluate(elevation: Float, moisture: Float, temperature: Float) = register.firstOrNull {
+        val map = set.associateBy { it.id }
+
+        fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
             it.elevation.contains(elevation)
                     && it.moisture.contains(moisture)
                     && it.temperature.contains(temperature)
         } ?: BiomeInvalid
-
+        fun get(id: String) = map[id]
     }
 
     abstract val elevation: ClosedFloatingPointRange<Float>
