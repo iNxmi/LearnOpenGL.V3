@@ -7,7 +7,7 @@ import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-object FeatureBirchTree : Feature() {
+object FeatureBirchTree : Feature(id = "birch_tree") {
 
     override fun shouldGenerate(): Boolean {
         TODO()

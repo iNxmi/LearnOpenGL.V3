@@ -9,8 +9,9 @@ import kotlin.random.Random
 open class FeatureGiantMushroom(
     val block: Block,
     val heightRange: IntRange,
-    val radiusRange: IntRange
-) : Feature() {
+    val radiusRange: IntRange,
+    id: String
+) : Feature(id) {
 
     override fun shouldGenerate(): Boolean {
         TODO("Not yet implemented")

@@ -20,11 +20,11 @@ import kotlin.math.roundToInt
 }
  */
 
-object BiomeDesert : Biome() {
+object BiomeDesert : Biome(id = "desert") {
 
     override val elevation = 67f..256f
     override val moisture = 0f..20f
-    override val temperature =25f..50f
+    override val temperature = 25f..50f
 
     override fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
         val y = position.y

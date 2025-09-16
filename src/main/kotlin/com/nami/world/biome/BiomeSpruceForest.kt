@@ -5,7 +5,7 @@ import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
-object BiomeSpruceForest : Biome() {
+object BiomeSpruceForest : Biome(id = "spruce_forest") {
 
     override val elevation = 67f..256f
     override val moisture = 0f..100f

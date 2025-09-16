@@ -19,7 +19,8 @@ open class FeatureTree(
     val probabilityRight: Float,
     val probabilityFront: Float,
     val probabilityBack: Float,
-) : Feature() {
+    id: String
+) : Feature(id) {
 
     override fun shouldGenerate(): Boolean {
         TODO("Not yet implemented")
@@ -29,7 +30,7 @@ open class FeatureTree(
         elevation: Float,
         moisture: Float,
         temperature: Float,
-        seed:Long
+        seed: Long
     ): Map<Vector3i, Block> {
         val random = Random(seed)
         val blocks = mutableMapOf<Vector3i, Block>()

@@ -3,7 +3,7 @@ package com.nami.world.biome
 import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 
-abstract class Biome {
+abstract class Biome(val id: String) {
 
     companion object {
 

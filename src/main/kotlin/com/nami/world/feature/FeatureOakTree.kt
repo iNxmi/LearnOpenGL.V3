@@ -9,7 +9,7 @@ import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-object FeatureOakTree : Feature() {
+object FeatureOakTree : Feature(id = "oak_tree") {
 
     override fun shouldGenerate(): Boolean {
         val noise = JNoise.newBuilder()

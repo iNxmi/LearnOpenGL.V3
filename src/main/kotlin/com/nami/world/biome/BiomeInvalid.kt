@@ -5,7 +5,7 @@ import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
-internal object BiomeInvalid : Biome() {
+internal object BiomeInvalid : Biome(id = "invalid") {
     override val elevation = 0f..0f
     override val moisture = 0f..0f
     override val temperature = 0f..0f
@@ -19,7 +19,7 @@ internal object BiomeInvalid : Biome() {
         val y = position.y
 
         val height = elevation.roundToInt()
-        if ((0 until height ).contains(y))
+        if ((0 until height).contains(y))
             return Resources.BLOCK.get("invalid")
 
         return null

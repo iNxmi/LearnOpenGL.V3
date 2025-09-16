@@ -6,7 +6,7 @@ import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 import kotlin.random.Random
 
-object FeatureCactus : Feature() {
+object FeatureCactus : Feature(id = "cactus") {
 
     override fun shouldGenerate(): Boolean {
         TODO("Not yet implemented")

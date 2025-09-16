@@ -5,5 +5,6 @@ import com.nami.resources.Resources
 object FeatureGiantMushroomRed : FeatureGiantMushroom(
     Resources.BLOCK.get("mushroom_red"),
     7..11,
-    2..4
+    2..4,
+    id = "mushroom_red"
 )

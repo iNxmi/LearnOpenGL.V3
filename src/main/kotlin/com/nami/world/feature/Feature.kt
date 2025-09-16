@@ -3,7 +3,7 @@ package com.nami.world.feature
 import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 
-abstract class Feature {
+abstract class Feature(val id:String) {
 
     abstract fun shouldGenerate(): Boolean
 
