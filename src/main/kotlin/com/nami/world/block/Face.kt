@@ -1,4 +1,4 @@
-package com.nami.world.resources.block
+package com.nami.world.block
 
 import org.joml.Vector2f
 import org.joml.Vector3f

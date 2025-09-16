@@ -8,7 +8,7 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import java.util.concurrent.ConcurrentHashMap
 
-class iomeManager(
+class ManagerBiome(
     val world: World
 ) {
 
@@ -66,6 +66,5 @@ class iomeManager(
     fun setBiomeFactor(position: Vector3i, factors: Vector3f) = biomes.set(position, factors)
     fun setBiomeFactors(map: Map<Vector3i, Vector3f>) = biomes.putAll(map)
     fun getBiomeFactors(position: Vector3i) = biomes[position]!!
-
 
 }

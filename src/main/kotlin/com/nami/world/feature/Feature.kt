@@ -3,11 +3,11 @@ package com.nami.world.feature
 import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 
-abstract class Feature(val id:String) {
+abstract class Feature(val id: String) {
 
     companion object {
 
-        val set = setOf(
+        val set: Set<Feature> = setOf(
             FeatureBirchTree,
             FeatureCactus,
             FeatureGiantMushroomRed,

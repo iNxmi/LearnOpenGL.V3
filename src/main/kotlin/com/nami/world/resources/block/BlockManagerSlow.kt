@@ -1,6 +1,7 @@
 package com.nami.world.resources.block
 
 import com.nami.world.World
+import com.nami.world.block.Face
 import com.nami.world.chunk.Chunk
 import org.joml.Vector2i
 import org.joml.Vector3i

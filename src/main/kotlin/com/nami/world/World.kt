@@ -4,6 +4,7 @@ import com.nami.Time
 import com.nami.resources.GamePath
 import com.nami.serializer.SerializerVector3i
 import com.nami.storage.Storage
+import com.nami.world.biome.ManagerBiome
 import com.nami.world.chunk.ChunkManager
 import com.nami.world.entity.player.Player
 import com.nami.world.resources.block.BlockManagerSlow
@@ -30,7 +31,7 @@ class World(
     val fileName = "world"
 
     @Transient
-    val biomeManager = BiomeManager(this)
+    val biomeManager = ManagerBiome(this)
 
     @Transient
     val blockManager = BlockManagerSlow(this)

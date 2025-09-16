@@ -36,13 +36,6 @@ class Block(
         return Instance(this, handler, world, position, brightness, health)
     }
 
-    enum class Layer {
-        SOLID,
-        TRANSPARENT,
-        FOLIAGE,
-        FLUID
-    }
-
     class Instance(
         val template: Block,
         val handler: BlockListener,
@@ -104,63 +97,6 @@ class Block(
 
         fun json(): JSON {
             return JSON(template.id, brightness, health)
-        }
-
-    }
-
-    @Serializable
-    data class JSON(
-        val textures: BlockTextureNamesJSON,
-        val layer: String,
-        val resistance: Map<String, Float> = mapOf(),
-        val drops: Set<BlockDropJSON>? = null,
-        val tags: Set<String>? = null
-    ) {
-
-        fun create(id: String): Block {
-            val textures: List<String> = listOf(
-                textures.top,
-                textures.bottom,
-
-                textures.north,
-                textures.east,
-                textures.west,
-                textures.south
-            )
-
-            textures.forEach { t ->
-                if (!TEXTURE.map.containsKey(t))
-                    throw IllegalStateException("Unknown texture '$t' in '$id'")
-            }
-
-            val layer = when (layer) {
-                "solid" -> Layer.SOLID
-                "transparent" -> Layer.TRANSPARENT
-                "foliage" -> Layer.FOLIAGE
-                "fluid" -> Layer.FLUID
-                else -> throw Exception("Unknown layer '$layer' in '$id'")
-            }
-
-            val handlerClass: Class<*> =
-                try {
-                    Class.forName("com.nami.world.resources.block.handlers.BlockHandler${id.snakeToUpperCamelCase()}")
-                } catch (e: Exception) {
-                    Class.forName("com.nami.world.resources.block.handlers.DefaultBlockHandler")
-                }
-
-            val itemDrops = mutableSetOf<BlockDrop>()
-            drops?.forEach { itemDrops.add(BlockDrop(ITEM.get(it.item), it.amount.start, it.amount.endInclusive, it.probability)) }
-
-            return Block(
-                id,
-                handlerClass as Class<BlockListener>,
-
-                textures,
-                layer,
-                tags,
-                resistance,
-                itemDrops
-            )
         }
 
     }
