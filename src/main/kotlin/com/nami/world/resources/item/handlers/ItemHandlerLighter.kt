@@ -1,19 +1,21 @@
 package com.nami.world.resources.item.handlers
 
-import com.nami.random
+import com.nami.next
 import com.nami.world.World
 import com.nami.world.entity.player.Player
 import com.nami.world.resources.item.Item
 import com.nami.world.resources.item.ItemListener
 import org.joml.Vector3f
 import org.joml.Vector3i
+import kotlin.random.Random
 
 class ItemHandlerLighter : ItemListener {
 
     override fun onPrimaryUse(world: World, item: Item.Instance, player: Player): Boolean {
+        val random = Random(System.currentTimeMillis())
         val position = player.getFacingBlock(world)?.position ?: return false
 
-        for (i in 0 until Int.random(16..32))
+        for (i in 0 until random.next(16..32))
             world.particleManager.spawn(
                 "fire", Vector3f(position).add(0.5f, 1f, 0.5f).add(
                     Vector3f(
@@ -24,7 +26,7 @@ class ItemHandlerLighter : ItemListener {
             )
 
         val block = world.blockManager.getBlock(position) ?: return false
-        val radius = Int.random(3..7)
+        val radius = random.next(3..7)
         if (block.template.id == "tnt")
             detonate(world, player, position, radius)
 
@@ -32,6 +34,7 @@ class ItemHandlerLighter : ItemListener {
     }
 
     private fun detonate(world: World, player: Player, position: Vector3i, radius: Int) {
+        val random = Random(System.currentTimeMillis())
         for (z in -radius..radius)
             for (y in -radius..radius)
                 for (x in -radius..radius)
@@ -42,13 +45,13 @@ class ItemHandlerLighter : ItemListener {
                         if (block != null) {
                             if (block.template.id == "tnt") {
                                 world.blockManager.setBlock(Vector3i(pos), null)
-                                detonate(world, player, Vector3i(pos), Int.random(3..7))
+                                detonate(world, player, Vector3i(pos), random.next(3..7))
                             }
 
                             world.blockManager.setBlock(Vector3i(pos), null)
                         }
 
-                        for (i in 0 until Int.random(0..5))
+                        for (i in 0 until random.next(0..5))
                             world.particleManager.spawn(
                                 "fire",
                                 Vector3f(pos).add(
@@ -60,7 +63,7 @@ class ItemHandlerLighter : ItemListener {
                                 )
                             )
 
-                        for (i in 0 until Int.random(12..20))
+                        for (i in 0 until random.next(12..20))
                             world.particleManager.spawn(
                                 "explosion",
                                 Vector3f(position).add(x.toFloat(), y.toFloat(), z.toFloat()).add(

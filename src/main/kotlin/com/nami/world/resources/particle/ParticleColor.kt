@@ -1,9 +1,11 @@
 package com.nami.world.resources.particle
 
-import com.nami.random
+import com.nami.next
 import com.nami.serializer.SerializerVector3f
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.joml.Vector3f
+import kotlin.random.Random
 
 @Serializable
 data class ParticleColor(
@@ -11,5 +13,7 @@ data class ParticleColor(
     val color: Vector3f,
     val brightness: ClosedFloatingPointRange<Float>
 ) {
-    fun generate() = Vector3f(color).mul(Float.random(brightness))
+    @Transient
+    val random = Random(System.currentTimeMillis())
+    fun generate() = Vector3f(color).mul(random.next(brightness))
 }

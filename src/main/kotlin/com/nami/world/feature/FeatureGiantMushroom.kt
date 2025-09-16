@@ -1,9 +1,10 @@
 package com.nami.world.feature
 
-import com.nami.random
+import com.nami.next
 import com.nami.resources.Resources
 import com.nami.world.resources.block.Block
 import org.joml.Vector3i
+import kotlin.random.Random
 
 open class FeatureGiantMushroom(
     val block: Block,
@@ -18,15 +19,17 @@ open class FeatureGiantMushroom(
     override fun generate(
         elevation: Float,
         moisture: Float,
-        temperature: Float
+        temperature: Float,
+        seed: Long
     ): Map<Vector3i, Block> {
+        val random = Random(seed)
         val blocks = mutableMapOf<Vector3i, Block>()
 
-        val stemHeight = Int.random(heightRange)
+        val stemHeight = random.next(heightRange)
         for (y in 0 until stemHeight) {
             blocks[Vector3i(0, y, 0)] = Resources.BLOCK.get("mushroom_stem")
 
-            val radius = Int.random(radiusRange)
+            val radius = random.next(radiusRange)
             if (y == stemHeight - 1) {
                 for (z in -radius..radius)
                     for (x in -radius..radius)

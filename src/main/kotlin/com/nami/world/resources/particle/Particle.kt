@@ -3,13 +3,14 @@ package com.nami.world.resources.particle
 import com.nami.Time
 import com.nami.Transform
 import com.nami.easing.EasingExpression
-import com.nami.random
+import com.nami.next
 import com.nami.resources.particle.ResourceParticle
 import com.nami.snakeToUpperCamelCase
 import com.nami.world.World
 import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 class Particle(
     id: String,
@@ -25,7 +26,8 @@ class Particle(
         val durationInSeconds =
             Math.random().toFloat() * (timeInSeconds.endInclusive - timeInSeconds.start) + timeInSeconds.start
 
-        val color = colors[Float.random(0f..colors.size - 1f).roundToInt()].generate()
+        val random = Random(System.currentTimeMillis())
+        val color = colors[random.next(0f..colors.size - 1f).roundToInt()].generate()
 
         val transform = Transform()
         transform.position.set(position)

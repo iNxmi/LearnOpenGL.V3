@@ -10,7 +10,8 @@ abstract class Feature {
     abstract fun generate(
         elevation: Float,
         moisture: Float,
-        temperature: Float
+        temperature: Float,
+        seed: Long = System.currentTimeMillis()
     ): Map<Vector3i, Block>
 
 }
