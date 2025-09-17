@@ -9,6 +9,7 @@ import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
 import com.nami.world.biome.Biome
+import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item
@@ -256,7 +257,7 @@ class PlayScene(val world: World) : Scene() {
             world.chunkManager.chunks.forEach { (positionChunk, chunk) ->
                 for (z in 0..Chunk.SIZE.z)
                     for (x in 0..Chunk.SIZE.x) {
-                        val y = world.blockManager.getHeight(Vector2i(x, z), 512, Block.Layer.entries.toSet())
+                        val y = world.blockManager.getHeight(Vector2i(x, z), 512, Layer.entries.toSet())
                         val positionGlobal =
                             Vector3i(positionChunk.x * Chunk.SIZE.x + x, y, positionChunk.z * Chunk.SIZE.z + z)
                         val instance = world.blockManager.getBlock(positionGlobal)

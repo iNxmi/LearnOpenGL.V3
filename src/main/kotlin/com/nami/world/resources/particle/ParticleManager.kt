@@ -3,7 +3,7 @@ package com.nami.world.resources.particle
 import com.nami.Transform
 import com.nami.resources.Resources
 import com.nami.world.World
-import com.nami.world.entity.player.Player
+import com.nami.world.entity.Player
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11.GL_UNSIGNED_INT
 import org.lwjgl.opengl.GL31.glDrawElementsInstanced

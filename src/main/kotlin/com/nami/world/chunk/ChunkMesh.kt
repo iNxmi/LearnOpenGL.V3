@@ -3,7 +3,7 @@ package com.nami.world.chunk
 import com.nami.Time
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
-import com.nami.world.entity.player.Player
+import com.nami.world.entity.Player
 import com.nami.world.resources.block.Block
 import com.nami.world.block.Face
 import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator

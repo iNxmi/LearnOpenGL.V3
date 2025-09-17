@@ -1,7 +1,7 @@
 package com.nami.world.resources.item.handlers
 
 import com.nami.world.World
-import com.nami.world.entity.player.Player
+import com.nami.world.entity.Player
 import com.nami.world.feature.*
 import com.nami.world.resources.block.Block
 import com.nami.world.resources.item.Item

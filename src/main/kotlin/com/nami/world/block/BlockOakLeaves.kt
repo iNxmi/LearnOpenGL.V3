@@ -2,15 +2,15 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 
-object BlockBirchLeaves : Block(id = "birch_leaves") {
+object BlockOakLeaves : Block(id = "oak_leaves") {
 
     override val textures = mapOf(
-        Face.TOP to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.BOTTOM to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.NORTH to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.EAST to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.WEST to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.SOUTH to Resources.TEXTURE.get("block.birch_leaves")
+        Face.TOP to Resources.TEXTURE.get("block.oak_leaves"),
+        Face.BOTTOM to Resources.TEXTURE.get("block.oak_leaves"),
+        Face.NORTH to Resources.TEXTURE.get("block.oak_leaves"),
+        Face.EAST to Resources.TEXTURE.get("block.oak_leaves"),
+        Face.WEST to Resources.TEXTURE.get("block.oak_leaves"),
+        Face.SOUTH to Resources.TEXTURE.get("block.oak_leaves")
     )
 
     override val layer = Layer.FOLIAGE

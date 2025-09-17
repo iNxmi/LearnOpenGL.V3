@@ -1,7 +1,7 @@
 package com.nami.world.chunk
 
 import com.nami.world.World
-import com.nami.world.entity.player.Player
+import com.nami.world.entity.Player
 import com.nami.world.resources.block.Block
 import mu.KotlinLogging
 import org.joml.Vector3f

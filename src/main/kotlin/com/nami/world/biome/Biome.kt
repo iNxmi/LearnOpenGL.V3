@@ -1,5 +1,6 @@
 package com.nami.world.biome
 
+import com.nami.world.block.Block
 import com.nami.world.resources.block.Block
 import org.joml.Vector3i
 

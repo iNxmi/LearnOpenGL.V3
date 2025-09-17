@@ -3,7 +3,7 @@ package com.nami.world.chunk
 import com.nami.storage.Storage
 import com.nami.world.World
 import com.nami.world.biome.Biome
-import com.nami.world.entity.player.Player
+import com.nami.world.entity.Player
 import com.nami.world.resources.block.Block
 import de.articdive.jnoise.pipeline.JNoise
 import kotlinx.serialization.Contextual

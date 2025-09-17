@@ -1,6 +1,5 @@
 package com.nami.resources
 
-import com.nami.resources.block.ResourceLoaderBlock
 import com.nami.resources.item.ResourceLoaderItem
 import com.nami.resources.language.ResourceLoaderLanguage
 import com.nami.resources.model.ResourceLoaderModel
@@ -24,7 +23,6 @@ abstract class Resources<T : Resource>(
     companion object {
         val SHADER = ResourceLoaderShader()
         val TEXTURE = ResourceLoaderTexture()
-        val BLOCK = ResourceLoaderBlock()
         val ITEM = ResourceLoaderItem()
         val MODEL = ResourceLoaderModel()
         val PARTICLE = ResourceLoaderParticle()
@@ -36,7 +34,6 @@ abstract class Resources<T : Resource>(
                 SHADER,
                 TEXTURE,
                 ITEM,
-                BLOCK,
                 MODEL,
                 PARTICLE,
                 RECIPE,

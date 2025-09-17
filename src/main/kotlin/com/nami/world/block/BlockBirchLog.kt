@@ -18,9 +18,7 @@ object BlockBirchLog : Block(id = "birch_log") {
     )
 
     override val drops = setOf(
-        Drop(Resources.ITEM.get("leaf"), 1..3, 1f),
-        Drop(Resources.ITEM.get("acorn"), 1..1, 0.25f),
-        Drop(Resources.ITEM.get("stick"), 1..2, 0.50f)
+        Drop(Resources.ITEM.get("block.birch_log"))
     )
 
 }

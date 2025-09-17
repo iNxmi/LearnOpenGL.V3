@@ -2,6 +2,7 @@ package com.nami.world.resources.block
 
 import com.nami.world.World
 import com.nami.world.block.Face
+import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import org.joml.Vector2i
 import org.joml.Vector3i
@@ -12,13 +13,13 @@ class BlockManagerSlow(
 ) : BlockManager {
 
     val instances = ConcurrentHashMap<Vector3i, Block.Instance?>()
-    val faces = ConcurrentHashMap<Block.Layer, ConcurrentHashMap<Vector3i, Array<Face>>>()
+    val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<Face>>>()
 
     init {
-        Block.Layer.entries.forEach { faces[it] = ConcurrentHashMap() }
+        Layer.entries.forEach { faces[it] = ConcurrentHashMap() }
     }
 
-    override fun getHeight(position: Vector2i, start: Int, types: Set<Block.Layer>): Int {
+    override fun getHeight(position: Vector2i, start: Int, types: Set<Layer>): Int {
         for (y in start downTo 0) {
             val block = getBlock(Vector3i(position.x, y, position.y)) ?: continue
 
@@ -30,34 +31,34 @@ class BlockManagerSlow(
     }
 
     override fun updateFaces(position: Vector3i) {
-        Block.Layer.entries.forEach { faces[it]!!.remove(position) }
+        Layer.entries.forEach { faces[it]!!.remove(position) }
 
         val block = getBlock(position) ?: return
 
         val list = mutableListOf<Face>()
 
         var adjBlock: Block? = getBlock(Vector3i(position).add(1, 0, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.EAST)
 
         adjBlock = getBlock(Vector3i(position).add(-1, 0, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.WEST)
 
         adjBlock = getBlock(Vector3i(position).add(0, 1, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.TOP)
 
         adjBlock = getBlock(Vector3i(position).add(0, -1, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.BOTTOM)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, 1))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.SOUTH)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, -1))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Block.Layer.FOLIAGE)
+        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
             list.add(Face.NORTH)
 
         if (list.isEmpty())
