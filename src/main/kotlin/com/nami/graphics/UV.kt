@@ -1,4 +1,4 @@
-package com.nami.resources.texture
+package com.nami.graphics
 
 import org.joml.Vector2f
 

@@ -17,8 +17,6 @@ class ResourceLoaderTexture : Resources<Texture>(GamePath.texture, "texture", ar
         TextureAtlas.generate()
     }
 
-    fun unbind() {
-        GL11.glBindTexture(GL_TEXTURE_2D, 0)
-    }
+    fun unbind() = GL11.glBindTexture(GL_TEXTURE_2D, 0)
 
 }

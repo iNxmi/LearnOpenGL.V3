@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage
 
 class Texture(
     id: String,
-    val image: BufferedImage
+    val image: BufferedImage = BufferedImage(0, 0, BufferedImage.TYPE_INT_RGB),
 ) : ResourceTexture(id) {
 
     val pointer = glGenTextures()
@@ -20,6 +20,14 @@ class Texture(
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+        setImage(image)
+
+        Resources.TEXTURE.unbind()
+    }
+
+    fun setImage(image: BufferedImage) {
+        bind()
 
         val buffer = MemoryUtil.memAlloc(image.width * image.height * 4)
         for (y in (image.height - 1) downTo 0)
@@ -41,8 +49,6 @@ class Texture(
         Resources.TEXTURE.unbind()
     }
 
-    fun bind() {
-        glBindTexture(GL_TEXTURE_2D, pointer)
-    }
+    fun bind() = glBindTexture(GL_TEXTURE_2D, pointer)
 
 }
