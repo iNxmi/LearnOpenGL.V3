@@ -1,7 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.resources.Resources
-import com.nami.world.resources.block.Block
+import com.nami.world.material.*
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
@@ -27,22 +26,22 @@ object BiomeBirchForest : Biome(id = "birch_forest") {
     override val moisture = 50f..100f
     override val temperature = 5f..25f
 
-    override fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
+    override fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Material? {
         val y = position.y
 
         val height = elevation.roundToInt()
         if ((0 until height - 4).contains(y))
-            return Resources.BLOCK.get("stone")
+            return MaterialStone
 
         if (temperature > 0) {
             if ((height - 4 until height - 1).contains(y))
-                return Resources.BLOCK.get("dirt")
+                return MaterialDirt
 
             if ((height - 1 until height).contains(y))
-                return Resources.BLOCK.get("podzol")
+                return MaterialPodzol
         } else {
             if ((height - 4 until height).contains(y))
-                return Resources.BLOCK.get("gravel")
+                return MaterialGravel
         }
 
         return null

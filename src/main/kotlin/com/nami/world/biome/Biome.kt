@@ -1,7 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.world.block.Block
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Material
 import org.joml.Vector3i
 
 abstract class Biome(val id: String) {
@@ -33,6 +32,6 @@ abstract class Biome(val id: String) {
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
 
-    open fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
+    open fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Material? = null
 
 }

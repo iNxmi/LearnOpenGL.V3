@@ -1,8 +1,9 @@
 package com.nami.world.resources.block
 
 import com.nami.world.World
-import com.nami.world.block.Face
-import com.nami.world.block.Layer
+import com.nami.world.material.Material
+import com.nami.world.material.Face
+import com.nami.world.material.Layer
 import com.nami.world.chunk.Chunk
 import org.joml.Vector2i
 import org.joml.Vector3i
@@ -12,7 +13,7 @@ class BlockManagerSlow(
     val world: World
 ) : BlockManager {
 
-    val instances = ConcurrentHashMap<Vector3i, Block.Instance?>()
+    val instances = ConcurrentHashMap<Vector3i, Material>()
     val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<Face>>>()
 
     init {
@@ -23,7 +24,7 @@ class BlockManagerSlow(
         for (y in start downTo 0) {
             val block = getBlock(Vector3i(position.x, y, position.y)) ?: continue
 
-            if (types.contains(block.template.layer))
+            if (types.contains(block.layer))
                 return y
         }
 
@@ -37,45 +38,44 @@ class BlockManagerSlow(
 
         val list = mutableListOf<Face>()
 
-        var adjBlock: Block? = getBlock(Vector3i(position).add(1, 0, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        var adjMaterial: Material? = getBlock(Vector3i(position).add(1, 0, 0))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.EAST)
 
-        adjBlock = getBlock(Vector3i(position).add(-1, 0, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        adjMaterial = getBlock(Vector3i(position).add(-1, 0, 0))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.WEST)
 
-        adjBlock = getBlock(Vector3i(position).add(0, 1, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        adjMaterial = getBlock(Vector3i(position).add(0, 1, 0))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.TOP)
 
-        adjBlock = getBlock(Vector3i(position).add(0, -1, 0))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        adjMaterial = getBlock(Vector3i(position).add(0, -1, 0))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.BOTTOM)
 
-        adjBlock = getBlock(Vector3i(position).add(0, 0, 1))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        adjMaterial = getBlock(Vector3i(position).add(0, 0, 1))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.SOUTH)
 
-        adjBlock = getBlock(Vector3i(position).add(0, 0, -1))?.template
-        if (adjBlock == null || block.template.layer != adjBlock.layer || block.template.layer == Layer.FOLIAGE)
+        adjMaterial = getBlock(Vector3i(position).add(0, 0, -1))
+        if (adjMaterial == null || block.layer != adjMaterial.layer || block.layer == Layer.FOLIAGE)
             list.add(Face.NORTH)
 
         if (list.isEmpty())
             return
 
-        val register = faces[block.template.layer]!!
+        val register = faces[block.layer]!!
         register[position] = list.toTypedArray()
     }
 
     override fun getBlock(position: Vector3i) = instances[position]
 
-    override fun setBlock(position: Vector3i, block: Block.Instance?) {
+    override fun setBlock(position: Vector3i, material: Material) {
         if (instances.containsKey(position))
             instances.remove(position)
 
-        if (block != null)
-            instances[position] = block
+        instances[position] = material
 
         val chunkPosition = Vector3i(
             position.x / Chunk.SIZE.x,
@@ -96,7 +96,7 @@ class BlockManagerSlow(
         world.chunkManager.saver.addToQueue(chunkPosition)
     }
 
-    override fun setBlocks(blocks: Map<Vector3i, Block.Instance?>) =
+    override fun setBlocks(blocks: Map<Vector3i, Material>) =
         blocks.forEach { setBlock(it.key, it.value) }
 
 }

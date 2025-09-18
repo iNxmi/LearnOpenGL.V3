@@ -1,7 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.resources.Resources
-import com.nami.world.resources.block.Block
+import com.nami.world.material.*
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
@@ -15,12 +14,12 @@ internal object BiomeInvalid : Biome(id = "invalid") {
         elevation: Float,
         moisture: Float,
         temperature: Float
-    ): Block? {
+    ): Material? {
         val y = position.y
 
         val height = elevation.roundToInt()
         if ((0 until height).contains(y))
-            return Resources.BLOCK.get("invalid")
+            return MaterialInvalid
 
         return null
     }

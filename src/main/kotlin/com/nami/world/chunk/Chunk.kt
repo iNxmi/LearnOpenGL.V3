@@ -3,8 +3,9 @@ package com.nami.world.chunk
 import com.nami.storage.Storage
 import com.nami.world.World
 import com.nami.world.biome.Biome
+import com.nami.world.material.Material
+import com.nami.world.material.Layer
 import com.nami.world.entity.Player
-import com.nami.world.resources.block.Block
 import de.articdive.jnoise.pipeline.JNoise
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -26,13 +27,13 @@ class Chunk(val world: World, val position: Vector3i) {
         val SIZE = Vector3i(16, 16, 16)
     }
 
-    val meshes = mutableMapOf<Block.Layer, ChunkMesh>()
+    val meshes = mutableMapOf<Layer, Mesh>()
 
     init {
-        Block.Layer.entries.forEach { meshes[it] = ChunkMesh(this, it) }
+        Layer.entries.forEach { meshes[it] = Mesh(this, it) }
 
         val biomes = mutableMapOf<Vector3i, Vector3f>()
-        val blocks = mutableMapOf<Vector3i, Block.Instance>()
+        val blocks = mutableMapOf<Vector3i, Material>()
 
         val json = Storage.read<JSON>(root, fileName)
 
@@ -50,7 +51,7 @@ class Chunk(val world: World, val position: Vector3i) {
     private fun load(
         json: JSON,
         biomes: MutableMap<Vector3i, Vector3f>,
-        blocks: MutableMap<Vector3i, Block.Instance>
+        blocks: MutableMap<Vector3i, Material>
     ) {
         json.biomes.forEach { (index, factors) ->
             val indexToChunkRelativePosition = Vector3i(
@@ -73,13 +74,13 @@ class Chunk(val world: World, val position: Vector3i) {
 
             val globalBlockPosition = Vector3i(position).mul(SIZE).add(indexToChunkRelativePosition)
 
-            blocks[Vector3i(globalBlockPosition)] = blockJson.create(world, Vector3i(globalBlockPosition))
+            blocks[Vector3i(globalBlockPosition)] = block
         }
     }
 
     fun save() {
         val biomes = mutableMapOf<Int, Vector3f>()
-        val blocksJson = mutableMapOf<Int, Block.Instance.JSON>()
+        val blocks = mutableMapOf<Int, Material>()
         for (z in 0 until SIZE.z)
             for (y in 0 until SIZE.y)
                 for (x in 0 until SIZE.x) {
@@ -87,39 +88,38 @@ class Chunk(val world: World, val position: Vector3i) {
                     val index = x + y * SIZE.x + z * SIZE.y * SIZE.y
 
                     val biome = world.biomeManager.getBiomeFactors(blockPosition)
-                    if (biome != null)
-                        biomes[index] = biome
+                    biomes[index] = biome
 
                     val block = world.blockManager.getBlock(blockPosition)
                     if (block != null)
-                        blocksJson[index] = block.json()
+                        blocks[index] = block
                 }
 
-        val json = JSON(biomes, blocksJson)
+        val json = JSON(biomes, blocks)
         Storage.write(json, root, fileName)
     }
 
-    private fun generate(biomes: MutableMap<Vector3i, Vector3f>, blocks: MutableMap<Vector3i, Block.Instance>) {
+    private fun generate(biomes: MutableMap<Vector3i, Vector3f>, blocks: MutableMap<Vector3i, Material>) {
         //Generate blocks
         for (z in 0 until SIZE.z)
             for (y in 0 until SIZE.y)
                 for (x in 0 until SIZE.x) {
                     val blockPosition = Vector3i(position).mul(SIZE).add(x, y, z)
-                    if (biomeManager.getBiomeFactors(blockPosition) == null)
-                        biomeManager.generate(blockPosition)
 
-                    val factors = biomeManager.getBiomeFactors(blockPosition) ?: continue
-                    val biome = Biome.evaluate(factors.x, factors.y, factors.z) ?: continue
+                    biomeManager.generate(blockPosition)
+
+                    val factors = biomeManager.getBiomeFactors(blockPosition)
+                    val biome = Biome.evaluate(factors.x, factors.y, factors.z)
                     val block = biome.generateBlock(blockPosition, factors.x, factors.y, factors.z) ?: continue
 
-                    blocks[blockPosition] = block.create(world, blockPosition)
+                    blocks[blockPosition] = block
                 }
 
         //Place Features
         for (z in (position.z * SIZE.z) until ((position.z + 1) * SIZE.z))
             for (x in (position.x * SIZE.x) until ((position.x + 1) * SIZE.x)) {
-                val y = blockManager.getHeight(Vector2i(x, z), 512, setOf(Block.Layer.SOLID))
-                val biome = biomeManager.getBiomeFactors(Vector3i(x, y, z)) ?: continue
+                val y = blockManager.getHeight(Vector2i(x, z), 512, setOf(Layer.SOLID))
+                val biome = biomeManager.getBiomeFactors(Vector3i(x, y, z))
                 val block = world.blockManager.getBlock(Vector3i(x, y, z)) ?: continue
 
                 //TODO implement features
@@ -168,7 +168,7 @@ class Chunk(val world: World, val position: Vector3i) {
 
     fun update() {}
 
-    fun render(player: Player, layer: Block.Layer) = meshes[layer]?.render(player, world.time)
+    fun render(player: Player, layer: Layer) = meshes[layer]?.render(player, world.time)
 
     fun generateMesh() = meshes.forEach { it.value.generate() }
 
@@ -177,7 +177,7 @@ class Chunk(val world: World, val position: Vector3i) {
     @Serializable
     data class JSON(
         val biomes: Map<Int, @Contextual Vector3f>,
-        val blocks: Map<Int, Block.Instance.JSON>
+        val blocks: Map<Int, String>
     )
 
 }

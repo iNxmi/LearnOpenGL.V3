@@ -9,9 +9,7 @@ import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
 import com.nami.world.biome.Biome
-import com.nami.world.block.Layer
-import com.nami.world.chunk.Chunk
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Material
 import com.nami.world.resources.item.Item
 import com.nami.world.resources.recipe.RecipeVariant
 import imgui.ImGui
@@ -21,13 +19,11 @@ import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.joml.Vector2i
 import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
-import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -95,7 +91,7 @@ class PlayScene(val world: World) : Scene() {
         Pair("inventory", Runnable {
             val range = 4
 
-            val workstations = mutableSetOf<Block>()
+            val workstations = mutableSetOf<Material>()
             for (z in -range..range)
                 for (y in -range..range)
                     for (x in -range..range)
@@ -108,10 +104,10 @@ class PlayScene(val world: World) : Scene() {
 
                             val block = world.blockManager.getBlock(position) ?: continue
 
-                            val tags = block.template.tags ?: continue
+                            val tags = block.tags
                             if (!tags.contains("workstation")) continue
 
-                            workstations.add(block.template)
+                            workstations.add(block)
                         }
 
             ImGui.setNextWindowPos(0f, 0f)
@@ -250,64 +246,6 @@ class PlayScene(val world: World) : Scene() {
 
                 log.info { "Screenshot saved at '$path'" }
             }
-        }
-
-        if (Input.isKeyPressed(GLFW_KEY_F12)) {
-            val instances = mutableMapOf<Vector3i, Block.Instance>()
-            world.chunkManager.chunks.forEach { (positionChunk, chunk) ->
-                for (z in 0..Chunk.SIZE.z)
-                    for (x in 0..Chunk.SIZE.x) {
-                        val y = world.blockManager.getHeight(Vector2i(x, z), 512, Layer.entries.toSet())
-                        val positionGlobal =
-                            Vector3i(positionChunk.x * Chunk.SIZE.x + x, y, positionChunk.z * Chunk.SIZE.z + z)
-                        val instance = world.blockManager.getBlock(positionGlobal)
-
-                        if (instance != null)
-                            instances[positionGlobal] = instance
-                    }
-            }
-
-            val colors = mutableMapOf<String, Color>()
-            instances.map { it.value.template }.toSet().forEach { template ->
-                val textureID = template.textures[0]
-                val texture = Resources.TEXTURE.get(textureID)
-                val image = texture.image
-
-                var r = 0
-                var g = 0
-                var b = 0
-                for (y in 0 until image.height)
-                    for (x in 0 until image.width) {
-                        val rgb = image.getRGB(x, y)
-                        val color = Color(rgb)
-                        r += color.red
-                        g += color.green
-                        b += color.blue
-                    }
-
-                val count = image.height * image.width
-                val finalColor = Color(r / count, g / count, b / count)
-                colors[textureID] = finalColor
-            }
-
-            val width = instances.maxOf { it.key.x }
-            val height = instances.maxOf { it.key.z }
-
-            val result = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-            for ((position, instance) in instances) {
-                val textureID = instance.template.textures[0]
-                try {
-                    result.setRGB(position.x, position.z, colors[textureID]!!.rgb)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-
-            val path = GamePath.maps
-                .resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
-            ImageIO.write(result, "png", path.toFile())
-
-            log.info { "Map saved at '$path'" }
         }
 
         world.update()
