@@ -1,6 +1,8 @@
 package com.nami.world.material
 
 import com.nami.resources.Resources
+import com.nami.world.Drop
+import com.nami.world.block.Face
 
 object MaterialJunglePlanks : Material(id = "jungle_planks") {
 

@@ -1,4 +1,4 @@
-package com.nami.world.material
+package com.nami.world
 
 import com.nami.world.resources.item.Item
 

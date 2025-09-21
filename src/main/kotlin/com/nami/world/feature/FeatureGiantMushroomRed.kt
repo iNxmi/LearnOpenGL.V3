@@ -1,9 +1,9 @@
 package com.nami.world.feature
 
-import com.nami.resources.Resources
+import com.nami.world.material.MaterialMushroomRed
 
 object FeatureGiantMushroomRed : FeatureGiantMushroom(
-    Resources.BLOCK.get("mushroom_red"),
+    MaterialMushroomRed,
     7..11,
     2..4,
     id = "mushroom_red"

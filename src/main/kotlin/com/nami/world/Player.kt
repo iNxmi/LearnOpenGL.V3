@@ -1,4 +1,4 @@
-package com.nami.world.entity
+package com.nami.world
 
 import com.nami.Directions
 import com.nami.Input
@@ -7,8 +7,9 @@ import com.nami.Window
 import com.nami.camera.CameraPerspective
 import com.nami.resources.Resources
 import com.nami.serializer.SerializerVector3f
-import com.nami.world.World
 import com.nami.world.chunk.Chunk
+import com.nami.world.material.Layer
+import com.nami.world.material.Material
 import com.nami.world.resources.item.Item
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -117,7 +118,7 @@ class Player {
         val height = blockManager.getHeight(
             Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
             transform.position.y.toInt() + HEIGHT.toInt(),
-            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
         ).toFloat()
 
         if (position.y > height)
@@ -157,7 +158,7 @@ class Player {
         }
     }
 
-    fun getFacingBlock(world: World): Block.Instance? {
+    fun getFacingMaterial(world: World): Material? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
                 .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
@@ -207,7 +208,7 @@ class Player {
         return blockManager.getHeight(
             Vector2i(position.x, position.z),
             position.y + HEIGHT.toInt(),
-            setOf(Block.Layer.SOLID, Block.Layer.FOLIAGE, Block.Layer.TRANSPARENT)
+            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
         ).toFloat()
     }
 

@@ -1,6 +1,6 @@
 package com.nami.world.feature
 
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Material
 import org.joml.Vector3i
 
 abstract class Feature(val id: String) {
@@ -29,6 +29,6 @@ abstract class Feature(val id: String) {
         moisture: Float,
         temperature: Float,
         seed: Long = System.currentTimeMillis()
-    ): Map<Vector3i, Block>
+    ): Map<Vector3i, Material>
 
 }

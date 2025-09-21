@@ -3,9 +3,7 @@ package com.nami.world.chunk
 import com.nami.Time
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
-import com.nami.world.entity.Player
-import com.nami.world.resources.block.Block
-import com.nami.world.material.Face
+import com.nami.world.Player
 import com.nami.world.material.Layer
 import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
 import de.articdive.jnoise.pipeline.JNoise
@@ -65,17 +63,10 @@ class Mesh(private val chunk: Chunk, val layer: Layer) {
                 position.x.toDouble(),
                 position.y.toDouble(),
                 position.z.toDouble()
-            ).toFloat() * block.health
+            ).toFloat() * 1.0f//block.health
 
             for (face in faces) {
-                val texture: String = when (face) {
-                    Face.TOP -> block.template.textures[0]
-                    Face.BOTTOM -> block.template.textures[1]
-                    Face.NORTH -> block.template.textures[2]
-                    Face.EAST -> block.template.textures[3]
-                    Face.WEST -> block.template.textures[4]
-                    Face.SOUTH -> block.template.textures[5]
-                }
+                val texture = block.textures[face]!!.id
                 var color = Vector3f(1f)
                 if (setOf(
                         "block.grass_top",

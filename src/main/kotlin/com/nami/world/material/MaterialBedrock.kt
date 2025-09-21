@@ -1,6 +1,7 @@
 package com.nami.world.material
 
 import com.nami.resources.Resources
+import com.nami.world.block.Face
 
 object MaterialBedrock : Material(id = "bedrock") {
 

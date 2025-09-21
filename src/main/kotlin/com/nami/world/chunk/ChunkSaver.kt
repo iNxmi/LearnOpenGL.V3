@@ -15,29 +15,29 @@ class ChunkSaver(
     private val queue = ConcurrentLinkedQueue<Vector3i>()
 
     fun addToQueue(position: Vector3i) {
-        if (!(0 until world.size.x).contains(position.x)) return
-        if (!(0 until world.size.y).contains(position.y)) return
-        if (!(0 until world.size.z).contains(position.z)) return
-
-        if (queue.contains(position)) return
-
-        queue.add(position)
+//        if (!(0 until world.size.x).contains(position.x)) return
+//        if (!(0 until world.size.y).contains(position.y)) return
+//        if (!(0 until world.size.z).contains(position.z)) return
+//
+//        if (queue.contains(position)) return
+//
+//        queue.add(position)
     }
 
     private var jobs = mutableListOf<Job>()
     fun update() {
-        jobs.removeAll { it.isCompleted }
-
-        val chunkManager = world.chunkManager
-        for (position in queue) {
-            if (jobs.size >= numberOfThreads)
-                break
-
-            val chunk = chunkManager.getByChunkPosition(position) ?: continue
-            jobs.add(GlobalScope.launch { chunk.save() })
-
-            queue.remove(position)
-        }
+//        jobs.removeAll { it.isCompleted }
+//
+//        val chunkManager = world.chunkManager
+//        for (position in queue) {
+//            if (jobs.size >= numberOfThreads)
+//                break
+//
+//            val chunk = chunkManager.getByChunkPosition(position) ?: continue
+//            jobs.add(GlobalScope.launch { chunk.save() })
+//
+//            queue.remove(position)
+//        }
     }
 
 }

@@ -2,6 +2,8 @@ package com.nami.world.material
 
 import com.nami.Time
 import com.nami.resources.texture.Texture
+import com.nami.world.Drop
+import com.nami.world.block.Face
 
 abstract class Material(val id: String) {
 

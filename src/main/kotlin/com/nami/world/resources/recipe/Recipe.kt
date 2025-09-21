@@ -1,6 +1,5 @@
 package com.nami.world.resources.recipe
 
-import com.nami.resources.Resources.Companion.BLOCK
 import com.nami.resources.Resources.Companion.ITEM
 import com.nami.resources.recipe.RecipeVariantJSON
 import com.nami.resources.recipe.ResourceRecipe
@@ -22,17 +21,17 @@ class Recipe(
         fun create(id: String): Recipe {
             val vari = mutableSetOf<RecipeVariant>()
             variants.forEach {
-                val worktables = it.workstations?.map { blockID -> BLOCK.get(blockID) }?.toSet()
-                val ingredients = it.ingredients.map { (k, v) -> Pair(ITEM.get(k), v) }.toMap()
-
-                val variant = RecipeVariant(
-                    worktables,
-                    it.amount,
-                    it.duration,
-                    ingredients
-                )
-
-                vari.add(variant)
+//                val worktables = it.workstations?.map { blockID -> BLOCK.get(blockID) }?.toSet()
+//                val ingredients = it.ingredients.map { (k, v) -> Pair(ITEM.get(k), v) }.toMap()
+//
+//                val variant = RecipeVariant(
+//                    worktables,
+//                    it.amount,
+//                    it.duration,
+//                    ingredients
+//                )
+//
+//                vari.add(variant)
             }
 
             return Recipe(

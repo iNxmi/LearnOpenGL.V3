@@ -1,8 +1,8 @@
 package com.nami.world.chunk
 
 import com.nami.world.World
-import com.nami.world.entity.Player
-import com.nami.world.resources.block.Block
+import com.nami.world.Player
+import com.nami.world.material.Layer
 import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
@@ -84,12 +84,12 @@ class ChunkManager(val world: World) {
 //        log.debug { "${chunks.size} / ${this.chunks.size}" }
 
         glEnable(GL_CULL_FACE)
-        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.SOLID) }
-        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.TRANSPARENT) }
-        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.FLUID) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.SOLID) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
 
         glDisable(GL_CULL_FACE)
-        chunks.forEach { (_, chunk) -> chunk.render(player, Block.Layer.FOLIAGE) }
+        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
     }
 
 }

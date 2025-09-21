@@ -5,7 +5,7 @@ import com.nami.world.World
 import com.nami.world.biome.Biome
 import com.nami.world.material.Material
 import com.nami.world.material.Layer
-import com.nami.world.entity.Player
+import com.nami.world.Player
 import de.articdive.jnoise.pipeline.JNoise
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -35,69 +35,69 @@ class Chunk(val world: World, val position: Vector3i) {
         val biomes = mutableMapOf<Vector3i, Vector3f>()
         val blocks = mutableMapOf<Vector3i, Material>()
 
-        val json = Storage.read<JSON>(root, fileName)
+//        val json = Storage.read<JSON>(root, fileName)
 
-        if (json != null) {
-            load(json, biomes, blocks)
-        } else {
+//        if (json != null) {
+//            load(json, biomes, blocks)
+//        } else {
             generate(biomes, blocks)
-        }
+//        }
 
         biomeManager.setBiomeFactors(biomes)
         blockManager.setBlocks(blocks)
         world.chunkManager.saver.addToQueue(position)
     }
 
-    private fun load(
-        json: JSON,
-        biomes: MutableMap<Vector3i, Vector3f>,
-        blocks: MutableMap<Vector3i, Material>
-    ) {
-        json.biomes.forEach { (index, factors) ->
-            val indexToChunkRelativePosition = Vector3i(
-                index % SIZE.y,
-                (index / SIZE.y) % SIZE.x,
-                index / (SIZE.y * SIZE.x)
-            )
-
-            val globalBlockPosition = Vector3i(position).mul(SIZE).add(indexToChunkRelativePosition)
-
-            biomes[Vector3i(globalBlockPosition)] = factors
-        }
-
-        json.blocks.forEach { (index, blockJson) ->
-            val indexToChunkRelativePosition = Vector3i(
-                index % SIZE.y,
-                (index / SIZE.y) % SIZE.x,
-                index / (SIZE.y * SIZE.x)
-            )
-
-            val globalBlockPosition = Vector3i(position).mul(SIZE).add(indexToChunkRelativePosition)
-
-            blocks[Vector3i(globalBlockPosition)] = block
-        }
-    }
-
-    fun save() {
-        val biomes = mutableMapOf<Int, Vector3f>()
-        val blocks = mutableMapOf<Int, Material>()
-        for (z in 0 until SIZE.z)
-            for (y in 0 until SIZE.y)
-                for (x in 0 until SIZE.x) {
-                    val blockPosition = Vector3i(position).mul(SIZE).add(x, y, z)
-                    val index = x + y * SIZE.x + z * SIZE.y * SIZE.y
-
-                    val biome = world.biomeManager.getBiomeFactors(blockPosition)
-                    biomes[index] = biome
-
-                    val block = world.blockManager.getBlock(blockPosition)
-                    if (block != null)
-                        blocks[index] = block
-                }
-
-        val json = JSON(biomes, blocks)
-        Storage.write(json, root, fileName)
-    }
+//    private fun load(
+//        json: JSON,
+//        biomes: MutableMap<Vector3i, Vector3f>,
+//        blocks: MutableMap<Vector3i, Material>
+//    ) {
+//        json.biomes.forEach { (index, factors) ->
+//            val indexToChunkRelativePosition = Vector3i(
+//                index % SIZE.y,
+//                (index / SIZE.y) % SIZE.x,
+//                index / (SIZE.y * SIZE.x)
+//            )
+//
+//            val globalBlockPosition = Vector3i(position).mul(SIZE).add(indexToChunkRelativePosition)
+//
+//            biomes[Vector3i(globalBlockPosition)] = factors
+//        }
+//
+//        json.blocks.forEach { (index, blockJson) ->
+//            val indexToChunkRelativePosition = Vector3i(
+//                index % SIZE.y,
+//                (index / SIZE.y) % SIZE.x,
+//                index / (SIZE.y * SIZE.x)
+//            )
+//
+//            val globalBlockPosition = Vector3i(position).mul(SIZE).add(indexToChunkRelativePosition)
+//
+//            blocks[Vector3i(globalBlockPosition)] = block
+//        }
+//    }
+//
+//    fun save() {
+//        val biomes = mutableMapOf<Int, Vector3f>()
+//        val blocks = mutableMapOf<Int, Material>()
+//        for (z in 0 until SIZE.z)
+//            for (y in 0 until SIZE.y)
+//                for (x in 0 until SIZE.x) {
+//                    val blockPosition = Vector3i(position).mul(SIZE).add(x, y, z)
+//                    val index = x + y * SIZE.x + z * SIZE.y * SIZE.y
+//
+//                    val biome = world.biomeManager.getBiomeFactors(blockPosition)
+//                    biomes[index] = biome
+//
+//                    val block = world.blockManager.getBlock(blockPosition)
+//                    if (block != null)
+//                        blocks[index] = block
+//                }
+//
+//        val json = JSON(biomes, blocks)
+//        Storage.write(json, root, fileName)
+//    }
 
     private fun generate(biomes: MutableMap<Vector3i, Vector3f>, blocks: MutableMap<Vector3i, Material>) {
         //Generate blocks

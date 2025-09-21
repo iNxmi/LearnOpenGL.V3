@@ -1,8 +1,9 @@
 package com.nami.world.feature
 
 import com.nami.next
-import com.nami.resources.Resources
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Material
+import com.nami.world.material.MaterialJungleLeaves
+import com.nami.world.material.MaterialJungleLog
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
@@ -18,13 +19,13 @@ object FeatureJungleTree : Feature(id = "jungle_tree") {
         moisture: Float,
         temperature: Float,
         seed: Long
-    ): Map<Vector3i, Block> {
+    ): Map<Vector3i, Material> {
         val random = Random(seed)
-        val blocks = mutableMapOf<Vector3i, Block>()
+        val blocks = mutableMapOf<Vector3i, Material>()
 
         val treeHeight = random.next(12..6)
         for (i in 0 until treeHeight)
-            blocks[Vector3i(0, i, 0)] = Resources.BLOCK.get("jungle_log")
+            blocks[Vector3i(0, i, 0)] = MaterialJungleLog
 
         for (i in 0 until 5) {
             val position = Vector3i(0, treeHeight, 0)
@@ -44,7 +45,7 @@ object FeatureJungleTree : Feature(id = "jungle_tree") {
                 if ((0.85f..1f).contains(rand))
                     position.z -= 1
 
-                blocks[Vector3i(position)] = Resources.BLOCK.get("jungle_log")
+                blocks[Vector3i(position)] = MaterialJungleLog
 
                 for (z in -1..1)
                     for (y in -1..1)
@@ -60,7 +61,7 @@ object FeatureJungleTree : Feature(id = "jungle_tree") {
                             if (blocks[Vector3i(pos)] != null)
                                 continue
 
-                            blocks[Vector3i(pos)] = Resources.BLOCK.get("jungle_leaves")
+                            blocks[Vector3i(pos)] = MaterialJungleLeaves
                         }
             }
         }

@@ -2,7 +2,9 @@ package com.nami.world.feature
 
 import com.nami.next
 import com.nami.resources.Resources
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Material
+import com.nami.world.material.MaterialOakLeaves
+import com.nami.world.material.MaterialOakLog
 import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
 import de.articdive.jnoise.pipeline.JNoise
 import org.joml.Vector3i
@@ -29,13 +31,13 @@ object FeatureOakTree : Feature(id = "oak_tree") {
         moisture: Float,
         temperature: Float,
         seed: Long
-    ): Map<Vector3i, Block> {
+    ): Map<Vector3i, Material> {
         val random = Random(seed)
-        val blocks = mutableMapOf<Vector3i, Block>()
+        val blocks = mutableMapOf<Vector3i, Material>()
 
         val baseHeight = random.next(4..6)
         for (i in 0 until baseHeight)
-            blocks[Vector3i(0, i, 0)] = Resources.BLOCK.get("oak_log")
+            blocks[Vector3i(0, i, 0)] = MaterialOakLog
 
         for (i in 0 until 5) {
             val position = Vector3i(0, baseHeight, 0)
@@ -55,7 +57,7 @@ object FeatureOakTree : Feature(id = "oak_tree") {
                 if ((0.85f..1f).contains(rand))
                     position.z -= 1
 
-                blocks[Vector3i(position)] = Resources.BLOCK.get("oak_log")
+                blocks[Vector3i(position)] = MaterialOakLog
 
                 for (z in -1..1)
                     for (y in -1..1)
@@ -71,7 +73,7 @@ object FeatureOakTree : Feature(id = "oak_tree") {
                             if (blocks[Vector3i(pos)] != null)
                                 continue
 
-                            blocks[Vector3i(pos)] = Resources.BLOCK.get("oak_leaves")
+                            blocks[Vector3i(pos)] = MaterialOakLeaves
                         }
             }
         }

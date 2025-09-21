@@ -1,7 +1,7 @@
 package com.nami.world.resources.particle.handlers
 
 import com.nami.world.World
-import com.nami.world.resources.block.Block
+import com.nami.world.material.Layer
 import com.nami.world.resources.particle.Particle
 import com.nami.world.resources.particle.ParticleListener
 import org.joml.Vector2i
@@ -20,7 +20,7 @@ class ParticleHandlerLeaf : ParticleListener {
         val height = world.blockManager.getHeight(
             Vector2i(position.x.toInt(), position.z.toInt()),
             512,
-            setOf(Block.Layer.SOLID)
+            setOf(Layer.SOLID)
         )
 
         if (position.y == height.toFloat() + 1)
