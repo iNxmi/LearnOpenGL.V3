@@ -1,7 +1,7 @@
 package com.nami.world.feature
 
 import com.nami.next
-import com.nami.world.material.*
+import com.nami.world.block.*
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
@@ -17,14 +17,14 @@ object FeatureBirchTree : Feature(id = "birch_tree") {
         moisture: Float,
         temperature: Float,
         seed: Long
-    ): Map<Vector3i, Material> {
+    ): Map<Vector3i, Block> {
         val random = Random(seed)
 
-        val blocks = mutableMapOf<Vector3i, Material>()
+        val blocks = mutableMapOf<Vector3i, Block>()
 
         val baseHeight = random.next(4..6)
         for (i in 0 until baseHeight)
-            blocks[Vector3i(0, i, 0)] = MaterialBirchLog
+            blocks[Vector3i(0, i, 0)] = BlockBirchLog
 
         for (i in 0 until 5) {
             val position = Vector3i(0, baseHeight, 0)
@@ -44,7 +44,7 @@ object FeatureBirchTree : Feature(id = "birch_tree") {
                 if ((0.85f..1f).contains(rand))
                     position.z -= 1
 
-                blocks[Vector3i(position)] = MaterialBirchLog
+                blocks[Vector3i(position)] = BlockBirchLog
 
                 for (z in -1..1)
                     for (y in -1..1)
@@ -60,7 +60,7 @@ object FeatureBirchTree : Feature(id = "birch_tree") {
                             if (blocks[Vector3i(pos)] != null)
                                 continue
 
-                            blocks[Vector3i(pos)] = MaterialBirchLeaves
+                            blocks[Vector3i(pos)] = BlockBirchLeaves
                         }
             }
         }

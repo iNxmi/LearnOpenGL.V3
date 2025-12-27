@@ -1,14 +1,14 @@
 package com.nami.world.feature
 
 import com.nami.next
-import com.nami.world.material.Material
+import com.nami.world.block.Block
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 open class FeatureTree(
-    val materialStem: Material,
-    val blockLeaves: Material,
+    val blockStem: Block,
+    val blockLeaves: Block,
     val stemHeight: IntRange,
     val stemThickness: IntRange,
     val leafRadius: Int,
@@ -31,13 +31,13 @@ open class FeatureTree(
         moisture: Float,
         temperature: Float,
         seed: Long
-    ): Map<Vector3i, Material> {
+    ): Map<Vector3i, Block> {
         val random = Random(seed)
-        val blocks = mutableMapOf<Vector3i, Material>()
+        val blocks = mutableMapOf<Vector3i, Block>()
 
         val baseHeight = random.next(stemHeight)
         for (i in 0 until baseHeight)
-            blocks[Vector3i(0, i, 0)] = materialStem
+            blocks[Vector3i(0, i, 0)] = blockStem
 
         for (i in 0 until 5) {
             val position = Vector3i(0, baseHeight, 0)
@@ -58,7 +58,7 @@ open class FeatureTree(
                 if ((probabilityFront..probabilityBack).contains(rand))
                     position.z += 1
 
-                blocks[Vector3i(position)] = materialStem
+                blocks[Vector3i(position)] = blockStem
 
                 for (z in -leafRadius..leafRadius)
                     for (y in -leafRadius..leafRadius)

@@ -1,12 +1,13 @@
 package com.nami.world.biome
 
-import com.nami.world.material.Material
+import com.nami.world.block.Block
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import org.joml.Vector3i
 
 abstract class Biome(val id: String) {
 
     companion object {
-
         val set = setOf(
             BiomeBeach,
             BiomeBirchForest,
@@ -25,13 +26,36 @@ abstract class Biome(val id: String) {
                     && it.moisture.contains(moisture)
                     && it.temperature.contains(temperature)
         } ?: BiomeInvalid
+
         fun get(id: String) = map[id]
+
+        fun create(
+            position: Vector3i,
+            elevation: Float,
+            moisture: Float,
+            temperature: Float
+        ) = Instance(
+            position,
+            elevation,
+            moisture,
+            temperature,
+            evaluate(elevation, moisture, temperature)
+        )
     }
 
     abstract val elevation: ClosedFloatingPointRange<Float>
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
 
-    open fun generateBlock(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Material? = null
+    open fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
+
+    @Serializable
+    data class Instance(
+        @Contextual val position: Vector3i,
+        val elevation: Float,
+        val moisture: Float,
+        val temperature: Float,
+        @Contextual val template: Biome
+    )
 
 }

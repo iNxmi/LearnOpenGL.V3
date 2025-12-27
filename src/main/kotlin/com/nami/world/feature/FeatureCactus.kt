@@ -1,8 +1,7 @@
 package com.nami.world.feature
 
 import com.nami.next
-import com.nami.resources.Resources
-import com.nami.world.material.*
+import com.nami.world.block.*
 import org.joml.Vector3i
 import kotlin.random.Random
 
@@ -17,13 +16,13 @@ object FeatureCactus : Feature(id = "cactus") {
         moisture: Float,
         temperature: Float,
         seed: Long
-    ): Map<Vector3i, Material> {
+    ): Map<Vector3i, Block> {
         val random = Random(seed)
-        val blocks = mutableMapOf<Vector3i, Material>()
+        val blocks = mutableMapOf<Vector3i, Block>()
 
         val height = random.next(2..5)
         for (y in 0 until height)
-            blocks[Vector3i(0, y, 0)] = MaterialCactus
+            blocks[Vector3i(0, y, 0)] = BlockCactus
 
         return blocks
     }

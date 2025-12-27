@@ -8,23 +8,10 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
-
-fun Vector2f.toFloatArray(): FloatArray {
-    return floatArrayOf(this.x, this.y)
-}
-
-fun Vector2i.toIntArray(): IntArray {
-    return intArrayOf(this.x, this.y)
-}
-
-
-fun Vector3f.toFloatArray(): FloatArray {
-    return floatArrayOf(this.x, this.y, this.z)
-}
-
-fun Vector3i.toIntArray(): IntArray {
-    return intArrayOf(this.x, this.y, this.z)
-}
+fun Vector2f.toFloatArray() = floatArrayOf(this.x, this.y)
+fun Vector2i.toIntArray() = intArrayOf(this.x, this.y)
+fun Vector3f.toFloatArray() =  floatArrayOf(this.x, this.y, this.z)
+fun Vector3i.toIntArray()= intArrayOf(this.x, this.y, this.z)
 
 fun String.snakeToUpperCamelCase(): String {
     val pattern = Regex("_([a-z])")

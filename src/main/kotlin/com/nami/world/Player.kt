@@ -8,8 +8,8 @@ import com.nami.camera.CameraPerspective
 import com.nami.resources.Resources
 import com.nami.serializer.SerializerVector3f
 import com.nami.world.chunk.Chunk
-import com.nami.world.material.Layer
-import com.nami.world.material.Material
+import com.nami.world.block.Layer
+import com.nami.world.block.Block
 import com.nami.world.resources.item.Item
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -158,7 +158,7 @@ class Player {
         }
     }
 
-    fun getFacingMaterial(world: World): Material? {
+    fun getFacingMaterial(world: World): Block? {
         for (i in 0..MAX_ITERATIONS) {
             val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
                 .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))

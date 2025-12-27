@@ -4,7 +4,6 @@ import com.nami.Time
 import com.nami.resources.GamePath
 import com.nami.serializer.SerializerVector3i
 import com.nami.storage.Storage
-import com.nami.world.biome.ManagerBiome
 import com.nami.world.chunk.ChunkManager
 import com.nami.world.Player
 import com.nami.world.resources.block.BlockManagerSlow

@@ -1,7 +1,7 @@
 package com.nami.world.resources.block
 
-import com.nami.world.material.Material
-import com.nami.world.material.Layer
+import com.nami.world.block.Block
+import com.nami.world.block.Layer
 import org.joml.Vector2i
 import org.joml.Vector3i
 
@@ -11,8 +11,8 @@ interface BlockManager {
 
     fun updateFaces(position: Vector3i)
 
-    fun getBlock(position: Vector3i): Material?
-    fun setBlock(position: Vector3i, material: Material)
-    fun setBlocks(blocks: Map<Vector3i, Material>)
+    fun getBlock(position: Vector3i): Block?
+    fun setBlock(position: Vector3i, block: Block)
+    fun setBlocks(blocks: Map<Vector3i, Block>)
 
 }

@@ -1,7 +1,7 @@
 package com.nami.world.resources.particle.handlers
 
 import com.nami.world.World
-import com.nami.world.material.Layer
+import com.nami.world.block.Layer
 import com.nami.world.resources.particle.Particle
 import com.nami.world.resources.particle.ParticleListener
 import org.joml.Vector2i

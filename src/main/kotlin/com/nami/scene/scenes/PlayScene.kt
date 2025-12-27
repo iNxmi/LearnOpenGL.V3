@@ -4,12 +4,12 @@ import com.nami.Game
 import com.nami.Input
 import com.nami.Window
 import com.nami.resources.GamePath
+import com.nami.resources.GamePath.Companion.biome
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
-import com.nami.world.biome.Biome
-import com.nami.world.material.Material
+import com.nami.world.block.Block
 import com.nami.world.resources.item.Item
 import com.nami.world.resources.recipe.RecipeVariant
 import imgui.ImGui
@@ -91,7 +91,7 @@ class PlayScene(val world: World) : Scene() {
         Pair("inventory", Runnable {
             val range = 4
 
-            val workstations = mutableSetOf<Material>()
+            val workstations = mutableSetOf<Block>()
             for (z in -range..range)
                 for (y in -range..range)
                     for (x in -range..range)
@@ -163,17 +163,15 @@ class PlayScene(val world: World) : Scene() {
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
-            val factors = world.biomeManager.getBiomeFactors(
+            val biomes = world.getBiome(
                 Vector3i(
                     world.player.transform.position.x.toInt(),
                     world.player.transform.position.y.toInt(),
                     world.player.transform.position.z.toInt()
                 )
             )
-            if (factors != null) {
-                val biome = Biome.evaluate(factors.x, factors.y, factors.z)
-                ImGui.text("biome=$biome factors=$factors")
-            }
+            ImGui.text("biome=$biome")
+
             ImGui.text("position=${world.player.transform.position}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
 
@@ -188,9 +186,7 @@ class PlayScene(val world: World) : Scene() {
             glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
-    override fun onDisable() {
-        world.write()
-    }
+    override fun onDisable() = world.write()
 
     override fun onUpdate() {
         if (Input.isKeyPressed(GLFW_KEY_ESCAPE)) {

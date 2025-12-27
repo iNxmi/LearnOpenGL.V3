@@ -4,7 +4,7 @@ import com.nami.Time
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
 import com.nami.world.Player
-import com.nami.world.material.Layer
+import com.nami.world.block.Layer
 import de.articdive.jnoise.generators.noisegen.opensimplex.SuperSimplexNoiseGenerator
 import de.articdive.jnoise.pipeline.JNoise
 import org.joml.Matrix4f

@@ -1,6 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.world.material.*
+import com.nami.world.block.*
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
@@ -9,17 +9,17 @@ internal object BiomeInvalid : Biome(id = "invalid") {
     override val moisture = 0f..0f
     override val temperature = 0f..0f
 
-    override fun generateBlock(
+    override fun generate(
         position: Vector3i,
         elevation: Float,
         moisture: Float,
         temperature: Float
-    ): Material? {
+    ): Block? {
         val y = position.y
 
         val height = elevation.roundToInt()
         if ((0 until height).contains(y))
-            return MaterialInvalid
+            return BlockInvalid
 
         return null
     }
