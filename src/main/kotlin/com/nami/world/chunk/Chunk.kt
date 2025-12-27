@@ -26,7 +26,6 @@ class Chunk(
 
     private val scale = 2.0f
 
-    @kotlinx.serialization.Transient
     private val elevation = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed).build())
         .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
@@ -35,7 +34,6 @@ class Chunk(
         .clamp(0.0, 256.0)
         .build()
 
-    @kotlinx.serialization.Transient
     private val moisture = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed + 1).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
@@ -44,7 +42,6 @@ class Chunk(
         .clamp(0.0, 100.0)
         .build()
 
-    @kotlinx.serialization.Transient
     private val temperature = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed + 2).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)

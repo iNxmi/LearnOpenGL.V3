@@ -4,7 +4,6 @@ import com.nami.Window
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
-import com.nami.storage.Storage
 import com.nami.world.World
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
@@ -33,15 +32,6 @@ class SelectWorldScene : Scene() {
         Files.list(GamePath.worlds).forEach { f -> names.add(f.name) }
         ImGui.listBox("Worlds", state, names.toTypedArray())
 
-        if (ImGui.button("Load")) {
-            val name = names[state.get()]
-
-            val worldPath = GamePath.worlds.resolve(name)
-            val world = Storage.read<World>(worldPath, "world")
-
-            if (world != null)
-                SceneManager.set(PlayScene(world))
-        }
 
         ImGui.sameLine()
 

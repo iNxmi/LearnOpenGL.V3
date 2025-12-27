@@ -9,8 +9,6 @@ import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
 import com.nami.world.block.Block
-import com.nami.world.resources.item.Item
-import com.nami.world.resources.recipe.RecipeVariant
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
@@ -47,13 +45,13 @@ class PlayScene(val world: World) : Scene() {
             ImGui.getFont().scale = 2f
             ImGui.begin("settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-            if (ImGui.collapsingHeader("Language")) {
-                val languages = Resources.LANGUAGE.map.values.toList()
-                ImGui.listBox("Language", languageID, languages.map { it.language("name") }.toTypedArray())
-
-                if (ImGui.button("Select"))
-                    Resources.LANGUAGE.select(languages[languageID.get()].id)
-            }
+//            if (ImGui.collapsingHeader("Language")) {
+//                val languages = Resources.LANGUAGE.map.values.toList()
+//                ImGui.listBox("Language", languageID, languages.map { it.language("name") }.toTypedArray())
+//
+//                if (ImGui.button("Select"))
+//                    Resources.LANGUAGE.select(languages[languageID.get()].id)
+//            }
 
             if (ImGui.collapsingHeader("Time")) {
                 if (ImGui.sliderFloat("Scale", timeScale, 0f, 5f))
@@ -116,40 +114,40 @@ class PlayScene(val world: World) : Scene() {
             ImGui.getFont().scale = 2f
             ImGui.begin("inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-            ImGui.text("Inventory")
-            world.player.items.forEach { (item, itemInstance) ->
-                if (ImGui.button("${itemInstance.template.language("name")}: ${itemInstance.count} * ${item.weight} = ${itemInstance.count * item.weight}kg"))
-                    world.player.selectedItem = item.create(count = 100)
-            }
-
-            ImGui.text("Crafting")
-            ImGui.text("Workstations in range: $workstations")
-            val recipes = mutableMapOf<Item, Set<RecipeVariant>>()
-            Resources.RECIPE.map.values.forEach { recipe -> recipes[recipe.item] = recipe.variants }
-
-            recipes.forEach { (item, variants) ->
-                if (!ImGui.collapsingHeader(item.language("name"))) return@forEach
-
-                variants.forEach { variant ->
-                    if (variant.workstations != null)
-                        if (!variant.workstations.any { it in workstations })
-                            return@forEach
-
-                    val success = false
-
-                    val buttonName = variant.ingredients.map { (item, amount) -> "${item.language("name")}($amount) " }
-                        .joinToString { it } + "= ${item.language("name")}(${variant.amount}) Workstations(${variant.workstations}) Success($success)"
-                    if (!ImGui.button(buttonName))
-                        return@forEach
-
-                    if (!success)
-                        return@forEach
-
-//                    variant.ingredients.forEach { (item, amount) -> inventory.remove(item, amount) }
-//                    inventory.add(item, variant.amount)
-                }
-
-            }
+//            ImGui.text("Inventory")
+//            world.player.items.forEach { (item, itemInstance) ->
+//                if (ImGui.button("${itemInstance.template.language("name")}: ${itemInstance.count} * ${item.weight} = ${itemInstance.count * item.weight}kg"))
+//                    world.player.selectedItem = item.create(count = 100)
+//            }
+//
+//            ImGui.text("Crafting")
+//            ImGui.text("Workstations in range: $workstations")
+//            val recipes = mutableMapOf<Item, Set<RecipeVariant>>()
+//            Resources.RECIPE.map.values.forEach { recipe -> recipes[recipe.item] = recipe.variants }
+//
+//            recipes.forEach { (item, variants) ->
+//                if (!ImGui.collapsingHeader(item.language("name"))) return@forEach
+//
+//                variants.forEach { variant ->
+//                    if (variant.workstations != null)
+//                        if (!variant.workstations.any { it in workstations })
+//                            return@forEach
+//
+//                    val success = false
+//
+//                    val buttonName = variant.ingredients.map { (item, amount) -> "${item.language("name")}($amount) " }
+//                        .joinToString { it } + "= ${item.language("name")}(${variant.amount}) Workstations(${variant.workstations}) Success($success)"
+//                    if (!ImGui.button(buttonName))
+//                        return@forEach
+//
+//                    if (!success)
+//                        return@forEach
+//
+////                    variant.ingredients.forEach { (item, amount) -> inventory.remove(item, amount) }
+////                    inventory.add(item, variant.amount)
+//                }
+//
+//            }
 
             ImGui.end()
         }),
@@ -176,8 +174,6 @@ class PlayScene(val world: World) : Scene() {
         if (glfwRawMouseMotionSupported())
             glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
-
-    override fun onDisable() = world.write()
 
     override fun onUpdate() {
         if (Input.isKeyPressed(GLFW_KEY_ESCAPE)) {

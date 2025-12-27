@@ -39,7 +39,6 @@ abstract class Biome(val id: String) {
 
     open fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
 
-
     data class Instance(
         val position: Vector3i,
         val elevation: Float,

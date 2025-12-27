@@ -1,6 +1,6 @@
 package com.nami.world
 
-import com.nami.world.resources.item.Item
+import com.nami.world.item.Item
 
 data class Drop(
     val items: Item,

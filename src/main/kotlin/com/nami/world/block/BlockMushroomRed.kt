@@ -2,6 +2,7 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.item.ItemMushroom
 
 object BlockMushroomRed : Block(id = "mushroom_red") {
 
@@ -19,7 +20,7 @@ object BlockMushroomRed : Block(id = "mushroom_red") {
     )
 
     override val drops = setOf(
-        Drop(Resources.ITEM.get("mushroom"), probability = 0.25f)
+        Drop(ItemMushroom, probability = 0.25f)
     )
 
 }

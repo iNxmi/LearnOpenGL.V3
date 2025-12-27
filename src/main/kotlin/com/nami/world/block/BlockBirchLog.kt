@@ -2,6 +2,7 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.item.ItemBirchLog
 
 object BlockBirchLog : Block(id = "birch_log") {
 
@@ -19,7 +20,7 @@ object BlockBirchLog : Block(id = "birch_log") {
     )
 
     override val drops = setOf(
-        Drop(Resources.ITEM.get("block.birch_log"))
+        Drop(ItemBirchLog)
     )
 
 }

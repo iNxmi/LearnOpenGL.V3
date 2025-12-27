@@ -2,6 +2,9 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.item.ItemAcorn
+import com.nami.world.item.ItemBirchLeaves
+import com.nami.world.item.ItemStick
 
 object BlockBirchLeaves : Block(id = "birch_leaves") {
 
@@ -22,9 +25,9 @@ object BlockBirchLeaves : Block(id = "birch_leaves") {
     )
 
     override val drops = setOf(
-        Drop(Resources.ITEM.get("leaf"), amount = 1..3),
-        Drop(Resources.ITEM.get("acorn"), probability = 0.25f),
-        Drop(Resources.ITEM.get("stick"), probability = 0.35f)
+        Drop(ItemBirchLeaves),
+        Drop(ItemAcorn, probability = 0.25f),
+        Drop(ItemStick, probability = 0.35f)
     )
 
 }

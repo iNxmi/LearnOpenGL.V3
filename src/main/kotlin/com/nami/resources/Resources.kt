@@ -1,10 +1,6 @@
 package com.nami.resources
 
-import com.nami.resources.item.ResourceLoaderItem
-import com.nami.resources.language.ResourceLoaderLanguage
 import com.nami.resources.model.ResourceLoaderModel
-import com.nami.resources.particle.ResourceLoaderParticle
-import com.nami.resources.recipe.ResourceLoaderRecipe
 import com.nami.resources.shader.ResourceLoaderShader
 import com.nami.resources.texture.ResourceLoaderTexture
 import mu.KotlinLogging
@@ -23,21 +19,13 @@ abstract class Resources<T : Resource>(
     companion object {
         val SHADER = ResourceLoaderShader()
         val TEXTURE = ResourceLoaderTexture()
-        val ITEM = ResourceLoaderItem()
         val MODEL = ResourceLoaderModel()
-        val PARTICLE = ResourceLoaderParticle()
-        val RECIPE = ResourceLoaderRecipe()
-        val LANGUAGE = ResourceLoaderLanguage()
 
         fun load(
             resources: Set<Resources<*>> = mutableSetOf(
                 SHADER,
                 TEXTURE,
-                ITEM,
-                MODEL,
-                PARTICLE,
-                RECIPE,
-                LANGUAGE
+                MODEL
             )
         ) = resources.sumOf { it.load() }
 

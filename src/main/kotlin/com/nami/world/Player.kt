@@ -5,18 +5,19 @@ import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
-import com.nami.resources.Resources
 import com.nami.world.block.Block
 import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
-import com.nami.world.resources.item.Item
+import com.nami.world.item.Item
+import com.nami.world.item.ItemAcorn
+import com.nami.world.item.ItemLighter
+import com.nami.world.item.ItemTnt
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.glfw.GLFW
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 class Player {
 
@@ -30,24 +31,17 @@ class Player {
 
     val transform: Transform = Transform()
 
-    @Transient
     val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
-
 
     val acceleration = Vector3f(0f, 0f, 0f)
 
-    @Transient
-    val items = mutableMapOf<Item, Item.Instance>()
+    val items = mutableMapOf<Item, Int>(
+        ItemLighter to 1,
+        ItemTnt to 64,
+        ItemAcorn to 64
+    )
 
-    @Transient
-    var selectedItem = Resources.Companion.ITEM.get("tool.hand").create(count = 1)
-
-    init {
-        items[Resources.Companion.ITEM.get("tool.hand")] = Resources.Companion.ITEM.get("tool.hand").create(count = 1)
-        items[Resources.Companion.ITEM.get("lighter")] = Resources.Companion.ITEM.get("lighter").create(count = 1)
-        items[Resources.Companion.ITEM.get("block.tnt")] = Resources.Companion.ITEM.get("block.tnt").create(count = 64)
-        items[Resources.Companion.ITEM.get("acorn")] = Resources.Companion.ITEM.get("acorn").create(count = 64)
-    }
+    var selectedItem: Item? = null
 
     fun update(world: World) {
         inputDirection()
@@ -55,16 +49,13 @@ class Player {
         inputAction(world)
     }
 
-
     private val eulerAngles = Vector3f()
 
-    @Transient
     private val mousePositionLast = Vector2i()
 
-    @Transient
     private var first = true
     private fun inputDirection() {
-        val mousePosition = Input.Companion.position()
+        val mousePosition = Input.position()
         if (first) {
             mousePositionLast.set(mousePosition)
             first = false
@@ -73,7 +64,7 @@ class Player {
 
         val mousePositionDelta = Vector2i(mousePosition).sub(mousePositionLast)
 
-        if (GLFW.glfwGetInputMode(Window.Companion.pointer, GLFW.GLFW_CURSOR) == GLFW.GLFW_CURSOR_DISABLED) {
+        if (GLFW.glfwGetInputMode(Window.pointer, GLFW.GLFW_CURSOR) == GLFW.GLFW_CURSOR_DISABLED) {
             eulerAngles.y += mousePositionDelta.x * SENSITIVITY
             eulerAngles.x -= mousePositionDelta.y * SENSITIVITY
             eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
@@ -92,20 +83,20 @@ class Player {
         val position = transform.position
 
         var speed = SPEED * world.time.delta
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
             speed *= 2f
 
         val dir = Vector3f(camera.directionFront.x, 0f, camera.directionFront.z).normalize()
         val move = Vector3f()
 
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_W))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_W))
             move.add(Vector3f(dir).mul(1f, 0f, 1f))
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_S))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_S))
             move.add(Vector3f(dir).mul(1f, 0f, 1f).mul(-1f))
 
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_A))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_A))
             move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f).mul(-1f))
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_D))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_D))
             move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f))
 
         if (move.length() != 0f)
@@ -123,7 +114,7 @@ class Player {
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)
 
-        if (Input.Companion.isKeyDown(GLFW.GLFW_KEY_SPACE))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE))
             if (position.y <= height)
                 acceleration.add(0f, 7.5f, 0f)
 
@@ -132,8 +123,8 @@ class Player {
 
         position.add(Vector3f(acceleration).mul(world.time.delta))
 
-        position.x = position.x.coerceIn(0f, (world.size.x * Chunk.Companion.SIZE.x).toFloat() - 0.1f)
-        position.z = position.z.coerceIn(0f, (world.size.z * Chunk.Companion.SIZE.z).toFloat() - 0.1f)
+        position.x = position.x.coerceIn(0f, (world.size.x * Chunk.SIZE.x).toFloat() - 0.1f)
+        position.z = position.z.coerceIn(0f, (world.size.z * Chunk.SIZE.z).toFloat() - 0.1f)
 
         if (position.y < height) {
             position.y = height
@@ -145,16 +136,12 @@ class Player {
 
     fun inputAction(world: World) {
         //Primary
-        if (Input.Companion.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
-            val handler = selectedItem.handler
-            val consumed = handler.onPrimaryUse(world, selectedItem, this)
-        }
+        if (Input.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
+            selectedItem?.onPrimaryUse()
 
         //Secondary
-        if (Input.Companion.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT)) {
-            val handler = selectedItem.handler
-            val consumed = handler.onSecondaryUse(world, selectedItem, this)
-        }
+        if (Input.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT))
+            selectedItem?.onSecondaryUse()
     }
 
     fun getFacingMaterial(world: World): Block? {

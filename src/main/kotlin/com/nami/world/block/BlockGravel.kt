@@ -2,6 +2,8 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.item.ItemFlint
+import com.nami.world.item.ItemGravel
 
 object BlockGravel : Block(id = "gravel") {
 
@@ -20,8 +22,8 @@ object BlockGravel : Block(id = "gravel") {
     )
 
     override val drops = setOf(
-        Drop(Resources.ITEM.get("block.gravel")),
-        Drop(Resources.ITEM.get("flint"), probability = 0.35f)
+        Drop(ItemGravel),
+        Drop(ItemFlint, probability = 0.35f)
     )
 
 }
