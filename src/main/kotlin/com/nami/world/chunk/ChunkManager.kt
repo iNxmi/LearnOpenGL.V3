@@ -1,7 +1,7 @@
 package com.nami.world.chunk
 
-import com.nami.world.World
 import com.nami.world.Player
+import com.nami.world.World
 import com.nami.world.block.Layer
 import mu.KotlinLogging
 import org.joml.Vector3f

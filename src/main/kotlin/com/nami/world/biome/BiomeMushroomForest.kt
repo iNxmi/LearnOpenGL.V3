@@ -1,6 +1,9 @@
 package com.nami.world.biome
 
-import com.nami.world.block.*
+import com.nami.world.block.Block
+import com.nami.world.block.BlockDirt
+import com.nami.world.block.BlockMycelium
+import com.nami.world.block.BlockStone
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
@@ -29,7 +32,7 @@ import kotlin.math.roundToInt
 }
  */
 
-object BiomeMushroomForest : Biome(id="mushroom_forest") {
+object BiomeMushroomForest : Biome(id = "mushroom_forest") {
 
     override val elevation = 67f..256f
     override val moisture = 50f..100f

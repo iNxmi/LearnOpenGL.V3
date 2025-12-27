@@ -7,7 +7,6 @@ import com.nami.next
 import com.nami.resources.particle.ResourceParticle
 import com.nami.snakeToUpperCamelCase
 import com.nami.world.World
-import kotlinx.serialization.Serializable
 import org.joml.Vector3f
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -62,7 +61,7 @@ class Particle(
 
     }
 
-    @Serializable
+
     data class JSON(
         val timeInSeconds: ClosedFloatingPointRange<Float>,
         val scale: ClosedFloatingPointRange<Float> = 1f..1f,

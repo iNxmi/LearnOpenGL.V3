@@ -1,9 +1,7 @@
 package com.nami.world.chunk
 
 import com.nami.world.World
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.joml.Vector3i
 import java.util.concurrent.ConcurrentLinkedQueue
 

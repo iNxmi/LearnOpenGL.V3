@@ -4,7 +4,6 @@ import com.nami.Game
 import com.nami.Input
 import com.nami.Window
 import com.nami.resources.GamePath
-import com.nami.resources.GamePath.Companion.biome
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
@@ -163,14 +162,6 @@ class PlayScene(val world: World) : Scene() {
 
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
-            val biomes = world.getBiome(
-                Vector3i(
-                    world.player.transform.position.x.toInt(),
-                    world.player.transform.position.y.toInt(),
-                    world.player.transform.position.z.toInt()
-                )
-            )
-            ImGui.text("biome=$biome")
 
             ImGui.text("position=${world.player.transform.position}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")

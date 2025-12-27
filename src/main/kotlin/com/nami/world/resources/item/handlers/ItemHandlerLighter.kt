@@ -1,13 +1,9 @@
 package com.nami.world.resources.item.handlers
 
-import com.nami.next
-import com.nami.world.World
 import com.nami.world.Player
+import com.nami.world.World
 import com.nami.world.resources.item.Item
 import com.nami.world.resources.item.ItemListener
-import org.joml.Vector3f
-import org.joml.Vector3i
-import kotlin.random.Random
 
 class ItemHandlerLighter : ItemListener {
 

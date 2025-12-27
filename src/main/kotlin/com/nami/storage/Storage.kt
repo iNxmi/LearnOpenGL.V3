@@ -2,7 +2,6 @@ package com.nami.storage
 
 import com.nami.serializer.GlobalJSON
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
@@ -32,7 +31,7 @@ class Storage {
             val secondary = path.resolve("${name}_secondary.json")
             Files.write(secondary, compressedString)
 
-            if(raw) {
+            if (raw) {
                 val raw = path.resolve("${name}_raw.json")
                 Files.writeString(raw, jsonString)
             }

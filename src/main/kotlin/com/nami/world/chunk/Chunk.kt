@@ -7,14 +7,13 @@ import com.nami.world.block.Layer
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
 import de.articdive.jnoise.pipeline.JNoise
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import org.joml.Vector3i
 
-@Serializable
 class Chunk(
     val world: World,
-    @Contextual val position: Vector3i
+
+
+    val position: Vector3i
 ) {
 
     companion object {
@@ -26,6 +25,8 @@ class Chunk(
     private val fileName = "${position.x}_${position.y}_${position.z}"
 
     private val scale = 2.0f
+
+    @kotlinx.serialization.Transient
     private val elevation = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed).build())
         .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
@@ -33,6 +34,8 @@ class Chunk(
         .addModifier { v -> ((v + 1) / 2.0) * 256 }
         .clamp(0.0, 256.0)
         .build()
+
+    @kotlinx.serialization.Transient
     private val moisture = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed + 1).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
@@ -40,6 +43,8 @@ class Chunk(
         .addModifier { v -> ((v + 1) / 2.0) * 100 }
         .clamp(0.0, 100.0)
         .build()
+
+    @kotlinx.serialization.Transient
     private val temperature = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(world.seed + 2).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
@@ -49,7 +54,6 @@ class Chunk(
         .build()
 
     val voxels = mutableMapOf<Vector3i, Voxel>()
-
     val meshes = mutableMapOf<Layer, Mesh>()
 
     init {
@@ -67,7 +71,7 @@ class Chunk(
                     val biome = Biome.create(position, elevation, moisture, temperature)
                     val block = biome.template.generate(position, elevation, moisture, temperature) ?: continue
 
-                    voxels[position] = Voxel(position, biome, block.create(position))
+                    voxels[position] = Voxel(position, biome, block)
                 }
             }
     }

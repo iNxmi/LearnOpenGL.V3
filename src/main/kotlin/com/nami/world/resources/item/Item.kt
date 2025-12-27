@@ -3,7 +3,6 @@ package com.nami.world.resources.item
 import com.nami.resources.Resources
 import com.nami.resources.item.ResourceItem
 import com.nami.snakeToUpperCamelCase
-import kotlinx.serialization.Serializable
 
 class Item(
     id: String,
@@ -26,7 +25,7 @@ class Item(
         var count: Int
     ) {
 
-        @Serializable
+
         data class JSON(
             val id: String,
             val data: Map<String, String>
@@ -38,7 +37,7 @@ class Item(
 
     }
 
-    @Serializable
+
     data class JSON(
         val tags: List<String>? = null,
         val weight: Float,

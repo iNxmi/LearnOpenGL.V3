@@ -45,9 +45,9 @@ class ChunkMeshGenerator(
                 break
 
 //            GlobalScope.launch {
-                manager.getByChunkPosition(position)?.generateMesh()
-                manager.getByChunkPosition(position)?.uploadMesh()
-                queue.remove(position)
+            manager.getByChunkPosition(position)?.generateMesh()
+            manager.getByChunkPosition(position)?.uploadMesh()
+            queue.remove(position)
 //            }
         }
     }

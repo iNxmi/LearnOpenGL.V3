@@ -2,23 +2,18 @@ package com.nami.world
 
 import com.nami.Time
 import com.nami.resources.GamePath
-import com.nami.serializer.SerializerVector3i
 import com.nami.storage.Storage
 import com.nami.world.chunk.ChunkManager
-import com.nami.world.Player
 import com.nami.world.resources.block.BlockManagerSlow
 import com.nami.world.resources.particle.ParticleManager
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.GL33.glClearColor
 import java.nio.file.Path
 
-@Serializable
+
 class World(
     val name: String,
-    @Serializable(with = SerializerVector3i::class)
     val size: Vector3i,
     val seed: Long,
     val waterLevel: Int
@@ -28,9 +23,6 @@ class World(
 
     val root: Path = GamePath.worlds.resolve(name)
     val fileName = "world"
-
-    @Transient
-    val biomeManager = ManagerBiome(this)
 
     @Transient
     val blockManager = BlockManagerSlow(this)

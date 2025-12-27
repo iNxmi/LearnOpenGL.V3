@@ -1,6 +1,8 @@
 package com.nami.world.biome
 
-import com.nami.world.block.*
+import com.nami.world.block.Block
+import com.nami.world.block.BlockSand
+import com.nami.world.block.BlockStone
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 

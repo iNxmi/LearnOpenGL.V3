@@ -4,7 +4,6 @@ import com.nami.resources.Resources.Companion.ITEM
 import com.nami.resources.recipe.RecipeVariantJSON
 import com.nami.resources.recipe.ResourceRecipe
 import com.nami.world.resources.item.Item
-import kotlinx.serialization.Serializable
 
 class Recipe(
     id: String,
@@ -12,7 +11,7 @@ class Recipe(
     val variants: Set<RecipeVariant>
 ) : ResourceRecipe(id) {
 
-    @Serializable
+
     data class JSON(
         val item: String,
         val variants: List<RecipeVariantJSON>

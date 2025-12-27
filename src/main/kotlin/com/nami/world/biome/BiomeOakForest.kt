@@ -19,7 +19,7 @@ import kotlin.math.roundToInt
 }
  */
 
-object BiomeOakForest : Biome(id="oak_forest") {
+object BiomeOakForest : Biome(id = "oak_forest") {
 
     override val elevation = 67f..256f
     override val moisture = 0f..100f

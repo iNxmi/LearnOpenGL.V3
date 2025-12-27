@@ -1,30 +1,16 @@
 package com.nami.world.biome
 
 import com.nami.world.block.Block
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import org.joml.Vector3i
 
 abstract class Biome(val id: String) {
 
     companion object {
-        val set = setOf(
-            BiomeBeach,
-            BiomeBirchForest,
-            BiomeDesert,
-            BiomeJungleForest,
-            BiomeMushroomForest,
-            BiomeOakForest,
-            BiomeSea,
-            BiomeSpruceForest,
-        )
-
+        val set = mutableSetOf<Biome>()
         val map = set.associateBy { it.id }
 
         fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
-            it.elevation.contains(elevation)
-                    && it.moisture.contains(moisture)
-                    && it.temperature.contains(temperature)
+            it.elevation.contains(elevation) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
         } ?: BiomeInvalid
 
         fun get(id: String) = map[id]
@@ -35,12 +21,16 @@ abstract class Biome(val id: String) {
             moisture: Float,
             temperature: Float
         ) = Instance(
-            position,
-            elevation,
-            moisture,
-            temperature,
-            evaluate(elevation, moisture, temperature)
+            position = position,
+            elevation = elevation,
+            moisture = moisture,
+            temperature = temperature,
+            template = evaluate(elevation, moisture, temperature)
         )
+    }
+
+    init {
+        set.add(this)
     }
 
     abstract val elevation: ClosedFloatingPointRange<Float>
@@ -49,13 +39,13 @@ abstract class Biome(val id: String) {
 
     open fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
 
-    @Serializable
+
     data class Instance(
-        @Contextual val position: Vector3i,
+        val position: Vector3i,
         val elevation: Float,
         val moisture: Float,
         val temperature: Float,
-        @Contextual val template: Biome
+        val template: Biome
     )
 
 }

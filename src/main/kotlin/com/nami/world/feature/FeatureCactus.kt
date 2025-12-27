@@ -1,7 +1,8 @@
 package com.nami.world.feature
 
 import com.nami.next
-import com.nami.world.block.*
+import com.nami.world.block.Block
+import com.nami.world.block.BlockCactus
 import org.joml.Vector3i
 import kotlin.random.Random
 

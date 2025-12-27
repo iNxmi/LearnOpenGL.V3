@@ -6,13 +6,10 @@ import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
 import com.nami.resources.Resources
-import com.nami.serializer.SerializerVector3f
-import com.nami.world.chunk.Chunk
-import com.nami.world.block.Layer
 import com.nami.world.block.Block
+import com.nami.world.block.Layer
+import com.nami.world.chunk.Chunk
 import com.nami.world.resources.item.Item
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
@@ -20,7 +17,7 @@ import org.lwjgl.glfw.GLFW
 import kotlin.math.cos
 import kotlin.math.sin
 
-@Serializable
+
 class Player {
 
     companion object {
@@ -36,7 +33,7 @@ class Player {
     @Transient
     val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
 
-    @Serializable(with = SerializerVector3f::class)
+
     val acceleration = Vector3f(0f, 0f, 0f)
 
     @Transient
@@ -58,10 +55,12 @@ class Player {
         inputAction(world)
     }
 
-    @Serializable(with = SerializerVector3f::class)
+
     private val eulerAngles = Vector3f()
+
     @Transient
     private val mousePositionLast = Vector2i()
+
     @Transient
     private var first = true
     private fun inputDirection() {

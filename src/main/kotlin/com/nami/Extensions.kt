@@ -4,14 +4,14 @@ import org.joml.Vector2f
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
-import java.util.Locale
+import java.util.*
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 fun Vector2f.toFloatArray() = floatArrayOf(this.x, this.y)
 fun Vector2i.toIntArray() = intArrayOf(this.x, this.y)
-fun Vector3f.toFloatArray() =  floatArrayOf(this.x, this.y, this.z)
-fun Vector3i.toIntArray()= intArrayOf(this.x, this.y, this.z)
+fun Vector3f.toFloatArray() = floatArrayOf(this.x, this.y, this.z)
+fun Vector3i.toIntArray() = intArrayOf(this.x, this.y, this.z)
 
 fun String.snakeToUpperCamelCase(): String {
     val pattern = Regex("_([a-z])")
