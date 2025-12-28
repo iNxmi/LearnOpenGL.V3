@@ -11,12 +11,6 @@ class Transform(
     val scale: Vector3f = Vector3f(1f)
 ) {
 
-    constructor(transform: Transform) : this(
-        Vector3f(transform.position),
-        Quaternionf(transform.rotation),
-        Vector3f(transform.scale)
-    )
-
     //Rotation in Deg
 
     private val matrix = Matrix4f()

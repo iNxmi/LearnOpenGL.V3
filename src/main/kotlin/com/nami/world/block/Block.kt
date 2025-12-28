@@ -3,6 +3,7 @@ package com.nami.world.block
 import com.nami.Time
 import com.nami.resources.texture.Texture
 import com.nami.world.Drop
+import org.lwjgl.opengl.GL33.*
 
 abstract class Block(val id: String) {
 
@@ -19,7 +20,7 @@ abstract class Block(val id: String) {
 
     abstract val textures: Map<Face, Texture>
 
-    //    abstract val model: Model
+    // abstract val model: Model
     open val layer: Layer = Layer.SOLID
     open val resistance: Map<String, Float> = mapOf()
     open val drops: Set<Drop> = setOf()

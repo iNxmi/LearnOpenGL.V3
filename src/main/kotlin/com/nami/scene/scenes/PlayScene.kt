@@ -22,6 +22,7 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.image.BufferedImage
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
@@ -72,10 +73,6 @@ class PlayScene(val world: World) : Scene() {
                     glfwSetWindowMonitor(Window.pointer, glfwGetPrimaryMonitor(), 0, 0, 3840, 2160, 120)
                 else
                     glfwSetWindowMonitor(Window.pointer, 0, 100, 100, 1920, 1080, 120)
-            }
-
-            if (ImGui.button("Reload all chunks")) {
-                world.chunkManager.chunks.forEach { (_, chunk) -> world.chunkManager.meshGenerator.addToQueue(chunk.position) }
             }
 
             if (ImGui.button("Main Menu")) {
@@ -161,7 +158,7 @@ class PlayScene(val world: World) : Scene() {
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
 
-            ImGui.text("position=${world.player.transform.position}")
+            ImGui.text("position=${world.player.transform.position.toString(NumberFormat.getInstance())}")
             ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
 
             ImGui.end()

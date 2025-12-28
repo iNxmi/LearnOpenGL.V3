@@ -80,17 +80,13 @@ class BlockManagerSlow(
             position.z / Chunk.SIZE.z
         )
 
-        val chunk = world.chunkManager.getByChunkPosition(chunkPosition)
+        val chunk = world.chunks[chunkPosition]
         for (z in -1..1)
             for (y in -1..1)
                 for (x in -1..1) {
                     updateFaces(Vector3i(position).add(x, y, z))
-
-                    if (chunk != null)
-                        world.chunkManager.meshGenerator.addToQueue(Vector3i(chunk.position).add(x, y, z))
+//                    chunk?.updateMesh()
                 }
-
-        world.chunkManager.saver.addToQueue(chunkPosition)
     }
 
     override fun setBlocks(blocks: Map<Vector3i, Block>) =

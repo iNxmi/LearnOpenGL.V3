@@ -2,13 +2,24 @@ package com.nami.world
 
 import com.nami.Time
 import com.nami.resources.GamePath
-import com.nami.world.chunk.ChunkManager
 import com.nami.world.block.BlockManagerSlow
+import com.nami.world.block.Layer
+import com.nami.world.chunk.Chunk
+import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
+import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
+import de.articdive.jnoise.pipeline.JNoise
+import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
+import org.lwjgl.opengl.GL11.GL_CULL_FACE
+import org.lwjgl.opengl.GL11.glDisable
+import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
 import java.nio.file.Path
-
+import java.util.TreeMap
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 class World(
     val name: String,
@@ -17,16 +28,45 @@ class World(
     val waterLevel: Int
 ) {
 
+    private val log = KotlinLogging.logger {}
+
+    val scale = 2.0f
+
+    val elevation: JNoise = JNoise.newBuilder()
+        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed).build())
+        .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
+        .scale(1 / (4098.0 * scale))
+        .addModifier { v -> ((v + 1) / 2.0) * 256 }
+        .clamp(0.0, 256.0)
+        .build()
+
+    val moisture: JNoise = JNoise.newBuilder()
+        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 1).build())
+        .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
+        .scale(1 / (2048.0 * scale))
+        .addModifier { v -> ((v + 1) / 2.0) * 100 }
+        .clamp(0.0, 100.0)
+        .build()
+
+    val temperature: JNoise = JNoise.newBuilder()
+        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 2).build())
+        .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
+        .scale(1 / (2048.0 * scale))
+        .addModifier { v -> ((v + 1) / 2.0) * (50 + 25) - 25 }
+        .clamp(-25.0, 50.0)
+        .build()
+
     val time = Time()
 
     val root: Path = GamePath.worlds.resolve(name)
-    val fileName = "world"
 
     val blockManager = BlockManagerSlow(this)
-    
-    val chunkManager = ChunkManager(this)
+
+    val chunks = mutableMapOf<Vector3i, Chunk>()
 
     val player = Player()
+
+    private val radius = 6
 
     fun update() {
         time.update()
@@ -35,11 +75,72 @@ class World(
         glClearColor(color.x, color.y, color.z, 1.0f)
 
         player.update(this)
-        chunkManager.update(player, 6)
+
+        for (z in -radius..radius)
+            for (y in -radius..radius)
+                for (x in -radius..radius) {
+                    if (x * x + y * y + z * z > radius * radius)
+                        continue
+
+                    val position = Vector3i(
+                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
+                    )
+
+                    if (!(0 until size.x).contains(position.x)) continue
+                    if (!(0 until size.y).contains(position.y)) continue
+                    if (!(0 until size.z).contains(position.z)) continue
+
+                    if (!chunks.containsKey(position)) {
+                        val chunk = Chunk(this, position)
+                        chunks[position] = chunk
+                    }
+
+                    chunks[position]?.update()
+                }
     }
 
     fun render() {
-        chunkManager.render(player, 6)
+//        val sortedChunks = TreeMap<Float, Chunk>()
+//
+//        for (z in -radius..radius)
+//            for (y in -radius..radius)
+//                for (x in -radius..radius) {
+//                    val chunkPosition = Vector3i(
+//                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
+//                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
+//                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
+//                    )
+//
+//                    if (x * x + y * y + z * z <= radius * radius) {
+//                        val chunk = chunks[chunkPosition] ?: continue
+//
+//                        val distance = Vector3f(chunkPosition)
+//                            .mul(Vector3f(Chunk.SIZE))
+//                            .add(Vector3f(Chunk.SIZE).div(2.0f))
+//                            .sub(player.transform.position)
+//                            .length()
+//
+//                        sortedChunks[distance] = chunk
+//                    }
+//                }
+
+//        glEnable(GL_CULL_FACE)
+//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.SOLID) }
+//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
+//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
+//
+//        glDisable(GL_CULL_FACE)
+//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
+
+        glEnable(GL_CULL_FACE)
+        chunks.forEach { (_, chunk) -> chunk.render(player) }
+//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
+//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
+//
+//        glDisable(GL_CULL_FACE)
+//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
     }
 
 }

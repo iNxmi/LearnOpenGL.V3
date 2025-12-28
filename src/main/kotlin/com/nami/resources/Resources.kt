@@ -29,7 +29,6 @@ abstract class Resources<T : Resource>(
             )
         ) = resources.sumOf { it.load() }
 
-
     }
 
     private val log = KotlinLogging.logger { }

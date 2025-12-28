@@ -29,13 +29,13 @@ class Player {
         const val MAX_ITERATIONS = RANGE * 16
     }
 
-    val transform: Transform = Transform()
+    val transform = Transform()
 
     val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
 
     val acceleration = Vector3f(0f, 0f, 0f)
 
-    val items = mutableMapOf<Item, Int>(
+    val items = mutableMapOf(
         ItemLighter to 1,
         ItemTnt to 64,
         ItemAcorn to 64
@@ -105,11 +105,13 @@ class Player {
 
         val blockManager = world.blockManager
 
-        val height = blockManager.getHeight(
-            Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
-            transform.position.y.toInt() + HEIGHT.toInt(),
-            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
-        ).toFloat()
+//        val height = blockManager.getHeight(
+//            Vector2i(transform.position.x.toInt(), transform.position.z.toInt()),
+//            transform.position.y.toInt() + HEIGHT.toInt(),
+//            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
+//        ).toFloat()
+
+        val height = 0f
 
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)
