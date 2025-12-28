@@ -34,22 +34,23 @@ class Chunk(
                 ).toFloat()
 
                 for (y in 0 until SIZE.y) {
-                    val position = Vector3i(this@Chunk.position).mul(SIZE).add(x, y, z)
+                    val position = Vector3i(x, y, z)
+                    val globalPosition = Vector3i(this.position).mul(SIZE).add(position)
 
                     val moisture = world.moisture.evaluateNoise(
-                        position.x.toDouble(),
-                        position.y.toDouble(),
-                        position.z.toDouble()
+                        globalPosition.x.toDouble(),
+                        globalPosition.y.toDouble(),
+                        globalPosition.z.toDouble()
                     ).toFloat()
 
                     val temperature = world.temperature.evaluateNoise(
-                        position.x.toDouble(),
-                        position.y.toDouble(),
-                        position.z.toDouble()
+                        globalPosition.x.toDouble(),
+                        globalPosition.y.toDouble(),
+                        globalPosition.z.toDouble()
                     ).toFloat()
 
-                    val biome = Biome.create(position, elevation, moisture, temperature)
-                    val block = biome.template.generate(position, elevation, moisture, temperature)
+                    val biome = Biome.create(globalPosition, elevation, moisture, temperature)
+                    val block = biome.template.generate(globalPosition, elevation, moisture, temperature)
 
                     voxels[position] = Voxel(position, biome, block)
                 }
@@ -75,9 +76,9 @@ class Chunk(
 //            shader.uniform.set("u_texture_diffuse", 0)
 
         val model = Matrix4f().translate(
-            (position.x).toFloat(),
-            (position.y).toFloat(),
-            (position.z).toFloat()
+            (position.x * SIZE.x).toFloat(),
+            (position.y * SIZE.y).toFloat(),
+            (position.z * SIZE.z).toFloat()
         )
 
         shader.uniform.set("u_model_matrix", model)
@@ -88,7 +89,6 @@ class Chunk(
 //        transparent.render()
 
         Resources.SHADER.unbind()
-
     }
 
 }

@@ -111,7 +111,7 @@ class Player {
 //            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
 //        ).toFloat()
 
-        val height = 0f
+        val height = 120f
 
         if (position.y > height)
             acceleration.add(0f, -21f * world.time.delta, 0f)

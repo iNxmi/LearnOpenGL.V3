@@ -58,7 +58,8 @@ void main() {
     float specular = pow(max(dot(light_direction_reflected, camera_direction), 0.0), u_specular_exponent) * diffuse;
 
     vec4 color = texture(u_texture_diffuse, ls_uv);
-    vec3 result = color.rgb * color_mod * min(ambient + diffuse + specular, 1.0) * brightness;
+//    vec3 result = color.rgb * color_mod * min(ambient + diffuse + specular, 1.0) * brightness;
+    vec3 result = vec3(1,0,0) * min(ambient + diffuse + specular, 1.0);
     FragColor = vec4(result, color.a);
 }
 //END_FS
