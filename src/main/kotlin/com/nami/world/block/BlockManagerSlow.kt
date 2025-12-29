@@ -2,6 +2,7 @@ package com.nami.world.block
 
 import com.nami.world.World
 import com.nami.world.chunk.Chunk
+import com.nami.world.chunk.ChunkMesh
 import org.joml.Vector2i
 import org.joml.Vector3i
 import java.util.concurrent.ConcurrentHashMap
@@ -11,7 +12,7 @@ class BlockManagerSlow(
 ) : BlockManager {
 
     val instances = ConcurrentHashMap<Vector3i, Block>()
-    val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<Face>>>()
+    val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<ChunkMesh.Face>>>()
 
     init {
         Layer.entries.forEach { faces[it] = ConcurrentHashMap() }
@@ -33,31 +34,31 @@ class BlockManagerSlow(
 
         val block = getBlock(position) ?: return
 
-        val list = mutableListOf<Face>()
+        val list = mutableListOf<ChunkMesh.Face>()
 
         var adjBlock: Block? = getBlock(Vector3i(position).add(1, 0, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.EAST)
+            list.add(ChunkMesh.Face.EAST)
 
         adjBlock = getBlock(Vector3i(position).add(-1, 0, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.WEST)
+            list.add(ChunkMesh.Face.WEST)
 
         adjBlock = getBlock(Vector3i(position).add(0, 1, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.TOP)
+            list.add(ChunkMesh.Face.TOP)
 
         adjBlock = getBlock(Vector3i(position).add(0, -1, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.BOTTOM)
+            list.add(ChunkMesh.Face.BOTTOM)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, 1))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.SOUTH)
+            list.add(ChunkMesh.Face.SOUTH)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, -1))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(Face.NORTH)
+            list.add(ChunkMesh.Face.NORTH)
 
         if (list.isEmpty())
             return

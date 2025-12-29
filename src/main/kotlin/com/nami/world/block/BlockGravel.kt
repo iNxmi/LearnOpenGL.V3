@@ -2,18 +2,19 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.chunk.ChunkMesh
 import com.nami.world.item.ItemFlint
 import com.nami.world.item.ItemGravel
 
 object BlockGravel : Block(id = "gravel") {
 
     override val textures = mapOf(
-        Face.TOP to Resources.TEXTURE.get("block.gravel"),
-        Face.BOTTOM to Resources.TEXTURE.get("block.gravel"),
-        Face.NORTH to Resources.TEXTURE.get("block.gravel"),
-        Face.EAST to Resources.TEXTURE.get("block.gravel"),
-        Face.WEST to Resources.TEXTURE.get("block.gravel"),
-        Face.SOUTH to Resources.TEXTURE.get("block.gravel")
+        ChunkMesh.Face.TOP to Resources.TEXTURE.get("block.gravel"),
+        ChunkMesh.Face.BOTTOM to Resources.TEXTURE.get("block.gravel"),
+        ChunkMesh.Face.NORTH to Resources.TEXTURE.get("block.gravel"),
+        ChunkMesh.Face.EAST to Resources.TEXTURE.get("block.gravel"),
+        ChunkMesh.Face.WEST to Resources.TEXTURE.get("block.gravel"),
+        ChunkMesh.Face.SOUTH to Resources.TEXTURE.get("block.gravel")
     )
 
     override val resistance = mapOf(

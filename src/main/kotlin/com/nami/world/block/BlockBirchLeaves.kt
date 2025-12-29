@@ -2,6 +2,7 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.chunk.ChunkMesh
 import com.nami.world.item.ItemAcorn
 import com.nami.world.item.ItemBirchLeaves
 import com.nami.world.item.ItemStick
@@ -9,12 +10,12 @@ import com.nami.world.item.ItemStick
 object BlockBirchLeaves : Block(id = "birch_leaves") {
 
     override val textures = mapOf(
-        Face.TOP to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.BOTTOM to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.NORTH to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.EAST to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.WEST to Resources.TEXTURE.get("block.birch_leaves"),
-        Face.SOUTH to Resources.TEXTURE.get("block.birch_leaves")
+        ChunkMesh.Face.TOP to Resources.TEXTURE.get("block.birch_leaves"),
+        ChunkMesh.Face.BOTTOM to Resources.TEXTURE.get("block.birch_leaves"),
+        ChunkMesh.Face.NORTH to Resources.TEXTURE.get("block.birch_leaves"),
+        ChunkMesh.Face.EAST to Resources.TEXTURE.get("block.birch_leaves"),
+        ChunkMesh.Face.WEST to Resources.TEXTURE.get("block.birch_leaves"),
+        ChunkMesh.Face.SOUTH to Resources.TEXTURE.get("block.birch_leaves")
     )
 
     override val layer = Layer.FOLIAGE

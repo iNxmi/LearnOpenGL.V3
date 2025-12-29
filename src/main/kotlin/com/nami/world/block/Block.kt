@@ -3,7 +3,7 @@ package com.nami.world.block
 import com.nami.Time
 import com.nami.resources.texture.Texture
 import com.nami.world.Drop
-import org.lwjgl.opengl.GL33.*
+import com.nami.world.chunk.ChunkMesh
 
 abstract class Block(val id: String) {
 
@@ -18,7 +18,7 @@ abstract class Block(val id: String) {
         set.add(this)
     }
 
-    abstract val textures: Map<Face, Texture>
+    abstract val textures: Map<ChunkMesh.Face, Texture>
 
     // abstract val model: Model
     open val layer: Layer = Layer.SOLID

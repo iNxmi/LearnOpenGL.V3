@@ -1,5 +1,6 @@
 package com.nami.world.chunk
 
+import com.nami.extension.plus
 import com.nami.world.block.Layer
 import org.joml.Vector3i
 import org.lwjgl.opengl.GL33.*
@@ -22,110 +23,140 @@ class ChunkMesh(
         setBufferData(vertices)
     }
 
+    enum class Face(
+        val offset0: Vector3i,
+        val offset1: Vector3i,
+        val offset2: Vector3i,
+        val offset3: Vector3i,
+        val normal: Vector3i
+    ) {
+        // Y Positive
+        TOP(
+            offset0 = Vector3i(0, 1, 0),
+            offset1 = Vector3i(0, 1, 1),
+            offset2 = Vector3i(1, 1, 1),
+            offset3 = Vector3i(1, 1, 0),
+            normal = Vector3i(0, 1, 0)
+        ),
+
+        // Y Negative
+        BOTTOM(
+            offset0 = Vector3i(0, 0, 1),
+            offset1 = Vector3i(0, 0, 0),
+            offset2 = Vector3i(1, 0, 0),
+            offset3 = Vector3i(1, 0, 1),
+            normal = Vector3i(0, -1, 0)
+        ),
+
+        // Z Positive
+        NORTH(
+            offset0 = Vector3i(1, 0, 1),
+            offset1 = Vector3i(1, 1, 1),
+            offset2 = Vector3i(0, 1, 1),
+            offset3 = Vector3i(0, 0, 1),
+            normal = Vector3i(0, 0, 1)
+        ),
+
+        // X Positive
+        EAST(
+            offset0 = Vector3i(1, 0, 0),
+            offset1 = Vector3i(1, 1, 0),
+            offset2 = Vector3i(1, 1, 1),
+            offset3 = Vector3i(1, 0, 1),
+            normal = Vector3i(1, 0, 0)
+        ),
+
+        // Z Negative
+        SOUTH(
+            offset0 = Vector3i(0, 0, 0),
+            offset1 = Vector3i(0, 1, 0),
+            offset2 = Vector3i(1, 1, 0),
+            offset3 = Vector3i(1, 0, 0),
+            normal = Vector3i(0, 0, -1)
+        ),
+
+        // X Negative
+        WEST(
+            offset0 = Vector3i(0, 0, 1),
+            offset1 = Vector3i(0, 1, 1),
+            offset2 = Vector3i(0, 1, 0),
+            offset3 = Vector3i(0, 0, 0),
+            normal = Vector3i(-1, 0, 0)
+        )
+    }
+
     fun generateVertices(): FloatArray {
         val vertices = mutableListOf<Float>()
+        val indices = mutableListOf<Int>()
 
         val filtered = chunk.voxels.filter { (_, voxel) -> voxel.block?.layer == layer }
 
         for ((position, _) in filtered) {
-            val x = position.x
-            val y = position.y
-            val z = position.z
+            // Face X Positive
+            if (filtered[position + Vector3i(1, 0, 0)] == null)
+                addFace(vertices, indices, position, Face.EAST)
 
-            // +X
-            if (filtered[Vector3i(position).add(1, 0, 0)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x + 1, y, z),
-                    v1 = Vector3i(x + 1, y + 1, z),
-                    v2 = Vector3i(x + 1, y + 1, z + 1),
-                    v3 = Vector3i(x + 1, y, z + 1),
-                    normal = Vector3i(1, 0, 0)
-                )
-            }
+            // Face X Negative
+            if (filtered[position + Vector3i(-1, 0, 0)] == null)
+                addFace(vertices, indices, position, Face.WEST)
 
-            // -X
-            if (filtered[Vector3i(position).add(-1, 0, 0)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x, y, z + 1),
-                    v1 = Vector3i(x, y + 1, z + 1),
-                    v2 = Vector3i(x, y + 1, z),
-                    v3 = Vector3i(x, y, z),
-                    normal = Vector3i(-1, 0, 0)
-                )
-            }
+            // Face Y Positive
+            if (filtered[position + Vector3i(0, 1, 0)] == null)
+                addFace(vertices, indices, position, Face.TOP)
 
-            // +Y
-            if (filtered[Vector3i(position).add(0, 1, 0)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x, y + 1, z),
-                    v1 = Vector3i(x, y + 1, z + 1),
-                    v2 = Vector3i(x + 1, y + 1, z + 1),
-                    v3 = Vector3i(x + 1, y + 1, z),
-                    normal = Vector3i(0, 1, 0)
-                )
-            }
+            // Face Y Negative
+            if (filtered[position + Vector3i(0, -1, 0)] == null)
+                addFace(vertices, indices, position, Face.BOTTOM)
 
-            // -Y
-            if (filtered[Vector3i(position).add(0, -1, 0)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x, y, z + 1),
-                    v1 = Vector3i(x, y, z),
-                    v2 = Vector3i(x + 1, y, z),
-                    v3 = Vector3i(x + 1, y, z + 1),
-                    normal = Vector3i(0, -1, 0)
-                )
-            }
+            // Face Z Positive
+            if (filtered[position + Vector3i(0, 0, 1)] == null)
+                addFace(vertices, indices, position, Face.NORTH)
 
-            // +Z
-            if (filtered[Vector3i(position).add(0, 0, 1)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x + 1, y, z + 1),
-                    v1 = Vector3i(x + 1, y + 1, z + 1),
-                    v2 = Vector3i(x, y + 1, z + 1),
-                    v3 = Vector3i(x, y, z + 1),
-                    normal = Vector3i(0, 0, 1)
-                )
-            }
-
-            // -Z
-            if (filtered[Vector3i(position).add(0, 0, -1)] == null) {
-                addQuad(
-                    vertices = vertices,
-                    v0 = Vector3i(x, y, z),
-                    v1 = Vector3i(x, y + 1, z),
-                    v2 = Vector3i(x + 1, y + 1, z),
-                    v3 = Vector3i(x + 1, y, z),
-                    normal = Vector3i(0, 0, -1)
-                )
-            }
-
+            // Face Z Negative
+            if (filtered[position + Vector3i(0, 0, -1)] == null)
+                addFace(vertices, indices, position, Face.SOUTH)
         }
 
         return vertices.toFloatArray()
     }
 
-    private fun addQuad(
+    private fun addFace(
         vertices: MutableList<Float>,
-        v0: Vector3i,
-        v1: Vector3i,
-        v2: Vector3i,
-        v3: Vector3i,
-        normal: Vector3i
+        indices: MutableList<Int>,
+        position: Vector3i,
+        face: Face
     ) {
-        // triangle 1
-        vertices.add(v0.x.toFloat()); vertices.add(v0.y.toFloat()); vertices.add(v0.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
-        vertices.add(v1.x.toFloat()); vertices.add(v1.y.toFloat()); vertices.add(v1.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
-        vertices.add(v2.x.toFloat()); vertices.add(v2.y.toFloat()); vertices.add(v2.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
+        val v0 = Vertex(Vector3i(position).add(face.offset0), face.normal)
+//        if (v0 !in vertices)
+//            vertices.add(v0)
 
-        // triangle 2
-        vertices.add(v2.x.toFloat()); vertices.add(v2.y.toFloat()); vertices.add(v2.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
-        vertices.add(v3.x.toFloat()); vertices.add(v3.y.toFloat()); vertices.add(v3.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
-        vertices.add(v0.x.toFloat()); vertices.add(v0.y.toFloat()); vertices.add(v0.z.toFloat()); vertices.add(normal.x.toFloat()); vertices.add(normal.y.toFloat()); vertices.add(normal.z.toFloat())
+        val v1 = Vertex(Vector3i(position).add(face.offset1), face.normal)
+//        if (v1 !in vertices)
+//            vertices.add(v1)
+
+        val v2 = Vertex(Vector3i(position).add(face.offset2), face.normal)
+//        if (v2 !in vertices)
+//            vertices.add(v2)
+
+        val v3 = Vertex(Vector3i(position).add(face.offset3), face.normal)
+//        if (v3 !in vertices)
+//            vertices.add(v3)
+
+//        indices.add(vertices.indexOf(v0))
+//        indices.add(vertices.indexOf(v1))
+//        indices.add(vertices.indexOf(v2))
+//
+//        indices.add(vertices.indexOf(v2))
+//        indices.add(vertices.indexOf(v3))
+//        indices.add(vertices.indexOf(v0))
+
+        vertices.addAll(v0.toArray().toTypedArray())
+        vertices.addAll(v1.toArray().toTypedArray())
+        vertices.addAll(v2.toArray().toTypedArray())
+
+        vertices.addAll(v2.toArray().toTypedArray())
+        vertices.addAll(v3.toArray().toTypedArray())
+        vertices.addAll(v0.toArray().toTypedArray())
     }
 
     private fun setBufferData(vertices: FloatArray) {

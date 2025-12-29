@@ -2,17 +2,18 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.chunk.ChunkMesh
 import com.nami.world.item.ItemJungleLeaves
 
 object BlockJungleLog : Block(id = "jungle_log") {
 
     override val textures = mapOf(
-        Face.TOP to Resources.TEXTURE.get("block.jungle_log_top"),
-        Face.BOTTOM to Resources.TEXTURE.get("block.jungle_log_top"),
-        Face.NORTH to Resources.TEXTURE.get("block.jungle_log_side"),
-        Face.EAST to Resources.TEXTURE.get("block.jungle_log_side"),
-        Face.WEST to Resources.TEXTURE.get("block.jungle_log_side"),
-        Face.SOUTH to Resources.TEXTURE.get("block.jungle_log_side")
+        ChunkMesh.Face.TOP to Resources.TEXTURE.get("block.jungle_log_top"),
+        ChunkMesh.Face.BOTTOM to Resources.TEXTURE.get("block.jungle_log_top"),
+        ChunkMesh.Face.NORTH to Resources.TEXTURE.get("block.jungle_log_side"),
+        ChunkMesh.Face.EAST to Resources.TEXTURE.get("block.jungle_log_side"),
+        ChunkMesh.Face.WEST to Resources.TEXTURE.get("block.jungle_log_side"),
+        ChunkMesh.Face.SOUTH to Resources.TEXTURE.get("block.jungle_log_side")
     )
 
     override val resistance = mapOf(

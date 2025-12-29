@@ -2,17 +2,18 @@ package com.nami.world.block
 
 import com.nami.resources.Resources
 import com.nami.world.Drop
+import com.nami.world.chunk.ChunkMesh
 import com.nami.world.item.ItemSand
 
 object BlockSand : Block(id = "sand") {
 
     override val textures = mapOf(
-        Face.TOP to Resources.TEXTURE.get("block.sand"),
-        Face.BOTTOM to Resources.TEXTURE.get("block.sand"),
-        Face.NORTH to Resources.TEXTURE.get("block.sand"),
-        Face.EAST to Resources.TEXTURE.get("block.sand"),
-        Face.WEST to Resources.TEXTURE.get("block.sand"),
-        Face.SOUTH to Resources.TEXTURE.get("block.sand")
+        ChunkMesh.Face.TOP to Resources.TEXTURE.get("block.sand"),
+        ChunkMesh.Face.BOTTOM to Resources.TEXTURE.get("block.sand"),
+        ChunkMesh.Face.NORTH to Resources.TEXTURE.get("block.sand"),
+        ChunkMesh.Face.EAST to Resources.TEXTURE.get("block.sand"),
+        ChunkMesh.Face.WEST to Resources.TEXTURE.get("block.sand"),
+        ChunkMesh.Face.SOUTH to Resources.TEXTURE.get("block.sand")
     )
 
     override val resistance = mapOf(
