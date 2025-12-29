@@ -22,7 +22,6 @@ import kotlin.collections.component2
 import kotlin.collections.set
 
 class World(
-    val name: String,
     val size: Vector3i,
     val seed: Long,
     val waterLevel: Int
@@ -57,8 +56,6 @@ class World(
         .build()
 
     val time = Time()
-
-    val root: Path = GamePath.worlds.resolve(name)
 
     val blockManager = BlockManagerSlow(this)
 
@@ -135,7 +132,7 @@ class World(
 //        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
 
         glEnable(GL_CULL_FACE)
-        chunks.forEach { (_, chunk) -> chunk.render(player) }
+        chunks.forEach { (_, chunk) -> chunk.render(time, player) }
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
 //

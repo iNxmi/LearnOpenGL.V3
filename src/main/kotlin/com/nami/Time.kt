@@ -2,7 +2,7 @@ package com.nami
 
 class Time {
 
-    var time = 0f
+    var seconds = 0f
         private set
     var delta = 0f
         private set
@@ -11,7 +11,7 @@ class Time {
 
     fun update() {
         delta = Game.DELTA_TIME * scale
-        time += delta
+        seconds += delta
     }
 
 }

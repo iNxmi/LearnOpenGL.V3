@@ -4,7 +4,7 @@ import com.nami.imgui.ImGUIManager
 import com.nami.resources.Resources
 import com.nami.scene.SceneManager
 import com.nami.scene.scenes.LoadingScene
-import com.nami.scene.scenes.SelectWorldScene
+import com.nami.scene.scenes.MainMenuScene
 import mu.KotlinLogging
 import org.lwjgl.Version
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
@@ -40,7 +40,7 @@ class Game {
                 log.warn { "Completed loading with $errorCount errors" }
             else
                 log.info { "Completed loading with 0 errors" }
-        }, SelectWorldScene())
+        }, MainMenuScene())
         SceneManager.set(loadingScene)
 
         glfwShowWindow(Window.pointer)

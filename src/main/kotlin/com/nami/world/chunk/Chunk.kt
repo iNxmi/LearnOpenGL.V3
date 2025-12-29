@@ -1,5 +1,6 @@
 package com.nami.world.chunk
 
+import com.nami.Time
 import com.nami.resources.Resources
 import com.nami.world.Player
 import com.nami.world.World
@@ -9,6 +10,8 @@ import mu.KotlinLogging
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector3i
+import kotlin.math.cos
+import kotlin.math.sin
 
 class Chunk(
     val world: World,
@@ -61,7 +64,7 @@ class Chunk(
 
     fun update() {}
 
-    fun render(player: Player) {
+    fun render(time: Time, player: Player) {
         val shader = Resources.SHADER.get("chunk.solid").bind()
         shader.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
         shader.uniform.set("u_specular_exponent", 8.0f)

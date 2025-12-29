@@ -3,8 +3,10 @@ package com.nami.scene.scenes
 import com.nami.Window
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
+import com.nami.world.World
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
+import org.joml.Vector3i
 import org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose
 
 class MainMenuScene : Scene() {
@@ -16,8 +18,10 @@ class MainMenuScene : Scene() {
         ImGui.getFont().scale = 2.5f
         ImGui.begin("Main Menu", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
 
-        if (ImGui.button("Play"))
-            SceneManager.set(SelectWorldScene())
+        if (ImGui.button("Play")) {
+            val world = World(Vector3i(512), System.currentTimeMillis(), 64)
+            SceneManager.set(PlayScene(world))
+        }
 
         if (ImGui.button("Quit"))
             glfwSetWindowShouldClose(Window.pointer, true)
