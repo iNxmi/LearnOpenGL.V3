@@ -1,6 +1,6 @@
 package com.nami.world.biome
 
-import com.nami.world.biome.biomes.BiomeInvalid
+import com.nami.world.biome.biomes.BiomeError
 import com.nami.world.block.Block
 import org.joml.Vector3i
 
@@ -11,9 +11,8 @@ abstract class Biome(val id: String) {
         val map = mutableMapOf<String, Biome>()
 
         fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
-            println(set)
             it.elevation.contains(elevation) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
-        } ?: BiomeInvalid
+        } ?: BiomeError
 
         fun get(id: String) = map[id]
 
@@ -49,9 +48,5 @@ abstract class Biome(val id: String) {
         val temperature: Float,
         val template: Biome
     )
-
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.SOURCE)
-    annotation class Register
 
 }

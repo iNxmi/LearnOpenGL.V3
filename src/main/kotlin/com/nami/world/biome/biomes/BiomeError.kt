@@ -2,11 +2,12 @@ package com.nami.world.biome.biomes
 
 import com.nami.world.biome.Biome
 import com.nami.world.block.Block
-import com.nami.world.block.blocks.BlockInvalid
+import com.nami.world.block.blocks.BlockError
 import org.joml.Vector3i
 import kotlin.math.roundToInt
 
-internal object BiomeInvalid : Biome(id = "invalid") {
+internal object BiomeError : Biome(id = "error") {
+
     override val elevation = 0f..0f
     override val moisture = 0f..0f
     override val temperature = 0f..0f
@@ -21,8 +22,9 @@ internal object BiomeInvalid : Biome(id = "invalid") {
 
         val height = elevation.roundToInt()
         if ((0 until height).contains(y))
-            return BlockInvalid
+            return BlockError
 
         return null
     }
+
 }
