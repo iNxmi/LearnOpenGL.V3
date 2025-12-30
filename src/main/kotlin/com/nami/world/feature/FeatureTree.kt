@@ -6,7 +6,7 @@ import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-open class FeatureTree(
+abstract class FeatureTree(
     val blockStem: Block,
     val blockLeaves: Block,
     val stemHeight: IntRange,

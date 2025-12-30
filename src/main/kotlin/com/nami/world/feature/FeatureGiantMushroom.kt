@@ -6,7 +6,7 @@ import com.nami.world.block.blocks.BlockMushroomStem
 import org.joml.Vector3i
 import kotlin.random.Random
 
-open class FeatureGiantMushroom(
+abstract class FeatureGiantMushroom(
     val block: Block,
     val heightRange: IntRange,
     val radiusRange: IntRange,
