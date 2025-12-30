@@ -9,9 +9,9 @@ import com.nami.world.block.Block
 import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import com.nami.world.item.Item
-import com.nami.world.item.ItemAcorn
-import com.nami.world.item.ItemLighter
-import com.nami.world.item.ItemTnt
+import com.nami.world.item.items.ItemAcorn
+import com.nami.world.item.items.ItemLighter
+import com.nami.world.item.items.ItemTnt
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i

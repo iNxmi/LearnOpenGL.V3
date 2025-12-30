@@ -3,12 +3,15 @@ package com.nami.scene.scenes
 import com.nami.Game
 import com.nami.Input
 import com.nami.Window
+import com.nami.extension.minus
+import com.nami.extension.times
 import com.nami.resources.GamePath
 import com.nami.resources.Resources
 import com.nami.scene.Scene
 import com.nami.scene.SceneManager
 import com.nami.world.World
 import com.nami.world.block.Block
+import com.nami.world.chunk.Chunk
 import imgui.ImGui
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
@@ -16,7 +19,9 @@ import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import org.joml.Vector2i
 import org.joml.Vector3d
+import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
@@ -158,8 +163,39 @@ class PlayScene(val world: World) : Scene() {
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
 
-            ImGui.text("position=${world.player.transform.position.toString(NumberFormat.getInstance())}")
-            ImGui.text("block_position=${Vector3i().set(Vector3d(world.player.transform.position))}")
+            val position = world.player.transform.position
+            ImGui.text("position=${position.toString(NumberFormat.getInstance())}")
+
+            val blockPosition = Vector3i(
+                position.x.toInt(),
+                position.y.toInt(),
+                position.z.toInt()
+            )
+            ImGui.text("block_position=${blockPosition.toString(NumberFormat.getInstance())}")
+
+            val chunkPosition = Vector3i(
+                blockPosition.x / Chunk.SIZE.x,
+                blockPosition.y / Chunk.SIZE.y,
+                blockPosition.z / Chunk.SIZE.z
+            )
+            ImGui.text("chunk_position=${chunkPosition.toString(NumberFormat.getInstance())}")
+
+            val chunkRelativePosition = Vector3f(position) - Vector3f().set(chunkPosition * Chunk.SIZE)
+            ImGui.text("chunk_relative_position=${chunkRelativePosition.toString(NumberFormat.getInstance())}")
+
+            val chunkRelativeBlockPosition = Vector3i(
+                chunkRelativePosition.x.toInt(),
+                chunkRelativePosition.y.toInt(),
+                chunkRelativePosition.z.toInt(),
+            )
+            ImGui.text("chunk_relative_block_position=${chunkRelativeBlockPosition.toString(NumberFormat.getInstance())}")
+
+            val chunk = world.chunks[chunkPosition]
+            val biome = chunk!!.voxels[chunkRelativeBlockPosition]!!.biome
+            ImGui.text("biome=${biome.template}")
+            ImGui.text("elevation=${biome.elevation}")
+            ImGui.text("moisture=${biome.moisture}")
+            ImGui.text("temperature=${biome.temperature}")
 
             ImGui.end()
         })

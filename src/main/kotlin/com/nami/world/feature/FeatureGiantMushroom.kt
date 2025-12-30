@@ -2,7 +2,7 @@ package com.nami.world.feature
 
 import com.nami.next
 import com.nami.world.block.Block
-import com.nami.world.block.BlockMushroomStem
+import com.nami.world.block.blocks.BlockMushroomStem
 import org.joml.Vector3i
 import kotlin.random.Random
 

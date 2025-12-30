@@ -5,6 +5,8 @@ import com.nami.resources.Resources
 import org.joml.Vector2f
 import org.joml.Vector2i
 import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.math.max
 
 object TextureAtlas {
@@ -20,7 +22,7 @@ object TextureAtlas {
     fun generate() {
         var width = 0
         var height = 0
-        Resources.TEXTURE.map.forEach { (id, texture) ->
+        Resources.TEXTURE.map.forEach { (_, texture) ->
             val img = texture.image
             width += img.width
             height = max(height, img.height)
@@ -50,6 +52,7 @@ object TextureAtlas {
         }
 
         texture = Texture("atlas", image)
+//        ImageIO.write(image, "png", File("atlas.png"))
     }
 
     fun getUV(key: String) = uvNDC[key]!!

@@ -2,6 +2,7 @@ package com.nami.world.chunk
 
 import com.nami.Time
 import com.nami.resources.Resources
+import com.nami.resources.texture.TextureAtlas
 import com.nami.world.Player
 import com.nami.world.World
 import com.nami.world.biome.Biome
@@ -10,8 +11,8 @@ import mu.KotlinLogging
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector3i
-import kotlin.math.cos
-import kotlin.math.sin
+import org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D
+import org.lwjgl.opengl.GL33.*
 
 class Chunk(
     val world: World,
@@ -74,9 +75,9 @@ class Chunk(
 
         shader.uniform.set("u_camera_position", player.transform.position)
 
-//            glActiveTexture(GL_TEXTURE0)
-//            glBindTexture(GL_TEXTURE_2D, TextureAtlas.texture!!.pointer)
-//            shader.uniform.set("u_texture_diffuse", 0)
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, TextureAtlas.texture!!.pointer)
+        shader.uniform.set("u_texture_diffuse", 0)
 
         val model = Matrix4f().translate(
             (position.x * SIZE.x).toFloat(),
