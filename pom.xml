@@ -23,7 +23,7 @@
 
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.0.0</kotlin.version>
+        <kotlin.version>2.2.21</kotlin.version>
 
         <imgui.version>1.86.11</imgui.version>
 
