@@ -26,7 +26,11 @@ class Chunk(
     private val log = KotlinLogging.logger {}
 
     val voxels = mutableMapOf<Vector3i, Voxel>()
+
     val solid = ChunkMesh(this, Layer.SOLID)
+//    val fluid = ChunkMesh(this, Layer.FLUID)
+//    val foliage = ChunkMesh(this, Layer.FOLIAGE)
+//    val transparent = ChunkMesh(this, Layer.TRANSPARENT)
 
     init {
         for (z in 0 until SIZE.z)
@@ -61,6 +65,9 @@ class Chunk(
             }
 
         solid.generate()
+//        fluid.generate()
+//        transparent.generate()
+//        foliage.generate()
     }
 
     fun update() {}

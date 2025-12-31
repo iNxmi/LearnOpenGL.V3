@@ -12,7 +12,7 @@ class BlockManagerSlow(
 ) : BlockManager {
 
     val instances = ConcurrentHashMap<Vector3i, Block>()
-    val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<ChunkMesh.Face>>>()
+    val faces = ConcurrentHashMap<Layer, ConcurrentHashMap<Vector3i, Array<Face>>>()
 
     init {
         Layer.entries.forEach { faces[it] = ConcurrentHashMap() }
@@ -34,31 +34,31 @@ class BlockManagerSlow(
 
         val block = getBlock(position) ?: return
 
-        val list = mutableListOf<ChunkMesh.Face>()
+        val list = mutableListOf<Face>()
 
         var adjBlock: Block? = getBlock(Vector3i(position).add(1, 0, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.EAST)
+            list.add(Face.EAST)
 
         adjBlock = getBlock(Vector3i(position).add(-1, 0, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.WEST)
+            list.add(Face.WEST)
 
         adjBlock = getBlock(Vector3i(position).add(0, 1, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.TOP)
+            list.add(Face.TOP)
 
         adjBlock = getBlock(Vector3i(position).add(0, -1, 0))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.BOTTOM)
+            list.add(Face.BOTTOM)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, 1))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.SOUTH)
+            list.add(Face.SOUTH)
 
         adjBlock = getBlock(Vector3i(position).add(0, 0, -1))
         if (adjBlock == null || block.layer != adjBlock.layer || block.layer == Layer.FOLIAGE)
-            list.add(ChunkMesh.Face.NORTH)
+            list.add(Face.NORTH)
 
         if (list.isEmpty())
             return

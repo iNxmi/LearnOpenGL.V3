@@ -1,31 +1,27 @@
 package com.nami.world.feature
 
 import com.nami.world.block.Block
-import com.nami.world.feature.features.FeatureBirchTree
-import com.nami.world.feature.features.FeatureCactus
-import com.nami.world.feature.features.FeatureGiantMushroomRed
-import com.nami.world.feature.features.FeatureGiantMushroomYellow
-import com.nami.world.feature.features.FeatureJungleTree
-import com.nami.world.feature.features.FeatureOakTree
+import com.nami.world.feature.features.*
+import com.nami.world.recipe.Recipe
+import mu.KotlinLogging
 import org.joml.Vector3i
 
 abstract class Feature(val id: String) {
 
     companion object {
-
-        val set: Set<Feature> = setOf(
-            FeatureBirchTree,
-            FeatureCactus,
-            FeatureGiantMushroomRed,
-            FeatureGiantMushroomYellow,
-            FeatureJungleTree,
-            FeatureOakTree
-        )
-
-        val map = set.associateBy { it.id }
+        val set by lazy {
+            setOf(
+                FeatureBirchTree,
+                FeatureCactus,
+                FeatureGiantMushroomRed,
+                FeatureGiantMushroomYellow,
+                FeatureJungleTree,
+                FeatureOakTree
+            )
+        }
+        val map by lazy { set.associateBy { it.id } }
 
         fun get(id: String) = map[id]
-
     }
 
     abstract fun shouldGenerate(): Boolean

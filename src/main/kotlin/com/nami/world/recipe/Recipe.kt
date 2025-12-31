@@ -1,17 +1,24 @@
 package com.nami.world.recipe
 
 import com.nami.world.item.Item
+import com.nami.world.recipe.recipes.*
 
 abstract class Recipe(val id: String) {
 
     companion object {
-        val set = mutableSetOf<Recipe>()
-        val map = set.associateBy { it.id }
+        val set by lazy {
+            setOf(
+                RecipeBirchPlanks,
+                RecipeBirchWorkbench,
+                RecipeFlintAxe,
+                RecipeFurnace,
+                RecipeOakPlanks,
+                RecipeOakWorkbench,
+                RecipeSnowball
+            )
+        }
+        val map by lazy { set.associateBy { it.id } }
         fun get(id: String) = map[id]
-    }
-
-    init {
-        set.add(this)
     }
 
     abstract val ingredients: Map<Item, Int>

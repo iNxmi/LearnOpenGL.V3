@@ -2,22 +2,53 @@ package com.nami.world.block
 
 import com.nami.Time
 import com.nami.world.Drop
+import com.nami.world.block.blocks.*
 import com.nami.world.chunk.ChunkMesh
 
 abstract class Block(val id: String) {
 
     companion object {
-        val set = mutableSetOf<Block>()
-        val map = set.associateBy { it.id }
+        val set by lazy {
+            setOf(
+                BlockBedrock,
+                BlockBirchLeaves,
+                BlockBirchLog,
+                BlockBirchPlanks,
+                BlockBirchWorkbench,
+                BlockCactus,
+                BlockCobblestone,
+                BlockDirt,
+                BlockError,
+                BlockFurnace,
+                BlockGrass,
+                BlockGravel,
+                BlockIce,
+                BlockJungleLeaves,
+                BlockJungleLog,
+                BlockJunglePlanks,
+                BlockJungleWorkbench,
+                BlockMushroomRed,
+                BlockMushroomStem,
+                BlockMushroomYellow,
+                BlockMycelium,
+                BlockOakLeaves,
+                BlockOakLog,
+                BlockOakPlanks,
+                BlockOakWorkbench,
+                BlockPodzol,
+                BlockSand,
+                BlockSnow,
+                BlockStone,
+                BlockTNT,
+                BlockWater
+            )
+        }
+        val map by lazy { set.associateBy { it.id } }
 
         fun get(id: String) = map[id]
     }
 
-    init {
-        set.add(this)
-    }
-
-    abstract val textures: Map<ChunkMesh.Face, String>
+    abstract val textures: Map<Face, String>
 
     // abstract val model: Model
     open val layer: Layer = Layer.SOLID

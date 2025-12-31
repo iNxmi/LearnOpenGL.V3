@@ -1,14 +1,29 @@
 package com.nami.world.biome
 
-import com.nami.world.biome.biomes.BiomeError
+import com.nami.world.biome.biomes.*
 import com.nami.world.block.Block
+import com.nami.world.recipe.Recipe
+import mu.KotlinLogging
 import org.joml.Vector3i
 
 abstract class Biome(val id: String) {
 
     companion object {
-        val set = mutableSetOf<Biome>()
-        val map = mutableMapOf<String, Biome>()
+        val set by lazy {
+            setOf(
+                BiomeBeach,
+                BiomeBirchForest,
+                BiomeDesert,
+                BiomeError,
+                BiomeJungleForest,
+                BiomeMushroomForest,
+                BiomeOakForest,
+                BiomeSea,
+                BiomeSpruceForest
+            )
+        }
+
+        val map by lazy { set.associateBy { it.id } }
 
         fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
             it.elevation.contains(elevation) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
@@ -28,11 +43,6 @@ abstract class Biome(val id: String) {
             temperature = temperature,
             template = evaluate(elevation, moisture, temperature)
         )
-    }
-
-    init {
-        set.add(this)
-        map[id] = this
     }
 
     abstract val elevation: ClosedFloatingPointRange<Float>

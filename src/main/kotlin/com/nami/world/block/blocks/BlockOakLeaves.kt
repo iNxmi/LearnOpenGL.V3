@@ -2,8 +2,8 @@ package com.nami.world.block.blocks
 
 import com.nami.world.Drop
 import com.nami.world.block.Block
+import com.nami.world.block.Face
 import com.nami.world.block.Layer
-import com.nami.world.chunk.ChunkMesh
 import com.nami.world.item.items.ItemAcorn
 import com.nami.world.item.items.ItemOakLeaves
 import com.nami.world.item.items.ItemStick
@@ -11,12 +11,12 @@ import com.nami.world.item.items.ItemStick
 object BlockOakLeaves : Block(id = "oak_leaves") {
 
     override val textures = mapOf(
-        ChunkMesh.Face.TOP to "block.oak_leaves",
-        ChunkMesh.Face.BOTTOM to "block.oak_leaves",
-        ChunkMesh.Face.NORTH to "block.oak_leaves",
-        ChunkMesh.Face.EAST to "block.oak_leaves",
-        ChunkMesh.Face.WEST to "block.oak_leaves",
-        ChunkMesh.Face.SOUTH to "block.oak_leaves"
+        Face.TOP to "block.oak_leaves",
+        Face.BOTTOM to "block.oak_leaves",
+        Face.NORTH to "block.oak_leaves",
+        Face.EAST to "block.oak_leaves",
+        Face.WEST to "block.oak_leaves",
+        Face.SOUTH to "block.oak_leaves"
     )
 
     override val layer = Layer.FOLIAGE

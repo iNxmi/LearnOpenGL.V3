@@ -1,17 +1,17 @@
 package com.nami.world.block.blocks
 
 import com.nami.world.block.Block
-import com.nami.world.chunk.ChunkMesh
+import com.nami.world.block.Face
 
 object BlockError : Block(id = "error") {
 
     override val textures = mapOf(
-        ChunkMesh.Face.TOP to "error",
-        ChunkMesh.Face.BOTTOM to "error",
-        ChunkMesh.Face.NORTH to "error",
-        ChunkMesh.Face.EAST to "error",
-        ChunkMesh.Face.WEST to "error",
-        ChunkMesh.Face.SOUTH to "error"
+        Face.TOP to "error",
+        Face.BOTTOM to "error",
+        Face.NORTH to "error",
+        Face.EAST to "error",
+        Face.WEST to "error",
+        Face.SOUTH to "error"
     )
 
 }

@@ -2,18 +2,18 @@ package com.nami.world.block.blocks
 
 import com.nami.world.Drop
 import com.nami.world.block.Block
-import com.nami.world.chunk.ChunkMesh
+import com.nami.world.block.Face
 import com.nami.world.item.items.ItemCobblestone
 
 object BlockStone : Block(id = "stone" ){
 
     override val textures = mapOf(
-        ChunkMesh.Face.TOP to "block.stone",
-        ChunkMesh.Face.BOTTOM to "block.stone",
-        ChunkMesh.Face.NORTH to "block.stone",
-        ChunkMesh.Face.EAST to "block.stone",
-        ChunkMesh.Face.WEST to "block.stone",
-        ChunkMesh.Face.SOUTH to "block.stone"
+        Face.TOP to "block.stone",
+        Face.BOTTOM to "block.stone",
+        Face.NORTH to "block.stone",
+        Face.EAST to "block.stone",
+        Face.WEST to "block.stone",
+        Face.SOUTH to "block.stone"
     )
 
     override val resistance = mapOf(
