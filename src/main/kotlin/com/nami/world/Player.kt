@@ -5,6 +5,8 @@ import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
 import com.nami.camera.CameraPerspective
+import com.nami.extension.minus
+import com.nami.extension.times
 import com.nami.world.block.Block
 import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
@@ -198,6 +200,41 @@ class Player {
             position.y + HEIGHT.toInt(),
             setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
         ).toFloat()
+    }
+
+    fun getGlobalPosition(): Vector3f = transform.position
+
+    fun getGlobalBlockPosition(): Vector3i {
+        val position = getGlobalPosition()
+        return Vector3i(
+            position.x.toInt(),
+            position.y.toInt(),
+            position.z.toInt()
+        )
+    }
+
+    fun getChunkPosition(): Vector3i {
+        val blockPosition = getGlobalBlockPosition()
+        return Vector3i(
+            blockPosition.x / Chunk.SIZE.x,
+            blockPosition.y / Chunk.SIZE.y,
+            blockPosition.z / Chunk.SIZE.z
+        )
+    }
+
+    fun getChunkLocalPosition(): Vector3f {
+        val position = getGlobalPosition()
+        val chunkPosition = getChunkPosition()
+        return Vector3f(position) - Vector3f().set(chunkPosition * Chunk.SIZE)
+    }
+
+    fun getChunkLocalBlockPosition(): Vector3i {
+        val chunkLocalPosition = getChunkLocalPosition()
+        return Vector3i(
+            chunkLocalPosition.x.toInt(),
+            chunkLocalPosition.y.toInt(),
+            chunkLocalPosition.z.toInt()
+        )
     }
 
 }

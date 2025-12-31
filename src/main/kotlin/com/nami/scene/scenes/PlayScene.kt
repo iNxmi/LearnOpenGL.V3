@@ -163,35 +163,15 @@ class PlayScene(val world: World) : Scene() {
             ImGui.text("FPS=${1f / Game.DELTA_TIME}")
             ImGui.text("seed=${world.seed}")
 
-            val position = world.player.transform.position
-            ImGui.text("position=${position.toString(NumberFormat.getInstance())}")
+            val player = world.player
+            ImGui.text("position=${player.getGlobalPosition().toString(NumberFormat.getInstance())}")
+            ImGui.text("block_position=${player.getGlobalBlockPosition().toString(NumberFormat.getInstance())}")
+            ImGui.text("chunk_position=${player.getChunkPosition().toString(NumberFormat.getInstance())}")
+            ImGui.text("chunk_relative_position=${player.getChunkLocalPosition().toString(NumberFormat.getInstance())}")
+            ImGui.text("chunk_relative_block_position=${player.getChunkLocalBlockPosition().toString(NumberFormat.getInstance())}")
 
-            val blockPosition = Vector3i(
-                position.x.toInt(),
-                position.y.toInt(),
-                position.z.toInt()
-            )
-            ImGui.text("block_position=${blockPosition.toString(NumberFormat.getInstance())}")
-
-            val chunkPosition = Vector3i(
-                blockPosition.x / Chunk.SIZE.x,
-                blockPosition.y / Chunk.SIZE.y,
-                blockPosition.z / Chunk.SIZE.z
-            )
-            ImGui.text("chunk_position=${chunkPosition.toString(NumberFormat.getInstance())}")
-
-            val chunkRelativePosition = Vector3f(position) - Vector3f().set(chunkPosition * Chunk.SIZE)
-            ImGui.text("chunk_relative_position=${chunkRelativePosition.toString(NumberFormat.getInstance())}")
-
-            val chunkRelativeBlockPosition = Vector3i(
-                chunkRelativePosition.x.toInt(),
-                chunkRelativePosition.y.toInt(),
-                chunkRelativePosition.z.toInt(),
-            )
-            ImGui.text("chunk_relative_block_position=${chunkRelativeBlockPosition.toString(NumberFormat.getInstance())}")
-
-            val chunk = world.chunks[chunkPosition]
-            val biome = chunk!!.voxels[chunkRelativeBlockPosition]!!.biome
+            val chunk = world.chunks[player.getChunkPosition()]
+            val biome = chunk!!.voxels[world.player.getChunkLocalBlockPosition()]!!.biome
             ImGui.text("biome=${biome.template}")
             ImGui.text("elevation=${biome.elevation}")
             ImGui.text("moisture=${biome.moisture}")

@@ -1,9 +1,9 @@
 package com.nami.world
 
+import com.google.common.collect.TreeMultimap
 import com.nami.Time
-import com.nami.resources.GamePath
+import com.nami.extension.plus
 import com.nami.world.block.BlockManagerSlow
-import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
@@ -12,10 +12,8 @@ import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.GL11.GL_CULL_FACE
-import org.lwjgl.opengl.GL11.glDisable
 import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
-import java.nio.file.Path
 import java.util.TreeMap
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -99,40 +97,37 @@ class World(
     }
 
     fun render() {
-//        val sortedChunks = TreeMap<Float, Chunk>()
-//
-//        for (z in -radius..radius)
-//            for (y in -radius..radius)
-//                for (x in -radius..radius) {
-//                    val chunkPosition = Vector3i(
-//                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
-//                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
-//                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
-//                    )
-//
-//                    if (x * x + y * y + z * z <= radius * radius) {
-//                        val chunk = chunks[chunkPosition] ?: continue
-//
-//                        val distance = Vector3f(chunkPosition)
-//                            .mul(Vector3f(Chunk.SIZE))
-//                            .add(Vector3f(Chunk.SIZE).div(2.0f))
-//                            .sub(player.transform.position)
-//                            .length()
-//
-//                        sortedChunks[distance] = chunk
-//                    }
-//                }
+        val sorted = TreeMultimap.create<Float, Chunk>(
+            naturalOrder(),
+            compareBy<Chunk>(
+                { it.position.x },
+                { it.position.y },
+                { it.position.z }
+            )
+        )
 
-//        glEnable(GL_CULL_FACE)
-//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.SOLID) }
-//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
-//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
-//
-//        glDisable(GL_CULL_FACE)
-//        sortedChunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
+        for (z in -radius..radius)
+            for (y in -radius..radius)
+                for (x in -radius..radius) {
+                    if (x * x + y * y + z * z > radius * radius)
+                        continue
+
+                    val chunkPosition = player.getChunkPosition() + Vector3i(x, y, z)
+                    val chunk = chunks[chunkPosition] ?: continue
+
+                    val distance = Vector3f(chunkPosition)
+                        .mul(Vector3f(Chunk.SIZE))
+                        .add(Vector3f(Chunk.SIZE).div(2.0f))
+                        .sub(player.transform.position)
+                        .length()
+
+                    sorted.put(distance, chunk)
+                }
 
         glEnable(GL_CULL_FACE)
-        chunks.forEach { (_, chunk) -> chunk.render(time, player) }
+        for (key in sorted.keySet().descendingSet())
+            for (chunk in sorted.get(key).descendingSet())
+                chunk.render(time, player)
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
 //
