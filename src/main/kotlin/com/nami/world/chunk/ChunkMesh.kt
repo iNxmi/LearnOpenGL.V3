@@ -1,6 +1,7 @@
 package com.nami.world.chunk
 
 import com.nami.extension.plus
+import com.nami.extension.times
 import com.nami.graphics.UV
 import com.nami.resources.texture.TextureAtlas
 import com.nami.world.block.Face
@@ -34,39 +35,42 @@ class ChunkMesh(
     }
 
     fun generateData(): Pair<FloatBuffer, IntBuffer> {
+
+        val faces = mutableSetOf<Pair<Vector3i, Face>>()
+
+        val filtered = chunk.voxels.filter { (_, voxel) -> voxel.block?.layer == layer }
+        for ((localPosition, _) in filtered) {
+            val set = setOf(
+                Pair(Vector3i(1, 0, 0), Face.EAST),
+                Pair(Vector3i(-1, 0, 0), Face.WEST),
+                Pair(Vector3i(0, 1, 0), Face.TOP),
+                Pair(Vector3i(0, -1, 0), Face.BOTTOM),
+                Pair(Vector3i(0, 0, 1), Face.NORTH),
+                Pair(Vector3i(0, 0, -1), Face.SOUTH)
+            )
+
+            set.forEach { (normal, face) ->
+                if (!filtered.containsKey(localPosition + normal))
+                    faces.add(Pair(localPosition, face))
+            }
+        }
+
         val vertexMap = mutableMapOf<Vertex, Int>()
 
         val verticesArrayList = ArrayList<Float>()
         val indicesArrayList = ArrayList<Int>()
 
-        val filtered = chunk.voxels.filter { (_, voxel) -> voxel.block?.layer == layer }
+        faces.forEach { (position, face) ->
+            val block = chunk.voxels[position]!!.block
 
-        for ((position, voxel) in filtered) {
-            val block = voxel.block
-
-            // Face X Positive
-            if (!filtered.containsKey(position + Vector3i(1, 0, 0)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.EAST, TextureAtlas.getUV(block!!.textures[Face.EAST]!!) )
-
-            // Face X Negative
-            if (!filtered.containsKey(position + Vector3i(-1, 0, 0)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.WEST, TextureAtlas.getUV(block!!.textures[Face.WEST]!!))
-
-            // Face Y Positive
-            if (!filtered.containsKey(position + Vector3i(0, 1, 0)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.TOP, TextureAtlas.getUV(block!!.textures[Face.TOP]!!))
-
-            // Face Y Negative
-            if (!filtered.containsKey(position + Vector3i(0, -1, 0)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.BOTTOM, TextureAtlas.getUV(block!!.textures[Face.BOTTOM]!!))
-
-            // Face Z Positive
-            if (!filtered.containsKey(position + Vector3i(0, 0, 1)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.NORTH, TextureAtlas.getUV(block!!.textures[Face.NORTH]!!))
-
-            // Face Z Negative
-            if (!filtered.containsKey(position + Vector3i(0, 0, -1)))
-                addFace(vertexMap, verticesArrayList, indicesArrayList, position, Face.SOUTH, TextureAtlas.getUV(block!!.textures[Face.SOUTH]!!))
+            addFace(
+                vertexMap,
+                verticesArrayList,
+                indicesArrayList,
+                position,
+                face,
+                TextureAtlas.getUV(block!!.textures[face]!!)
+            )
         }
 
         val vertices = BufferUtils.createFloatBuffer(verticesArrayList.size)
@@ -134,7 +138,7 @@ class ChunkMesh(
             vertices.addAll(v2.toList())
         }
 
-        val v3 = Vertex(position + face.offset3, face.normal,uv.position )
+        val v3 = Vertex(position + face.offset3, face.normal, uv.position)
         if (!vertexMap.containsKey(v3)) {
             vertexMap[v3] = vertexMap.size
             vertices.addAll(v3.toList())

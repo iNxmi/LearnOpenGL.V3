@@ -2,9 +2,13 @@ package com.nami.world
 
 import com.google.common.collect.TreeMultimap
 import com.nami.Time
+import com.nami.extension.div
+import com.nami.extension.minus
 import com.nami.extension.plus
+import com.nami.extension.times
 import com.nami.world.block.BlockManagerSlow
 import com.nami.world.chunk.Chunk
+import com.nami.world.chunk.Voxel
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
 import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
 import de.articdive.jnoise.pipeline.JNoise
@@ -71,29 +75,30 @@ class World(
 
         player.update(this)
 
+        val chunkPositions = mutableSetOf<Vector3i>()
         for (z in -radius..radius)
             for (y in -radius..radius)
                 for (x in -radius..radius) {
                     if (x * x + y * y + z * z > radius * radius)
                         continue
 
-                    val position = Vector3i(
-                        player.transform.position.x.toInt() / Chunk.SIZE.x + x,
-                        player.transform.position.y.toInt() / Chunk.SIZE.y + y,
-                        player.transform.position.z.toInt() / Chunk.SIZE.z + z
-                    )
+                    val chunkPosition = player.getChunkPosition() + Vector3i(x, y, z)
 
-                    if (!(0 until size.x).contains(position.x)) continue
-                    if (!(0 until size.y).contains(position.y)) continue
-                    if (!(0 until size.z).contains(position.z)) continue
+                    if (!(0 until size.x).contains(chunkPosition.x)) continue
+                    if (!(0 until size.y).contains(chunkPosition.y)) continue
+                    if (!(0 until size.z).contains(chunkPosition.z)) continue
 
-                    if (!chunks.containsKey(position)) {
-                        val chunk = Chunk(this, position)
-                        chunks[position] = chunk
+                    if (!chunks.containsKey(chunkPosition)) {
+                        val chunk = Chunk(this, chunkPosition)
+                        chunks[chunkPosition] = chunk
                     }
 
-                    chunks[position]?.update()
+                    chunks[chunkPosition]!!.update()
+                    chunkPositions.add(chunkPosition)
                 }
+
+        //unload unused chunks immediately after not being in range
+        chunks.entries.removeIf { it.key !in chunkPositions }
     }
 
     fun render() {
@@ -133,6 +138,14 @@ class World(
 //
 //        glDisable(GL_CULL_FACE)
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
+    }
+
+    fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? = chunks[chunkPosition]?.voxels[blockPosition]
+
+    fun getVoxel(position: Vector3i): Voxel? {
+        val chunkPosition = position / Chunk.SIZE
+        val chunkLocalBlockPosition = position - (chunkPosition * Chunk.SIZE)
+        return getVoxel(chunkPosition, chunkLocalBlockPosition)
     }
 
 }
