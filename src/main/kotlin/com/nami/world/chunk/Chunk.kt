@@ -28,10 +28,10 @@ class Chunk(
 
     val voxels = mutableMapOf<Vector3i, Voxel>()
 
-    val solid = ChunkMesh(this, Layer.SOLID)
-//    val fluid = ChunkMesh(this, Layer.FLUID)
-//    val foliage = ChunkMesh(this, Layer.FOLIAGE)
-//    val transparent = ChunkMesh(this, Layer.TRANSPARENT)
+    val meshes = mapOf(
+        Layer.SOLID to ChunkMesh(this, Layer.SOLID),
+        Layer.TRANSPARENT to ChunkMesh(this, Layer.TRANSPARENT)
+    )
 
     init {
         for (z in 0 until SIZE.z)
@@ -68,13 +68,11 @@ class Chunk(
         generateMesh()
     }
 
-    fun generateMesh() {
-        solid.generate()
-    }
+    fun generateMesh() = meshes.forEach { (_, mesh) -> mesh.generate() }
 
     fun update() {}
 
-    fun render(time: Time, player: Player) {
+    fun render(time: Time, player: Player, layer: Layer) {
         val shader = Resources.SHADER.get("chunk.solid").bind()
         shader.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
         shader.uniform.set("u_specular_exponent", 8.0f)
@@ -96,10 +94,7 @@ class Chunk(
 
         shader.uniform.set("u_model_matrix", model)
 
-        solid.render()
-//        fluid.render()
-//        foliage.render()
-//        transparent.render()
+        meshes[layer]!!.render()
 
         Resources.SHADER.unbind()
     }

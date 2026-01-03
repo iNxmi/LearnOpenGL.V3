@@ -4,6 +4,7 @@ import com.nami.extension.plus
 import com.nami.extension.times
 import com.nami.graphics.UV
 import com.nami.resources.texture.TextureAtlas
+import com.nami.world.Player
 import com.nami.world.block.Face
 import com.nami.world.block.Layer
 import mu.KotlinLogging
@@ -30,10 +31,6 @@ class ChunkMesh(
     val log = KotlinLogging.logger {}
 
     var indexCount = 0
-
-    init {
-        generate()
-    }
 
     fun generate() {
         val (vertices, indices) = generateData()

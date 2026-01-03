@@ -7,6 +7,7 @@ import com.nami.extension.minus
 import com.nami.extension.plus
 import com.nami.extension.times
 import com.nami.world.block.BlockManagerSlow
+import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import com.nami.world.chunk.Voxel
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
@@ -150,12 +151,10 @@ class World(
         glEnable(GL_CULL_FACE)
         for (key in sorted.keySet().descendingSet())
             for (chunk in sorted.get(key).descendingSet())
-                chunk.render(time, player)
-//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.TRANSPARENT) }
-//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FLUID) }
-//
-//        glDisable(GL_CULL_FACE)
-//        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
+                chunk.render(time, player, Layer.SOLID)
+        for (key in sorted.keySet().descendingSet())
+            for (chunk in sorted.get(key).descendingSet())
+                chunk.render(time, player, Layer.TRANSPARENT)
     }
 
     fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? =
