@@ -19,7 +19,6 @@ import org.joml.Vector3i
 import org.lwjgl.opengl.GL11.GL_CULL_FACE
 import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
-import java.util.TreeMap
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -139,21 +138,20 @@ class World(
 //                }
 
         for ((chunkPosition, chunk) in chunks) {
-            val distance = Vector3f(chunkPosition)
-                .mul(Vector3f(Chunk.SIZE))
-                .add(Vector3f(Chunk.SIZE).div(2.0f))
-                .sub(player.transform.position)
-                .length()
+            val worldPositionChunk = Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
+            val worldPositionCamera = player.camera.transform.position
+            val distance = worldPositionChunk.distanceSquared(worldPositionCamera)
 
             sorted.put(distance, chunk)
         }
 
         glEnable(GL_CULL_FACE)
-        for (key in sorted.keySet().descendingSet())
-            for (chunk in sorted.get(key).descendingSet())
+        for (distance in sorted.keySet().descendingSet())
+            for (chunk in sorted.get(distance).descendingSet())
                 chunk.render(time, player, Layer.SOLID)
-        for (key in sorted.keySet().descendingSet())
-            for (chunk in sorted.get(key).descendingSet())
+
+        for (distance in sorted.keySet().descendingSet())
+            for (chunk in sorted.get(distance).descendingSet())
                 chunk.render(time, player, Layer.TRANSPARENT)
     }
 

@@ -137,14 +137,8 @@ class ChunkMesh(
         val sortedIndices = IntArray(originalIndices.size)
         var offset = 0
 
-        for(face in faces) {
-            System.arraycopy(
-                originalIndices,
-                face.indexStart,
-                sortedIndices,
-                offset,
-                6
-            )
+        for (face in faces) {
+            System.arraycopy(originalIndices, face.indexStart, sortedIndices, offset, 6)
             offset += 6
         }
 
