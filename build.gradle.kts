@@ -19,6 +19,8 @@ val jomlVersion = "1.10.5"
 dependencies {
     implementation(kotlin("stdlib"))
 
+    implementation("me.friwi:jcefmaven:141.0.10")
+
     implementation("commons-io:commons-io:2.16.1")
     implementation("com.google.guava:guava:33.2.1-jre")
     implementation("com.google.guava:guava-collections:r03")

@@ -1,24 +1,17 @@
 <configuration>
 
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
-    <conversionRule conversionWord="highlight" class="com.nami.logback.HighlightCompositeConverter"/>
 
-    <root level="DEBUG">
-        <appender-ref ref="LIB_CONSOLE"/>
+    <conversionRule conversionWord="highlight" converterClass="com.nami.logback.HighlightCompositeConverter"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%highlight(%d{HH:mm:ss:SSS} [%logger] %msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
     </root>
-    <appender name="LIB_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%highlight(%d{HH:mm:ss} %msg%n)</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="com.nami" level="DEBUG">
-        <appender-ref ref="APP_CONSOLE"/>
-    </logger>
-    <appender name="APP_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%highlight(%d{HH:mm:ss} [%logger] %msg%n)</pattern>
-        </encoder>
-    </appender>
-
 </configuration>

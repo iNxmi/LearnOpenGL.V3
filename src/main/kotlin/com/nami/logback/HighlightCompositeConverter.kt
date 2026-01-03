@@ -7,11 +7,12 @@ import ch.qos.logback.core.pattern.color.ForegroundCompositeConverterBase
 
 class HighlightCompositeConverter : ForegroundCompositeConverterBase<ILoggingEvent>() {
 
-    override fun getForegroundColorCode(event: ILoggingEvent) = when (event.level) {
-        Level.DEBUG -> ANSIConstants.CYAN_FG
-        Level.ERROR -> ANSIConstants.RED_FG
-        Level.WARN -> ANSIConstants.YELLOW_FG
+    override fun getForegroundColorCode(event: ILoggingEvent) = when (event.level.toInt()) {
+        Level.ERROR_INT -> ANSIConstants.RED_FG
+        Level.WARN_INT -> ANSIConstants.YELLOW_FG
+        Level.DEBUG_INT -> ANSIConstants.MAGENTA_FG
         else -> ANSIConstants.DEFAULT_FG
     }
+
 
 }
