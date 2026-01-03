@@ -3,9 +3,11 @@ package com.nami.world.chunk
 import com.nami.extension.plus
 import com.nami.extension.times
 import com.nami.resources.texture.TextureAtlas
+import com.nami.world.Player
 import com.nami.world.block.Face
 import com.nami.world.block.Layer
 import org.joml.Vector2f
+import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL33.*
@@ -17,15 +19,24 @@ class ChunkMesh(
     val layer: Layer
 ) {
 
-    //TODO sort faces instead of only chunks
+    companion object {
+        const val INDICES_PER_FACE = 6
+    }
 
-    val world = chunk.world
+    //TODO sort faces instead of only chunks
 
     val vao = glGenVertexArrays()
     val vbo = glGenBuffers()
     val ebo = glGenBuffers()
 
     var indexCount = 0
+
+    private val faces = mutableListOf<FaceRange>()
+    private lateinit var originalIndices: IntArray
+
+    init {
+        generate()
+    }
 
     fun generate() {
         val (vertices, indices) = generateData()
@@ -34,6 +45,7 @@ class ChunkMesh(
 
     private fun getExposedFaces(): Set<Pair<Vector3i, Face>> {
         val exposedFaces = mutableSetOf<Pair<Vector3i, Face>>()
+
         for (z in 0 until Chunk.SIZE.z)
             for (y in 0 until Chunk.SIZE.y)
                 for (x in 0 until Chunk.SIZE.x) {
@@ -46,7 +58,7 @@ class ChunkMesh(
                     for ((direction, face) in Face.byNormal) {
                         val globalTargetPosition = globalPosition + direction
 
-                        val globalVoxel = world.getVoxel(globalTargetPosition) ?: continue
+                        val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
                         val globalBlock = globalVoxel.block
 
                         if (globalBlock != null && globalBlock.layer == localBlock.layer)
@@ -55,10 +67,13 @@ class ChunkMesh(
                         exposedFaces.add(Pair(localPosition, face))
                     }
                 }
+
         return exposedFaces
     }
 
     fun generateData(): Pair<FloatBuffer, IntBuffer> {
+        faces.clear()
+
         val exposedFaces = getExposedFaces()
         val vertexMap = mutableMapOf<Vertex, Int>()
         val verticesArrayList = ArrayList<Float>()
@@ -90,6 +105,12 @@ class ChunkMesh(
             indicesArrayList.add(vertexMap[vertices[2]]!!)
             indicesArrayList.add(vertexMap[vertices[3]]!!)
             indicesArrayList.add(vertexMap[vertices[0]]!!)
+
+            val localCenter = Vector3f(position).add(0.5f, 0.5f, 0.5f).add(Vector3f(face.normal).mul(0.5f))
+            val globalCenter = Vector3f(localCenter).add(Vector3f(chunk.position).mul(Vector3f(Chunk.SIZE)))
+            faces += FaceRange(indicesArrayList.size - 6, globalCenter)
+
+            originalIndices = indicesArrayList.toIntArray()
         }
 
         val vertices = BufferUtils.createFloatBuffer(verticesArrayList.size)
@@ -103,6 +124,32 @@ class ChunkMesh(
         indices.flip()
 
         return Pair(vertices, indices)
+    }
+
+    fun sortFaces(player: Player) {
+        if (faces.isEmpty())
+            return
+
+        faces.sortByDescending {
+            it.center.distanceSquared(player.camera.transform.position)
+        }
+
+        val sortedIndices = IntArray(originalIndices.size)
+        var offset = 0
+
+        for(face in faces) {
+            System.arraycopy(
+                originalIndices,
+                face.indexStart,
+                sortedIndices,
+                offset,
+                6
+            )
+            offset += 6
+        }
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sortedIndices)
     }
 
     private fun setBufferData(vertices: FloatBuffer, indices: IntBuffer) {
@@ -139,7 +186,7 @@ class ChunkMesh(
         glBindVertexArray(0)
     }
 
-    data class Vertex(
+    private data class Vertex(
         val position: Vector3i,
         val normal: Vector3i,
         val uvs: Vector2f
@@ -157,5 +204,10 @@ class ChunkMesh(
         )
 
     }
+
+    private data class FaceRange(
+        val indexStart: Int,
+        val center: Vector3f
+    )
 
 }

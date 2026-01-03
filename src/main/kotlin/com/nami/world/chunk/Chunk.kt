@@ -28,10 +28,7 @@ class Chunk(
 
     val voxels = mutableMapOf<Vector3i, Voxel>()
 
-    val meshes = mapOf(
-        Layer.SOLID to ChunkMesh(this, Layer.SOLID),
-        Layer.TRANSPARENT to ChunkMesh(this, Layer.TRANSPARENT)
-    )
+    val meshes: Map<Layer, ChunkMesh>
 
     init {
         for (z in 0 until SIZE.z)
@@ -65,7 +62,10 @@ class Chunk(
                 }
             }
 
-        generateMesh()
+        meshes = mapOf(
+            Layer.SOLID to ChunkMesh(this, Layer.SOLID),
+            Layer.TRANSPARENT to ChunkMesh(this, Layer.TRANSPARENT)
+        )
     }
 
     fun generateMesh() = meshes.forEach { (_, mesh) -> mesh.generate() }
@@ -94,7 +94,9 @@ class Chunk(
 
         shader.uniform.set("u_model_matrix", model)
 
-        meshes[layer]!!.render()
+        val mesh = meshes[layer]!!
+        mesh.sortFaces(player)
+        mesh.render()
 
         Resources.SHADER.unbind()
     }
