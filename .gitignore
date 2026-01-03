@@ -1,50 +1,85 @@
+############################
+# Build tools
+############################
+
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+.kotlin/
+
+# Maven (just in case / mixed tooling)
 target/
+
+# Keep Maven wrapper if ever used
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### JCEF ###
-jcef
+############################
+# IDEs
+############################
 
-### JVM Crash Logs ###
-hs_err_pid*.log
-
-### ImGui ###
-imgui.ini
-
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
-.idea/
 
-/data/worlds/*
-
-### Eclipse ###
+# Eclipse
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
 
-### Mac OS ###
+############################
+# Native / JVM noise
+############################
+
+# JVM crash logs
+hs_err_pid*.log
+
+# Logs
+*.log
+
+############################
+# UI / tooling state
+############################
+
+# ImGui state file (user-specific)
+imgui.ini
+
+# JCEF binaries/cache
+jcef/
+
+############################
+# OS junk
+############################
+
+# macOS
 .DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+############################
+# Safety: never commit compiled output
+############################
+
+*.class
+*.jar
+*.war
+*.ear
