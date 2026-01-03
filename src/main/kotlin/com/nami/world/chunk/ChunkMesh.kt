@@ -22,6 +22,8 @@ class ChunkMesh(
     val layer: Layer
 ) {
 
+    //TODO sort faces instead of only chunks
+
     val world = chunk.world
 
     val vao = glGenVertexArrays()
@@ -48,19 +50,11 @@ class ChunkMesh(
 
                     if (chunk.voxels[localPosition]?.block == null)
                         continue
+                    val currentBlock = chunk.voxels[localPosition]!!.block!!
 
                     val globalPosition = chunk.position * Chunk.SIZE + localPosition
 
-                    val set = setOf(
-                        Pair(Vector3i(1, 0, 0), Face.EAST),
-                        Pair(Vector3i(-1, 0, 0), Face.WEST),
-                        Pair(Vector3i(0, 1, 0), Face.TOP),
-                        Pair(Vector3i(0, -1, 0), Face.BOTTOM),
-                        Pair(Vector3i(0, 0, 1), Face.NORTH),
-                        Pair(Vector3i(0, 0, -1), Face.SOUTH)
-                    )
-
-                    for ((direction, face) in set) {
+                    for ((direction, face) in Face.byNormal) {
                         val targetPosition = globalPosition + direction
 
                         val voxel = world.getVoxel(targetPosition)
@@ -68,7 +62,7 @@ class ChunkMesh(
                         if (voxel == null)
                             continue
 
-                        if (voxel.block != null)
+                        if (voxel.block != null && voxel.block.layer == currentBlock.layer)
                             continue
 
                         faces.add(Pair(localPosition, face))

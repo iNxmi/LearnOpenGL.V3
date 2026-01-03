@@ -9,6 +9,7 @@ enum class Face(
     val offset3: Vector3i,
     val normal: Vector3i
 ) {
+
     // Y Positive
     TOP(
         offset0 = Vector3i(0, 1, 0),
@@ -61,5 +62,10 @@ enum class Face(
         offset2 = Vector3i(0, 1, 0),
         offset3 = Vector3i(0, 0, 0),
         normal = Vector3i(-1, 0, 0)
-    )
+    );
+
+    companion object {
+        val byNormal = entries.associateBy { it.normal }
+    }
+
 }

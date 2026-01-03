@@ -33,6 +33,10 @@ class Player {
 
     val transform = Transform()
 
+    init {
+        transform.position.y = 128f
+    }
+
     val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
 
     val acceleration = Vector3f(0f, 0f, 0f)
@@ -101,6 +105,11 @@ class Player {
         if (Input.isKeyDown(GLFW.GLFW_KEY_D))
             move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f))
 
+        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE))
+            move.add(Vector3f(0f,1f,0f))
+        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
+            move.add(Vector3f(0f,-1f,0f))
+
         if (move.length() != 0f)
             position.add(Vector3f(move).normalize().mul(speed))
 
@@ -113,27 +122,27 @@ class Player {
 //            setOf(Layer.SOLID, Layer.FOLIAGE, Layer.TRANSPARENT)
 //        ).toFloat()
 
-        val height = 120f
-
-        if (position.y > height)
-            acceleration.add(0f, -21f * world.time.delta, 0f)
-
-        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE))
-            if (position.y <= height)
-                acceleration.add(0f, 7.5f, 0f)
-
-        if (acceleration.y <= -100f)
-            acceleration.y = -100f
-
-        position.add(Vector3f(acceleration).mul(world.time.delta))
+//        val height = 120f
+//
+//        if (position.y > height)
+//            acceleration.add(0f, -21f * world.time.delta, 0f)
+//
+//        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE))
+//            if (position.y <= height)
+//                acceleration.add(0f, 7.5f, 0f)
+//
+//        if (acceleration.y <= -100f)
+//            acceleration.y = -100f
+//
+//        position.add(Vector3f(acceleration).mul(world.time.delta))
 
         position.x = position.x.coerceIn(0f, (world.size.x * Chunk.SIZE.x).toFloat() - 0.1f)
         position.z = position.z.coerceIn(0f, (world.size.z * Chunk.SIZE.z).toFloat() - 0.1f)
 
-        if (position.y < height) {
-            position.y = height
-            acceleration.y = 0f
-        }
+//        if (position.y < height) {
+//            position.y = height
+//            acceleration.y = 0f
+//        }
 
         camera.transform.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
     }
