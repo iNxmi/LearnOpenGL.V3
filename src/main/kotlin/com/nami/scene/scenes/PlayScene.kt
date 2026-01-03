@@ -73,6 +73,9 @@ class PlayScene(val world: World) : Scene() {
                         else -> 0
                     }
 
+            if (ImGui.sliderFloat("FOV", fovSlider, 1f, 179f))
+                world.player.camera.fov = Math.toRadians(fovSlider[0].toDouble()).toFloat()
+
             if (ImGui.checkbox("Fullscreen", fullscreen)) {
                 if (fullscreen.get())
                     glfwSetWindowMonitor(Window.pointer, glfwGetPrimaryMonitor(), 0, 0, 3840, 2160, 120)
@@ -81,7 +84,6 @@ class PlayScene(val world: World) : Scene() {
             }
 
             if (ImGui.button("Main Menu")) {
-
                 SceneManager.set(MainMenuScene())
             }
 
@@ -258,6 +260,7 @@ class PlayScene(val world: World) : Scene() {
     }
 
     private val comboPolyMode = ImInt()
+    private val fovSlider = floatArrayOf(90.0f)
     private val timeScale = floatArrayOf(1.0f)
     private val fullscreen = ImBoolean(false)
 

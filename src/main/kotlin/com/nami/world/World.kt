@@ -91,13 +91,20 @@ class World(
                     if (!chunks.containsKey(chunkPosition)) {
                         val chunk = Chunk(this, chunkPosition)
                         chunks[chunkPosition] = chunk
+
+                        chunks[chunkPosition + Vector3i( 1, 0, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(-1, 0, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0,  1, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0, -1, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0, 0,  1)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0, 0, -1)]?.generateMesh()
                     }
 
                     chunks[chunkPosition]!!.update()
                     chunkPositions.add(chunkPosition)
                 }
 
-        //unload unused chunks immediately after not being in range
+//        unload unused chunks immediately after not being in range
 //        chunks.entries.removeIf { it.key !in chunkPositions }
     }
 

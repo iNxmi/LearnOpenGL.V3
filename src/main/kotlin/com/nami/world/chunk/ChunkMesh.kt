@@ -93,7 +93,6 @@ class ChunkMesh(
                 position,
                 face,
                 TextureAtlas.getUV(block!!.textures[face]!!)
-//                UV(Vector2f(),Vector2f())
             )
         }
 

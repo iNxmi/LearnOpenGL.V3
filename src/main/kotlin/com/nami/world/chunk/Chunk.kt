@@ -66,12 +66,6 @@ class Chunk(
             }
 
         generateMesh()
-        world.chunks[position + Vector3i( 1, 0, 0)]?.generateMesh()
-        world.chunks[position + Vector3i(-1, 0, 0)]?.generateMesh()
-        world.chunks[position + Vector3i(0,  1, 0)]?.generateMesh()
-        world.chunks[position + Vector3i(0, -1, 0)]?.generateMesh()
-        world.chunks[position + Vector3i(0, 0,  1)]?.generateMesh()
-        world.chunks[position + Vector3i(0, 0, -1)]?.generateMesh()
     }
 
     fun generateMesh() {
