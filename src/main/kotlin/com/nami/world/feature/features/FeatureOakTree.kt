@@ -1,6 +1,6 @@
 package com.nami.world.feature.features
 
-import com.nami.next
+import com.nami.extension.next
 import com.nami.world.block.Block
 import com.nami.world.block.blocks.BlockOakLeaves
 import com.nami.world.block.blocks.BlockOakLog

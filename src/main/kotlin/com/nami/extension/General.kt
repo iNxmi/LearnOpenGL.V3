@@ -1,6 +1,6 @@
-package com.nami
+package com.nami.extension
 
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.random.Random
 

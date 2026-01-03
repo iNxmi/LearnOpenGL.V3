@@ -52,7 +52,6 @@ object TextureAtlas {
         }
 
         texture = Texture("atlas", image)
-//        ImageIO.write(image, "png", File("atlas.png"))
     }
 
     fun getUV(key: String) = uvNDC[key]!!
