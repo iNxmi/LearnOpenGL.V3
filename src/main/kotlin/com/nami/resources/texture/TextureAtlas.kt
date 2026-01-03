@@ -4,12 +4,14 @@ import com.nami.graphics.UV
 import com.nami.resources.Resources
 import org.joml.Vector2f
 import org.joml.Vector2i
+import org.lwjgl.opengl.GL11.GL_MAX_TEXTURE_SIZE
+import org.lwjgl.opengl.GL11.glGetInteger
 import java.awt.image.BufferedImage
-import java.io.File
-import javax.imageio.ImageIO
 import kotlin.math.max
 
 object TextureAtlas {
+
+    val MAX_SIZE = glGetInteger(GL_MAX_TEXTURE_SIZE)
 
     var SIZE_IN_PIXELS: Vector2i? = null
         private set

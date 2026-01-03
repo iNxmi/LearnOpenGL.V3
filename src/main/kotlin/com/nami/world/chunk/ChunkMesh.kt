@@ -55,6 +55,9 @@ class ChunkMesh(
                     val localVoxel = chunk.voxels[localPosition]!!
                     val localBlock = localVoxel.block ?: continue
 
+                    if(localBlock.layer != layer)
+                        continue
+
                     for ((direction, face) in Face.byNormal) {
                         val globalTargetPosition = globalPosition + direction
 
