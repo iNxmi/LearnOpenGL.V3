@@ -61,17 +61,17 @@ operator fun Vector3d.times(scalar: Double): Vector3d = Vector3d(this).mul(scala
 operator fun Vector4d.times(scalar: Double): Vector4d = Vector4d(this).mul(scalar)
 
 // Division
-operator fun Vector2f.div(other: Vector2f): Vector2f = Vector2f(this).div(other)
-operator fun Vector3f.div(other: Vector3f): Vector3f = Vector3f(this).div(other)
-operator fun Vector4f.div(other: Vector4f): Vector4f = Vector4f(this).div(other)
+operator fun Vector2f.div(other: Vector2f): Vector2f = Vector2f(x / other.x, y / other.y)
+operator fun Vector3f.div(other: Vector3f): Vector3f = Vector3f(x / other.x, y / other.y, z / other.z)
+operator fun Vector4f.div(other: Vector4f): Vector4f = Vector4f(x / other.x, y / other.y, z / other.z, w / other.w)
 
-operator fun Vector2i.div(other: Vector2i): Vector2i = Vector2i(this).div(other)
-operator fun Vector3i.div(other: Vector3i): Vector3i = Vector3i(this).div(other)
-operator fun Vector4i.div(other: Vector4i): Vector4i = Vector4i(this).div(other)
+operator fun Vector2i.div(other: Vector2i): Vector2i = Vector2i(x / other.x, y / other.y)
+operator fun Vector3i.div(other: Vector3i): Vector3i = Vector3i(x / other.x, y / other.y, z / other.z)
+operator fun Vector4i.div(other: Vector4i): Vector4i = Vector4i(x / other.x, y / other.y, z / other.z, w / other.w)
 
-operator fun Vector2d.div(other: Vector2d): Vector2d = Vector2d(this).div(other)
-operator fun Vector3d.div(other: Vector3d): Vector3d = Vector3d(this).div(other)
-operator fun Vector4d.div(other: Vector4d): Vector4d = Vector4d(this).div(other)
+operator fun Vector2d.div(other: Vector2d): Vector2d = Vector2d(x / other.x, y / other.y)
+operator fun Vector3d.div(other: Vector3d): Vector3d = Vector3d(x / other.x, y / other.y, z / other.z)
+operator fun Vector4d.div(other: Vector4d): Vector4d = Vector4d(x / other.x, y / other.y, z / other.z, w / other.w)
 
 // Get
 operator fun Vector2f.get(index: Int): Float = this.get(index)

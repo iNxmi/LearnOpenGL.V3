@@ -6,6 +6,7 @@ import com.nami.graphics.UV
 import com.nami.resources.texture.TextureAtlas
 import com.nami.world.block.Face
 import com.nami.world.block.Layer
+import mu.KotlinLogging
 import org.joml.Vector2f
 import org.joml.Vector2i
 import org.joml.Vector3i
@@ -13,15 +14,20 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL33.*
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
+import java.text.NumberFormat
 
 class ChunkMesh(
     val chunk: Chunk,
     val layer: Layer
 ) {
 
+    val world = chunk.world
+
     val vao = glGenVertexArrays()
     val vbo = glGenBuffers()
     val ebo = glGenBuffers()
+
+    val log = KotlinLogging.logger {}
 
     var indexCount = 0
 
@@ -38,22 +44,39 @@ class ChunkMesh(
 
         val faces = mutableSetOf<Pair<Vector3i, Face>>()
 
-        val filtered = chunk.voxels.filter { (_, voxel) -> voxel.block?.layer == layer }
-        for ((localPosition, _) in filtered) {
-            val set = setOf(
-                Pair(Vector3i(1, 0, 0), Face.EAST),
-                Pair(Vector3i(-1, 0, 0), Face.WEST),
-                Pair(Vector3i(0, 1, 0), Face.TOP),
-                Pair(Vector3i(0, -1, 0), Face.BOTTOM),
-                Pair(Vector3i(0, 0, 1), Face.NORTH),
-                Pair(Vector3i(0, 0, -1), Face.SOUTH)
-            )
+        for (z in 0 until Chunk.SIZE.z)
+            for (y in 0 until Chunk.SIZE.y)
+                for (x in 0 until Chunk.SIZE.x) {
+                    val localPosition = Vector3i(x, y, z)
 
-            set.forEach { (normal, face) ->
-                if (!filtered.containsKey(localPosition + normal))
-                    faces.add(Pair(localPosition, face))
-            }
-        }
+                    if (chunk.voxels[localPosition]?.block == null)
+                        continue
+
+                    val globalPosition = chunk.position * Chunk.SIZE + localPosition
+
+                    val set = setOf(
+                        Pair(Vector3i(1, 0, 0), Face.EAST),
+                        Pair(Vector3i(-1, 0, 0), Face.WEST),
+                        Pair(Vector3i(0, 1, 0), Face.TOP),
+                        Pair(Vector3i(0, -1, 0), Face.BOTTOM),
+                        Pair(Vector3i(0, 0, 1), Face.NORTH),
+                        Pair(Vector3i(0, 0, -1), Face.SOUTH)
+                    )
+
+                    for ((direction, face) in set) {
+                        val targetPosition = globalPosition + direction
+
+                        val voxel = world.getVoxel(targetPosition)
+
+                        if (voxel == null)
+                            continue
+
+                        if (voxel.block != null)
+                            continue
+
+                        faces.add(Pair(localPosition, face))
+                    }
+                }
 
         val vertexMap = mutableMapOf<Vertex, Int>()
 
@@ -70,6 +93,7 @@ class ChunkMesh(
                 position,
                 face,
                 TextureAtlas.getUV(block!!.textures[face]!!)
+//                UV(Vector2f(),Vector2f())
             )
         }
 
@@ -94,20 +118,22 @@ class ChunkMesh(
 
         glBindVertexArray(vao)
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.SIZE_BYTES, 0L * Float.SIZE_BYTES)
-        glEnableVertexAttribArray(0)
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * Float.SIZE_BYTES, 3L * Float.SIZE_BYTES)
-        glEnableVertexAttribArray(1)
-
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.SIZE_BYTES, 6L * Float.SIZE_BYTES)
-        glEnableVertexAttribArray(2)
-
         glBindBuffer(GL_ARRAY_BUFFER, vbo)
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW)
+
+        val stride = 8 * Float.SIZE_BYTES
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0L * Float.SIZE_BYTES)
+        glEnableVertexAttribArray(0)
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, false,stride, 3L * Float.SIZE_BYTES)
+        glEnableVertexAttribArray(1)
+
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, stride, 6L * Float.SIZE_BYTES)
+        glEnableVertexAttribArray(2)
 
         glBindVertexArray(0)
     }

@@ -1,6 +1,7 @@
 package com.nami.world.chunk
 
 import com.nami.Time
+import com.nami.extension.plus
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
 import com.nami.world.Player
@@ -64,10 +65,17 @@ class Chunk(
                 }
             }
 
+        generateMesh()
+        world.chunks[position + Vector3i( 1, 0, 0)]?.generateMesh()
+        world.chunks[position + Vector3i(-1, 0, 0)]?.generateMesh()
+        world.chunks[position + Vector3i(0,  1, 0)]?.generateMesh()
+        world.chunks[position + Vector3i(0, -1, 0)]?.generateMesh()
+        world.chunks[position + Vector3i(0, 0,  1)]?.generateMesh()
+        world.chunks[position + Vector3i(0, 0, -1)]?.generateMesh()
+    }
+
+    fun generateMesh() {
         solid.generate()
-//        fluid.generate()
-//        transparent.generate()
-//        foliage.generate()
     }
 
     fun update() {}

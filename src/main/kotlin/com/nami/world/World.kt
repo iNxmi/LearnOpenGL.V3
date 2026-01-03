@@ -98,7 +98,7 @@ class World(
                 }
 
         //unload unused chunks immediately after not being in range
-        chunks.entries.removeIf { it.key !in chunkPositions }
+//        chunks.entries.removeIf { it.key !in chunkPositions }
     }
 
     fun render() {
@@ -111,23 +111,34 @@ class World(
             )
         )
 
-        for (z in -radius..radius)
-            for (y in -radius..radius)
-                for (x in -radius..radius) {
-                    if (x * x + y * y + z * z > radius * radius)
-                        continue
+        // Add  hunks in a specific radius
+//        for (z in -radius..radius)
+//            for (y in -radius..radius)
+//                for (x in -radius..radius) {
+//                    if (x * x + y * y + z * z > radius * radius)
+//                        continue
+//
+//                    val chunkPosition = player.getChunkPosition() + Vector3i(x, y, z)
+//                    val chunk = chunks[chunkPosition] ?: continue
+//
+//                    val distance = Vector3f(chunkPosition)
+//                        .mul(Vector3f(Chunk.SIZE))
+//                        .add(Vector3f(Chunk.SIZE).div(2.0f))
+//                        .sub(player.transform.position)
+//                        .length()
+//
+//                    sorted.put(distance, chunk)
+//                }
 
-                    val chunkPosition = player.getChunkPosition() + Vector3i(x, y, z)
-                    val chunk = chunks[chunkPosition] ?: continue
+        for ((chunkPosition, chunk) in chunks) {
+            val distance = Vector3f(chunkPosition)
+                .mul(Vector3f(Chunk.SIZE))
+                .add(Vector3f(Chunk.SIZE).div(2.0f))
+                .sub(player.transform.position)
+                .length()
 
-                    val distance = Vector3f(chunkPosition)
-                        .mul(Vector3f(Chunk.SIZE))
-                        .add(Vector3f(Chunk.SIZE).div(2.0f))
-                        .sub(player.transform.position)
-                        .length()
-
-                    sorted.put(distance, chunk)
-                }
+            sorted.put(distance, chunk)
+        }
 
         glEnable(GL_CULL_FACE)
         for (key in sorted.keySet().descendingSet())
@@ -140,7 +151,8 @@ class World(
 //        chunks.forEach { (_, chunk) -> chunk.render(player, Layer.FOLIAGE) }
     }
 
-    fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? = chunks[chunkPosition]?.voxels[blockPosition]
+    fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? =
+        chunks[chunkPosition]?.voxels[blockPosition]
 
     fun getVoxel(position: Vector3i): Voxel? {
         val chunkPosition = position / Chunk.SIZE
