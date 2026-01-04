@@ -37,15 +37,18 @@ class Chunk(
     private val log = KotlinLogging.logger {}
 
     val voxels: Array<Voxel>
-
+    val layers: Map<Layer, MutableSet<Int>> = mapOf(
+        Layer.SOLID to mutableSetOf(),
+        Layer.TRANSPARENT to mutableSetOf(),
+        Layer.FLUID to mutableSetOf(),
+        Layer.FOLIAGE to mutableSetOf()
+    )
     val meshes: Map<Layer, ChunkMesh>
 
     init {
         voxels = Array(SIZE.x * SIZE.y * SIZE.z) { index ->
             val localBlockPosition = indexToPosition(index)
-
             val globalBlockPosition = (this.position * SIZE) + localBlockPosition
-//            log.debug {"index=$index localBlockPosition=${localBlockPosition.toString(NumberFormat.getInstance())} globalBlockPosition=${globalBlockPosition.toString(NumberFormat.getInstance())}"}
 
             val elevation = world.elevation.evaluateNoise(
                 globalBlockPosition.x.toDouble(),
@@ -66,6 +69,9 @@ class Chunk(
 
             val biome = Biome.create(globalBlockPosition, elevation, moisture, temperature)
             val block = biome.template.generate(globalBlockPosition, elevation, moisture, temperature)
+
+            if(block != null)
+                layers[block.layer]!!.add(index)
 
             Voxel(localBlockPosition, biome, block)
         }

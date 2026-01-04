@@ -41,33 +41,31 @@ class ChunkMesh(
     private fun getExposedFaces(): Set<Pair<Vector3i, Face>> {
         val exposedFaces = mutableSetOf<Pair<Vector3i, Face>>()
 
-        for (z in 0 until Chunk.SIZE.z)
-            for (y in 0 until Chunk.SIZE.y)
-                for (x in 0 until Chunk.SIZE.x) {
-                    val localPosition = Vector3i(x, y, z)
-                    val globalPosition = chunk.position * Chunk.SIZE + localPosition
+        for(index in chunk.layers[layer]!!) {
+            val localPosition = Chunk.indexToPosition(index)
+            val globalPosition = chunk.position * Chunk.SIZE + localPosition
 
-                    val localVoxel = chunk.getVoxel(localPosition)
-                    val localBlock = localVoxel.block ?: continue
+            val localVoxel = chunk.getVoxel(localPosition)
+            val localBlock = localVoxel.block ?: continue
 
-                    if (localBlock.layer != layer)
-                        continue
+            if (localBlock.layer != layer)
+                continue
 
-                    for ((direction, face) in Face.byNormal) {
-                        val globalTargetPosition = globalPosition + direction
+            for ((direction, face) in Face.byNormal) {
+                val globalTargetPosition = globalPosition + direction
 
-                        if (globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
-                            continue
+                if (globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
+                    continue
 
-                        val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
-                        val globalBlock = globalVoxel.block
+                val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
+                val globalBlock = globalVoxel.block
 
-                        if (globalBlock != null && globalBlock.layer == localBlock.layer)
-                            continue
+                if (globalBlock != null && globalBlock.layer == localBlock.layer)
+                    continue
 
-                        exposedFaces.add(Pair(localPosition, face))
-                    }
-                }
+                exposedFaces.add(Pair(localPosition, face))
+            }
+        }
 
         return exposedFaces
     }
