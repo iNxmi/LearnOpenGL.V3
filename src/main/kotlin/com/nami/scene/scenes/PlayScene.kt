@@ -106,7 +106,8 @@ class PlayScene(val world: World) : Scene() {
                             val block = world.blockManager.getBlock(position) ?: continue
 
                             val tags = block.tags
-                            if (!tags.contains("workstation")) continue
+                            if (!tags.contains("workstation"))
+                                continue
 
                             workstations.add(block)
                         }

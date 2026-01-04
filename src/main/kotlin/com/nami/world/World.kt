@@ -22,6 +22,7 @@ import org.lwjgl.opengl.GL33.glClearColor
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.math.abs
 
 class World(
     val size: Vector3i,
@@ -31,30 +32,37 @@ class World(
 
     private val log = KotlinLogging.logger {}
 
-    val scale = 2.0f
+    companion object {
+        val ELEVATION_RANGE = 0.0..256.0
+        val MOISTURE_RANGE = 0.0..100.0
+        val TEMPERATURE_RANGE = -25.0..50.0
+    }
+
+//    val scale = 4096.0
+    val scale = 1024.0
 
     val elevation: JNoise = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed).build())
         .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
-        .scale(1 / (4098.0 * scale))
+        .scale(1.0 / (2.0 * scale))
         .addModifier { v -> ((v + 1) / 2.0) * 256 }
-        .clamp(0.0, 256.0)
+        .clamp(ELEVATION_RANGE.start, ELEVATION_RANGE.endInclusive)
         .build()
 
     val moisture: JNoise = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 1).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
-        .scale(1 / (2048.0 * scale))
-        .addModifier { v -> ((v + 1) / 2.0) * 100 }
-        .clamp(0.0, 100.0)
+        .scale(1.0 / scale)
+        .addModifier { v -> ((v + 1) / 2.0) * MOISTURE_RANGE.endInclusive }
+        .clamp(MOISTURE_RANGE.start, MOISTURE_RANGE.endInclusive)
         .build()
 
     val temperature: JNoise = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 2).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
-        .scale(1 / (2048.0 * scale))
-        .addModifier { v -> ((v + 1) / 2.0) * (50 + 25) - 25 }
-        .clamp(-25.0, 50.0)
+        .scale(1.0 /  scale)
+        .addModifier { v -> ((v + 1) / 2.0) * (abs(TEMPERATURE_RANGE.start) + TEMPERATURE_RANGE.endInclusive) - abs(TEMPERATURE_RANGE.start) }
+        .clamp(TEMPERATURE_RANGE.start, TEMPERATURE_RANGE.endInclusive)
         .build()
 
     val time = Time()
@@ -92,11 +100,11 @@ class World(
                         val chunk = Chunk(this, chunkPosition)
                         chunks[chunkPosition] = chunk
 
-                        chunks[chunkPosition + Vector3i( 1, 0, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(1, 0, 0)]?.generateMesh()
                         chunks[chunkPosition + Vector3i(-1, 0, 0)]?.generateMesh()
-                        chunks[chunkPosition + Vector3i(0,  1, 0)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0, 1, 0)]?.generateMesh()
                         chunks[chunkPosition + Vector3i(0, -1, 0)]?.generateMesh()
-                        chunks[chunkPosition + Vector3i(0, 0,  1)]?.generateMesh()
+                        chunks[chunkPosition + Vector3i(0, 0, 1)]?.generateMesh()
                         chunks[chunkPosition + Vector3i(0, 0, -1)]?.generateMesh()
                     }
 
@@ -138,7 +146,8 @@ class World(
 //                }
 
         for ((chunkPosition, chunk) in chunks) {
-            val worldPositionChunk = Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
+            val worldPositionChunk =
+                Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
             val worldPositionCamera = player.camera.transform.position
             val distance = worldPositionChunk.distanceSquared(worldPositionCamera)
 

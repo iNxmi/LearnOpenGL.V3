@@ -75,7 +75,7 @@ class Chunk(
     fun update() {}
 
     fun render(time: Time, player: Player, layer: Layer) {
-        val shader = Resources.SHADER.get("chunk.solid").bind()
+        val shader = Resources.SHADER.get("chunk").bind()
         shader.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
         shader.uniform.set("u_specular_exponent", 8.0f)
 
