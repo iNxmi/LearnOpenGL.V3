@@ -19,6 +19,7 @@ import org.joml.Vector3i
 import org.lwjgl.opengl.GL11.GL_CULL_FACE
 import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
+import java.text.NumberFormat
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -26,8 +27,7 @@ import kotlin.math.abs
 
 class World(
     val size: Vector3i,
-    val seed: Long,
-    val waterLevel: Int
+    val seed: Long
 ) {
 
     private val log = KotlinLogging.logger {}
@@ -38,7 +38,7 @@ class World(
         val TEMPERATURE_RANGE = -25.0..50.0
     }
 
-//    val scale = 4096.0
+    //    val scale = 4096.0
     val scale = 1024.0
 
     val elevation: JNoise = JNoise.newBuilder()
@@ -60,8 +60,12 @@ class World(
     val temperature: JNoise = JNoise.newBuilder()
         .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 2).build())
         .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
-        .scale(1.0 /  scale)
-        .addModifier { v -> ((v + 1) / 2.0) * (abs(TEMPERATURE_RANGE.start) + TEMPERATURE_RANGE.endInclusive) - abs(TEMPERATURE_RANGE.start) }
+        .scale(1.0 / scale)
+        .addModifier { v ->
+            ((v + 1) / 2.0) * (abs(TEMPERATURE_RANGE.start) + TEMPERATURE_RANGE.endInclusive) - abs(
+                TEMPERATURE_RANGE.start
+            )
+        }
         .clamp(TEMPERATURE_RANGE.start, TEMPERATURE_RANGE.endInclusive)
         .build()
 
@@ -166,8 +170,12 @@ class World(
             }
     }
 
-    fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? =
-        chunks[chunkPosition]?.voxels[blockPosition]
+    fun getChunk(position: Vector3i): Chunk? = chunks[position]
+
+    fun getVoxel(chunkPosition: Vector3i, localBlockPosition: Vector3i): Voxel? {
+        val chunk = getChunk(chunkPosition) ?: return null
+        return chunk.getVoxel(localBlockPosition)
+    }
 
     fun getVoxel(position: Vector3i): Voxel? {
         val chunkPosition = position / Chunk.SIZE

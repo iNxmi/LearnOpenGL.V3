@@ -52,7 +52,7 @@ class ChunkMesh(
                     val localPosition = Vector3i(x, y, z)
                     val globalPosition = chunk.position * Chunk.SIZE + localPosition
 
-                    val localVoxel = chunk.voxels[localPosition]!!
+                    val localVoxel = chunk.getVoxel(localPosition)
                     val localBlock = localVoxel.block ?: continue
 
                     if(localBlock.layer != layer)
@@ -60,6 +60,9 @@ class ChunkMesh(
 
                     for ((direction, face) in Face.byNormal) {
                         val globalTargetPosition = globalPosition + direction
+
+                        if(globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
+                            continue
 
                         val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
                         val globalBlock = globalVoxel.block
@@ -82,7 +85,7 @@ class ChunkMesh(
         val verticesArrayList = ArrayList<Float>()
         val indicesArrayList = ArrayList<Int>()
         for ((position, face) in exposedFaces) {
-            val block = chunk.voxels[position]!!.block
+            val block = chunk.getVoxel(position).block
 
             val uv = TextureAtlas.getUVs(block!!.textures[face]!!)
 
@@ -141,8 +144,8 @@ class ChunkMesh(
         var offset = 0
 
         for (face in faces) {
-            System.arraycopy(originalIndices, face.indexStart, sortedIndices, offset, 6)
-            offset += 6
+            System.arraycopy(originalIndices, face.indexStart, sortedIndices, offset, INDICES_PER_FACE)
+            offset += INDICES_PER_FACE
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)

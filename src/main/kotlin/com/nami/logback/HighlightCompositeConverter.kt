@@ -10,7 +10,7 @@ class HighlightCompositeConverter : ForegroundCompositeConverterBase<ILoggingEve
     override fun getForegroundColorCode(event: ILoggingEvent) = when (event.level.toInt()) {
         Level.ERROR_INT -> ANSIConstants.RED_FG
         Level.WARN_INT -> ANSIConstants.YELLOW_FG
-        Level.DEBUG_INT -> ANSIConstants.MAGENTA_FG
+        Level.DEBUG_INT -> ANSIConstants.CYAN_FG
         else -> ANSIConstants.DEFAULT_FG
     }
 

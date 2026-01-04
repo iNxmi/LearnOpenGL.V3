@@ -2,6 +2,7 @@ package com.nami.world.chunk
 
 import com.nami.Time
 import com.nami.extension.plus
+import com.nami.extension.times
 import com.nami.resources.Resources
 import com.nami.resources.texture.TextureAtlas
 import com.nami.world.Player
@@ -14,6 +15,7 @@ import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D
 import org.lwjgl.opengl.GL33.*
+import java.text.NumberFormat
 
 class Chunk(
     val world: World,
@@ -22,45 +24,51 @@ class Chunk(
 
     companion object {
         val SIZE = Vector3i(16, 16, 16)
+
+        fun indexToPosition(index: Int): Vector3i = Vector3i(
+            index % SIZE.x,
+            (index / SIZE.x) % SIZE.y,
+            index / (SIZE.x * SIZE.y),
+        )
+
+        fun positionToIndex(position: Vector3i): Int = position.x + position.y * SIZE.x + position.z * SIZE.x * SIZE.y
     }
 
     private val log = KotlinLogging.logger {}
 
-    val voxels = mutableMapOf<Vector3i, Voxel>()
+    val voxels: Array<Voxel>
 
     val meshes: Map<Layer, ChunkMesh>
 
     init {
-        for (z in 0 until SIZE.z)
-            for (x in 0 until SIZE.x) {
+        voxels = Array(SIZE.x * SIZE.y * SIZE.z) { index ->
+            val localBlockPosition = indexToPosition(index)
 
-                val elevation = world.elevation.evaluateNoise(
-                    position.x * SIZE.x + x.toDouble(),
-                    position.z * SIZE.z + z.toDouble()
-                ).toFloat()
+            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
+//            log.debug {"index=$index localBlockPosition=${localBlockPosition.toString(NumberFormat.getInstance())} globalBlockPosition=${globalBlockPosition.toString(NumberFormat.getInstance())}"}
 
-                for (y in 0 until SIZE.y) {
-                    val position = Vector3i(x, y, z)
-                    val globalPosition = Vector3i(this.position).mul(SIZE).add(position)
+            val elevation = world.elevation.evaluateNoise(
+                globalBlockPosition.x.toDouble(),
+                globalBlockPosition.z.toDouble()
+            ).toFloat()
 
-                    val moisture = world.moisture.evaluateNoise(
-                        globalPosition.x.toDouble(),
-                        globalPosition.y.toDouble(),
-                        globalPosition.z.toDouble()
-                    ).toFloat()
+            val moisture = world.moisture.evaluateNoise(
+                globalBlockPosition.x.toDouble(),
+                globalBlockPosition.y.toDouble(),
+                globalBlockPosition.z.toDouble()
+            ).toFloat()
 
-                    val temperature = world.temperature.evaluateNoise(
-                        globalPosition.x.toDouble(),
-                        globalPosition.y.toDouble(),
-                        globalPosition.z.toDouble()
-                    ).toFloat()
+            val temperature = world.temperature.evaluateNoise(
+                globalBlockPosition.x.toDouble(),
+                globalBlockPosition.y.toDouble(),
+                globalBlockPosition.z.toDouble()
+            ).toFloat()
 
-                    val biome = Biome.create(globalPosition, elevation, moisture, temperature)
-                    val block = biome.template.generate(globalPosition, elevation, moisture, temperature)
+            val biome = Biome.create(globalBlockPosition, elevation, moisture, temperature)
+            val block = biome.template.generate(globalBlockPosition, elevation, moisture, temperature)
 
-                    voxels[position] = Voxel(position, biome, block)
-                }
-            }
+            Voxel(localBlockPosition, biome, block)
+        }
 
         meshes = mapOf(
             Layer.SOLID to ChunkMesh(this, Layer.SOLID),
@@ -69,6 +77,9 @@ class Chunk(
             Layer.FOLIAGE to ChunkMesh(this, Layer.FOLIAGE)
         )
     }
+
+    fun getVoxel(index: Int): Voxel = voxels[index]
+    fun getVoxel(position: Vector3i): Voxel = getVoxel(positionToIndex(position))
 
     fun generateMesh() = meshes.forEach { (_, mesh) -> mesh.generate() }
 

@@ -24,7 +24,7 @@ class MainMenuScene : Scene() {
 
         ImGui.inputScalar("Seed", ImGuiDataType.S64, seed)
         if (ImGui.button("Play")) {
-            val world = World(Vector3i(512), seed.get(), 64)
+            val world = World(Vector3i(16), seed.get())
             SceneManager.set(PlayScene(world))
         }
 
