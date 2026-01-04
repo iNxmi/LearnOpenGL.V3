@@ -151,8 +151,10 @@ class World(
                 chunk.render(time, player, Layer.SOLID)
 
         for (distance in sorted.keySet().descendingSet())
-            for (chunk in sorted.get(distance).descendingSet())
+            for (chunk in sorted.get(distance).descendingSet()) {
                 chunk.render(time, player, Layer.TRANSPARENT)
+                chunk.render(time, player, Layer.FLUID)
+            }
     }
 
     fun getVoxel(chunkPosition: Vector3i, blockPosition: Vector3i): Voxel? =

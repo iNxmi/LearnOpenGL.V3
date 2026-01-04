@@ -47,7 +47,6 @@ object TextureAtlas {
         }
 
         texture = Texture("atlas", finalImage)
-        ImageIO.write(finalImage, "png", File("atlas.png"))
     }
 
     fun extendBorder(image: BufferedImage): BufferedImage {
@@ -71,11 +70,7 @@ object TextureAtlas {
         result.setRGB(0, 0, image.getRGB(0, 0))
         result.setRGB(newSize.x - 1, 0, image.getRGB(image.width - 1, 0))
         result.setRGB(0, newSize.y - 1, image.getRGB(0, image.height - 1))
-        result.setRGB(
-            newSize.x - 1,
-            newSize.y - 1,
-            image.getRGB(image.width - 1, image.height - 1)
-        )
+        result.setRGB(newSize.x - 1, newSize.y - 1, image.getRGB(image.width - 1, image.height - 1))
 
         return result
     }

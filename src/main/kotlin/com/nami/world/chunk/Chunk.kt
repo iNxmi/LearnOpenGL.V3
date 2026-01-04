@@ -64,7 +64,9 @@ class Chunk(
 
         meshes = mapOf(
             Layer.SOLID to ChunkMesh(this, Layer.SOLID),
-            Layer.TRANSPARENT to ChunkMesh(this, Layer.TRANSPARENT)
+            Layer.TRANSPARENT to ChunkMesh(this, Layer.TRANSPARENT),
+            Layer.FLUID to ChunkMesh(this, Layer.FLUID),
+            Layer.FOLIAGE to ChunkMesh(this, Layer.FOLIAGE)
         )
     }
 
