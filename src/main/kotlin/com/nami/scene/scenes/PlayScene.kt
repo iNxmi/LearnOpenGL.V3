@@ -242,7 +242,7 @@ class PlayScene(val world: World) : Scene() {
                 image.setRGB(0, 0, width, height, flipped, 0, width)
 
                 val path =
-                    GamePath.screenshots.resolve("${SimpleDateFormat("yyyy-MM-dd--HH-mm-ss-SSS").format(Date())}.png")
+                    GamePath.screenshots.resolve("${SimpleDateFormat("yyyy_MM_dd__HH_mm_ss_SSS").format(Date())}.png")
                 ImageIO.write(image, "png", path.toFile())
 
                 log.info { "Screenshot saved at '$path'" }
