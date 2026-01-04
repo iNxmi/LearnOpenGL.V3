@@ -19,6 +19,8 @@ object AmbientOcclusion {
         Face.WEST -> AO_WEST
     }
 
+    fun evaluate(level: Int): Float = 1.0f - level * 0.2f
+
     val AO_TOP = arrayOf(
         AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, -1), Vector3i(-1, 0, -1)),
         AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, 1), Vector3i(-1, 0, 1)),

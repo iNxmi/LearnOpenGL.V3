@@ -253,14 +253,17 @@ class ChunkMesh(
         val side2 = isSolid(basePosition + offsets.side2)
         val corner = isSolid(basePosition + offsets.corner)
 
-        val occlusion =
-            if (side1 && side2) 3 else (if (side1) 1 else 0) + (if (side2) 1 else 0) + (if (corner) 1 else 0)
-        return when (occlusion) {
-            0 -> 1.0f
-            1 -> 0.8f
-            2 -> 0.6f
-            else -> 0.4f
+        val level = if (side1 && side2) {
+            3
+        } else {
+            val s1 = if (side1) 1 else 0
+            val s2 = if (side2) 1 else 0
+            val c = if (corner) 1 else 0
+            s1 + s2 + c
         }
+
+        return AmbientOcclusion.evaluate(level)
     }
+
 
 }
