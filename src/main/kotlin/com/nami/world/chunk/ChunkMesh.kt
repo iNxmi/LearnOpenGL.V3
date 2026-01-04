@@ -34,10 +34,6 @@ class ChunkMesh(
     private val faces = mutableListOf<FaceRange>()
     private lateinit var originalIndices: IntArray
 
-    init {
-        generate()
-    }
-
     fun generate() {
         val (vertices, indices) = generateData()
         setBufferData(vertices, indices)
@@ -55,13 +51,13 @@ class ChunkMesh(
                     val localVoxel = chunk.getVoxel(localPosition)
                     val localBlock = localVoxel.block ?: continue
 
-                    if(localBlock.layer != layer)
+                    if (localBlock.layer != layer)
                         continue
 
                     for ((direction, face) in Face.byNormal) {
                         val globalTargetPosition = globalPosition + direction
 
-                        if(globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
+                        if (globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
                             continue
 
                         val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
@@ -84,16 +80,46 @@ class ChunkMesh(
         val vertexMap = mutableMapOf<Vertex, Int>()
         val verticesArrayList = ArrayList<Float>()
         val indicesArrayList = ArrayList<Int>()
-        for ((position, face) in exposedFaces) {
-            val block = chunk.getVoxel(position).block
+        for ((localPosition, face) in exposedFaces) {
+            val block = chunk.getVoxel(localPosition).block
 
             val uv = TextureAtlas.getUVs(block!!.textures[face]!!)
 
+            val globalPosition = chunk.position * Chunk.SIZE + localPosition + face.normal
+            val aoTable = when (face) {
+                Face.TOP -> AO_TOP
+                Face.BOTTOM -> AO_BOTTOM
+                Face.NORTH -> AO_NORTH
+                Face.SOUTH -> AO_SOUTH
+                Face.EAST -> AO_EAST
+                Face.WEST -> AO_WEST
+            }
+
             val vertices = listOf(
-                Vertex(position + face.offset0, face.normal, uv.position + Vector2f(uv.size.x, 0.0f)),
-                Vertex(position + face.offset1, face.normal, uv.position + uv.size),
-                Vertex(position + face.offset2, face.normal, uv.position + Vector2f(0.0f, uv.size.y)),
-                Vertex(position + face.offset3, face.normal, uv.position)
+                Vertex(
+                    localPosition + face.offset0,
+                    face.normal,
+                    uv.position + Vector2f(uv.size.x, 0.0f),
+                    computeAoBrightness(globalPosition, aoTable[0])
+                ),
+                Vertex(
+                    localPosition + face.offset1,
+                    face.normal,
+                    uv.position + uv.size,
+                    computeAoBrightness(globalPosition, aoTable[1])
+                ),
+                Vertex(
+                    localPosition + face.offset2,
+                    face.normal,
+                    uv.position + Vector2f(0.0f, uv.size.y),
+                    computeAoBrightness(globalPosition, aoTable[2])
+                ),
+                Vertex(
+                    localPosition + face.offset3,
+                    face.normal,
+                    uv.position,
+                    computeAoBrightness(globalPosition, aoTable[3])
+                )
             )
 
             for (vertex in vertices) {
@@ -104,15 +130,32 @@ class ChunkMesh(
                 verticesArrayList.addAll(vertex.toList())
             }
 
-            indicesArrayList.add(vertexMap[vertices[0]]!!)
-            indicesArrayList.add(vertexMap[vertices[1]]!!)
-            indicesArrayList.add(vertexMap[vertices[2]]!!)
+            val a = vertices[0].brightness
+            val b = vertices[1].brightness
+            val c = vertices[2].brightness
+            val d = vertices[3].brightness
 
-            indicesArrayList.add(vertexMap[vertices[2]]!!)
-            indicesArrayList.add(vertexMap[vertices[3]]!!)
-            indicesArrayList.add(vertexMap[vertices[0]]!!)
+            val flip = (a + c) > (b + d)
 
-            val localCenter = Vector3f(position).add(0.5f, 0.5f, 0.5f).add(Vector3f(face.normal).mul(0.5f))
+            if (flip) {
+                indicesArrayList.add(vertexMap[vertices[0]]!!)
+                indicesArrayList.add(vertexMap[vertices[1]]!!)
+                indicesArrayList.add(vertexMap[vertices[2]]!!)
+
+                indicesArrayList.add(vertexMap[vertices[2]]!!)
+                indicesArrayList.add(vertexMap[vertices[3]]!!)
+                indicesArrayList.add(vertexMap[vertices[0]]!!)
+            } else {
+                indicesArrayList.add(vertexMap[vertices[1]]!!)
+                indicesArrayList.add(vertexMap[vertices[2]]!!)
+                indicesArrayList.add(vertexMap[vertices[3]]!!)
+
+                indicesArrayList.add(vertexMap[vertices[3]]!!)
+                indicesArrayList.add(vertexMap[vertices[0]]!!)
+                indicesArrayList.add(vertexMap[vertices[1]]!!)
+            }
+
+            val localCenter = Vector3f(localPosition).add(0.5f, 0.5f, 0.5f).add(Vector3f(face.normal).mul(0.5f))
             val globalCenter = Vector3f(localCenter).add(Vector3f(chunk.position).mul(Vector3f(Chunk.SIZE)))
             faces += FaceRange(indicesArrayList.size - 6, globalCenter)
 
@@ -163,7 +206,7 @@ class ChunkMesh(
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_DYNAMIC_DRAW)
 
-        val stride = (3 + 3 + 2) * Float.SIZE_BYTES
+        val stride = (3 + 3 + 2 + 1) * Float.SIZE_BYTES
 
         glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0L * Float.SIZE_BYTES)
         glEnableVertexAttribArray(0)
@@ -173,6 +216,9 @@ class ChunkMesh(
 
         glVertexAttribPointer(2, 2, GL_FLOAT, false, stride, 6L * Float.SIZE_BYTES)
         glEnableVertexAttribArray(2)
+
+        glVertexAttribPointer(3, 1, GL_FLOAT, false, stride, 8L * Float.SIZE_BYTES)
+        glEnableVertexAttribArray(3)
 
         glBindVertexArray(0)
     }
@@ -189,7 +235,8 @@ class ChunkMesh(
     private data class Vertex(
         val position: Vector3i,
         val normal: Vector3i,
-        val uvs: Vector2f
+        val uvs: Vector2f,
+        val brightness: Float
     ) {
 
         fun toList() = listOf(
@@ -200,14 +247,90 @@ class ChunkMesh(
             normal.y.toFloat(),
             normal.z.toFloat(),
             uvs.x,
-            uvs.y
+            uvs.y,
+            brightness
         )
 
     }
 
-    private data class FaceRange(
+    data class FaceRange(
         val indexStart: Int,
         val center: Vector3f
     )
+
+    data class AOOffsets(
+        val side1: Vector3i,
+        val side2: Vector3i,
+        val corner: Vector3i
+    )
+
+    val AO_TOP = arrayOf(
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, -1), Vector3i(-1, 0, -1)),
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, 1), Vector3i(-1, 0, 1)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, 1), Vector3i(1, 0, 1)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, -1), Vector3i(1, 0, -1))
+    )
+
+    val AO_BOTTOM = arrayOf(
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, -1), Vector3i(-1, 0, -1)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, -1), Vector3i(1, 0, -1)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, 1), Vector3i(1, 0, 1)),
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, 1), Vector3i(-1, 0, 1))
+    )
+
+    val AO_NORTH = arrayOf(
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, -1, 0), Vector3i(1, -1, 0)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 1, 0), Vector3i(1, 1, 0)),
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 1, 0), Vector3i(-1, 1, 0)),
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, -1, 0), Vector3i(-1, -1, 0))
+    )
+
+    val AO_SOUTH = arrayOf(
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, -1, 0), Vector3i(-1, -1, 0)),
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 1, 0), Vector3i(-1, 1, 0)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 1, 0), Vector3i(1, 1, 0)),
+        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, -1, 0), Vector3i(1, -1, 0))
+    )
+
+    val AO_EAST = arrayOf(
+        AOOffsets(Vector3i(0, 0, -1), Vector3i(0, -1, 0), Vector3i(0, -1, -1)),
+        AOOffsets(Vector3i(0, 0, -1), Vector3i(0, 1, 0), Vector3i(0, 1, -1)),
+        AOOffsets(Vector3i(0, 0, 1), Vector3i(0, 1, 0), Vector3i(0, 1, 1)),
+        AOOffsets(Vector3i(0, 0, 1), Vector3i(0, -1, 0), Vector3i(0, -1, 1))
+    )
+
+    val AO_WEST = arrayOf(
+        AOOffsets(Vector3i(0, 0, 1), Vector3i(0, -1, 0), Vector3i(0, -1, 1)),
+        AOOffsets(Vector3i(0, 0, 1), Vector3i(0, 1, 0), Vector3i(0, 1, 1)),
+        AOOffsets(Vector3i(0, 0, -1), Vector3i(0, 1, 0), Vector3i(0, 1, -1)),
+        AOOffsets(Vector3i(0, 0, -1), Vector3i(0, -1, 0), Vector3i(0, -1, -1))
+    )
+
+    fun isSolid(globalPosition: Vector3i): Boolean {
+        if (globalPosition.x < 0 || globalPosition.y < 0 || globalPosition.z < 0)
+            return false
+
+        val voxel = chunk.world.getVoxel(globalPosition) ?: return false
+        val block = voxel.block ?: return false
+        return block.layer == layer
+    }
+
+    fun computeAoBrightness(
+        basePosition: Vector3i,
+        offsets: AOOffsets
+    ): Float {
+        val side1 = isSolid(basePosition + offsets.side1)
+        val side2 = isSolid(basePosition + offsets.side2)
+        val corner = isSolid(basePosition + offsets.corner)
+
+        val occlusion =
+            if (side1 && side2) 3 else (if (side1) 1 else 0) + (if (side2) 1 else 0) + (if (corner) 1 else 0)
+        return when (occlusion) {
+            0 -> 1.0f
+            1 -> 0.8f
+            2 -> 0.6f
+            else -> 0.4f
+        }
+    }
 
 }

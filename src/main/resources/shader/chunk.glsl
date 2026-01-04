@@ -4,19 +4,20 @@
 layout (location = 0) in vec3 a_position;
 layout (location = 1) in vec3 a_normal;
 layout (location = 2) in vec2 a_uv;
+layout (location = 3) in float a_brightness;
 
 uniform mat4 u_projection_matrix, u_view_matrix, u_model_matrix;
 
 out vec2 ls_uv;
-
 out vec3 ws_position;
 out vec3 ws_normal;
+out float brightness;
 
 void main() {
     ls_uv = a_uv;
-
     ws_position = vec3(u_model_matrix * vec4(a_position, 1.0));
     ws_normal = a_normal;
+    brightness = a_brightness;
 
     gl_Position = u_projection_matrix * u_view_matrix * u_model_matrix * vec4(a_position, 1.0);
 }
@@ -26,9 +27,9 @@ void main() {
 #version 330 core
 
 in vec2 ls_uv;
-
 in vec3 ws_normal;
 in vec3 ws_position;
+in float brightness;
 
 uniform vec3 u_light_direction;
 uniform vec3 u_camera_position;
@@ -64,7 +65,7 @@ void main() {
     float specular = pow(max(dot(light_direction_reflected, camera_direction), 0.0), u_specular_exponent) * diffuse;
 
     vec4 color = texture(u_texture_diffuse, ls_uv);
-    vec3 result = color.rgb * min(ambient + diffuse + specular, 1.0);
+    vec3 result = color.rgb * min(ambient + diffuse + specular, 1.0) * brightness;
     FragColor = vec4(result, color.a);
 }
 //END_FS
