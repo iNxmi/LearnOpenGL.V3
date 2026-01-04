@@ -5,15 +5,12 @@ import com.nami.world.block.Block
 import com.nami.world.block.blocks.BlockBirchLeaves
 import com.nami.world.block.blocks.BlockBirchLog
 import com.nami.world.feature.Feature
+import de.articdive.jnoise.pipeline.JNoise
 import org.joml.Vector3i
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 object FeatureBirchTree : Feature(id = "birch_tree") {
-
-    override fun shouldGenerate(): Boolean {
-        TODO()
-    }
 
     override fun generate(
         elevation: Float,

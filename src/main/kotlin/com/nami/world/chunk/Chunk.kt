@@ -9,13 +9,15 @@ import com.nami.world.Player
 import com.nami.world.World
 import com.nami.world.biome.Biome
 import com.nami.world.block.Layer
+import com.nami.world.block.blocks.BlockError
+import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D
 import org.lwjgl.opengl.GL33.*
-import java.text.NumberFormat
+import kotlin.math.max
 
 class Chunk(
     val world: World,
@@ -70,10 +72,50 @@ class Chunk(
             val biome = Biome.create(globalBlockPosition, elevation, moisture, temperature)
             val block = biome.template.generate(globalBlockPosition, elevation, moisture, temperature)
 
-            if(block != null)
+            if (block != null)
                 layers[block.layer]!!.add(index)
 
             Voxel(localBlockPosition, biome, block)
+        }
+
+        for ((index, voxel) in voxels.withIndex()) {
+            val localBlockPosition = indexToPosition(index)
+            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
+            val biome = voxel.biome
+
+            if (voxel.block != null)
+                continue
+
+            for ((noise, feature) in biome.template.features) {
+                if (!canSpawnFeature(globalBlockPosition, 4, noise))
+                    continue
+
+                val under = positionToIndex(localBlockPosition + Vector3i(0, -1, 0))
+                if (under !in 0 until SIZE.x * SIZE.y * SIZE.z)
+                    continue
+                if (voxels[under].block == null)
+                    continue
+
+                val featureBlocks = feature.generate(biome.elevation, biome.moisture, biome.temperature)
+//                val featureBlocks = mapOf(Vector3i() to BlockError)
+                val byIndex = featureBlocks.mapKeys { positionToIndex(it.key + localBlockPosition) }
+
+                for ((index, newBlock) in byIndex) {
+                    if (index !in 0 until (SIZE.x * SIZE.y * SIZE.z))
+                        continue
+
+                    val currentVoxel = voxels[index]
+                    val currentBlock = currentVoxel.block
+                    if (currentBlock != null)
+                        layers[currentBlock.layer]!!.remove(index)
+
+                    voxels[index].block = newBlock
+
+                    layers[newBlock.layer]!!.add(index)
+                }
+
+                break
+            }
         }
 
         meshes = mapOf(
@@ -82,6 +124,27 @@ class Chunk(
             Layer.FLUID to ChunkMesh(this, Layer.FLUID),
             Layer.FOLIAGE to ChunkMesh(this, Layer.FOLIAGE)
         )
+    }
+
+    private fun canSpawnFeature(globalPosition: Vector3i, radius: Int, noise: JNoise): Boolean {
+        var max = 0f
+        for (z in globalPosition.z - radius..globalPosition.z + radius)
+            for (y in globalPosition.y - radius..globalPosition.y + radius)
+                for (x in globalPosition.x - radius..globalPosition.x + radius) {
+                    val value = noise.evaluateNoise(
+                        x.toDouble(),
+                        y.toDouble(),
+                        z.toDouble(),
+                    ).toFloat()
+
+                    max = max(max, value)
+                }
+
+        return noise.evaluateNoise(
+            globalPosition.x.toDouble(),
+            globalPosition.y.toDouble(),
+            globalPosition.z.toDouble(),
+        ).toFloat() == max
     }
 
     fun getVoxel(index: Int): Voxel = voxels[index]

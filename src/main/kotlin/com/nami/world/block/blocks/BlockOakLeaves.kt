@@ -19,7 +19,7 @@ object BlockOakLeaves : Block(id = "oak_leaves") {
         Face.SOUTH to "block.oak_leaves"
     )
 
-    override val layer = Layer.FOLIAGE
+    override val layer = Layer.TRANSPARENT
 
     override val resistance = mapOf(
         "tool.hand" to 0.25f,

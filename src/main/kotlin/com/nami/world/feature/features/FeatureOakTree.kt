@@ -13,19 +13,6 @@ import kotlin.random.Random
 
 object FeatureOakTree : Feature(id = "oak_tree") {
 
-    override fun shouldGenerate(): Boolean {
-        val noise = JNoise.newBuilder()
-            .superSimplex(
-                SuperSimplexNoiseGenerator.newBuilder().setSeed(0).build()
-            )
-            .scale(1.0)
-            .addModifier { v -> (v + 1) / 2.0 }
-            .clamp(0.0, 1.0)
-            .build()
-
-        return false
-    }
-
     override fun generate(
         elevation: Float,
         moisture: Float,

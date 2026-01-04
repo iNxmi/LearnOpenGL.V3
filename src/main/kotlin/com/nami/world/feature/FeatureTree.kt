@@ -22,10 +22,6 @@ abstract class FeatureTree(
     id: String
 ) : Feature(id) {
 
-    override fun shouldGenerate(): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun generate(
         elevation: Float,
         moisture: Float,

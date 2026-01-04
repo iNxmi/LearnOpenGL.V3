@@ -9,10 +9,6 @@ import kotlin.random.Random
 
 object FeatureCactus : Feature(id = "cactus") {
 
-    override fun shouldGenerate(): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun generate(
         elevation: Float,
         moisture: Float,

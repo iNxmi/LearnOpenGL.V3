@@ -11,10 +11,6 @@ import kotlin.random.Random
 
 object FeatureJungleTree : Feature(id = "jungle_tree") {
 
-    override fun shouldGenerate(): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun generate(
         elevation: Float,
         moisture: Float,

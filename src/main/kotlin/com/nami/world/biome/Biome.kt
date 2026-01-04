@@ -2,7 +2,9 @@ package com.nami.world.biome
 
 import com.nami.world.biome.biomes.*
 import com.nami.world.block.Block
+import com.nami.world.feature.Feature
 import com.nami.world.recipe.Recipe
+import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
 import org.joml.Vector3i
 
@@ -48,6 +50,8 @@ abstract class Biome(val id: String) {
     abstract val elevation: ClosedFloatingPointRange<Float>
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
+
+    open val features: Set<Pair<JNoise, Feature>> = setOf()
 
     open fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
 
