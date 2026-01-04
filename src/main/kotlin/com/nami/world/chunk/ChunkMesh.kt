@@ -84,7 +84,7 @@ class ChunkMesh(
         for ((position, face) in exposedFaces) {
             val block = chunk.voxels[position]!!.block
 
-            val uv = TextureAtlas.getUV(block!!.textures[face]!!)
+            val uv = TextureAtlas.getUVs(block!!.textures[face]!!)
 
             val vertices = listOf(
                 Vertex(position + face.offset0, face.normal, uv.position + Vector2f(uv.size.x, 0.0f)),
