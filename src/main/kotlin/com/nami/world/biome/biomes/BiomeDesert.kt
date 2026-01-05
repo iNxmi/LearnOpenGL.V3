@@ -24,21 +24,31 @@ import kotlin.math.roundToInt
 
 object BiomeDesert : Biome(id = "desert") {
 
-    override val elevation = 67f..256f
+    override val density = 67f..256f
     override val moisture = 0f..20f
     override val temperature = 25f..50f
 
-    override fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
-        val y = position.y
+    override fun generate(
+        position: Vector3i,
+        density: Float,
+        densityAbove: Float,
+        moisture: Float,
+        temperature: Float
+    ): Block? {
+        //Air
+        if (density <= 0)
+            return null
 
-        val height = elevation.roundToInt()
-        if ((0 until height - 3).contains(y))
-            return BlockStone
-
-        if ((height - 3 until height).contains(y))
+        //Surface
+        if (densityAbove <= 0f)
             return BlockSand
 
-        return null
+        //Shallow
+        if (density <= 4.0f)
+            return BlockSand
+
+        //Other
+        return BlockStone
     }
 
 }

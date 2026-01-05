@@ -6,24 +6,17 @@ import com.nami.extension.div
 import com.nami.extension.minus
 import com.nami.extension.plus
 import com.nami.extension.times
+import com.nami.world.biome.BiomeGenerator
+import com.nami.world.block.Block
 import com.nami.world.block.BlockManagerSlow
 import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
-import com.nami.world.chunk.Voxel
-import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator
-import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction
-import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.GL11.GL_CULL_FACE
 import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
-import java.text.NumberFormat
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
-import kotlin.math.abs
 
 class World(
     val size: Vector3i,
@@ -32,48 +25,13 @@ class World(
 
     private val log = KotlinLogging.logger {}
 
-    companion object {
-        val ELEVATION_RANGE = 0.0..256.0
-        val MOISTURE_RANGE = 0.0..100.0
-        val TEMPERATURE_RANGE = -25.0..50.0
-    }
-
-    //    val scale = 4096.0
-    val scale = 1024.0
-
-    val elevation: JNoise = JNoise.newBuilder()
-        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed).build())
-        .octavate(6, 0.5, 2.5, FractalFunction.FBM, false)
-        .scale(1.0 / (2.0 * scale))
-        .addModifier { v -> ((v + 1) / 2.0) * 256 }
-        .clamp(ELEVATION_RANGE.start, ELEVATION_RANGE.endInclusive)
-        .build()
-
-    val moisture: JNoise = JNoise.newBuilder()
-        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 1).build())
-        .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
-        .scale(1.0 / scale)
-        .addModifier { v -> ((v + 1) / 2.0) * MOISTURE_RANGE.endInclusive }
-        .clamp(MOISTURE_RANGE.start, MOISTURE_RANGE.endInclusive)
-        .build()
-
-    val temperature: JNoise = JNoise.newBuilder()
-        .fastSimplex(FastSimplexNoiseGenerator.newBuilder().setSeed(seed + 2).build())
-        .octavate(6, 0.5, 4.0, FractalFunction.FBM, false)
-        .scale(1.0 / scale)
-        .addModifier { v ->
-            ((v + 1) / 2.0) * (abs(TEMPERATURE_RANGE.start) + TEMPERATURE_RANGE.endInclusive) - abs(
-                TEMPERATURE_RANGE.start
-            )
-        }
-        .clamp(TEMPERATURE_RANGE.start, TEMPERATURE_RANGE.endInclusive)
-        .build()
-
     val time = Time()
 
     val blockManager = BlockManagerSlow(this)
 
     val chunks = mutableMapOf<Vector3i, Chunk>()
+
+    val biomeGenerator = BiomeGenerator(seed)
 
     val player = Player()
 
@@ -112,7 +70,6 @@ class World(
                         chunks[chunkPosition + Vector3i(0, 0, -1)]?.generateMesh()
                     }
 
-                    chunks[chunkPosition]!!.update()
                     chunkPositions.add(chunkPosition)
                 }
 
@@ -170,17 +127,10 @@ class World(
             }
     }
 
-    fun getChunk(position: Vector3i): Chunk? = chunks[position]
-
-    fun getVoxel(chunkPosition: Vector3i, localBlockPosition: Vector3i): Voxel? {
-        val chunk = getChunk(chunkPosition) ?: return null
-        return chunk.getVoxel(localBlockPosition)
-    }
-
-    fun getVoxel(position: Vector3i): Voxel? {
+    fun getGlobalBlock(position: Vector3i): Block? {
         val chunkPosition = position / Chunk.SIZE
         val chunkLocalBlockPosition = position - (chunkPosition * Chunk.SIZE)
-        return getVoxel(chunkPosition, chunkLocalBlockPosition)
+        return chunks[chunkPosition]?.blocks[chunkLocalBlockPosition]
     }
 
 }

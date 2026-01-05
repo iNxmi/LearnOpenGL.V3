@@ -2,10 +2,9 @@ package com.nami.world.biome
 
 import com.nami.world.biome.biomes.*
 import com.nami.world.block.Block
+import com.nami.world.chunk.Chunk
 import com.nami.world.feature.Feature
-import com.nami.world.recipe.Recipe
 import de.articdive.jnoise.pipeline.JNoise
-import mu.KotlinLogging
 import org.joml.Vector3i
 
 abstract class Biome(val id: String) {
@@ -27,40 +26,25 @@ abstract class Biome(val id: String) {
 
         val map by lazy { set.associateBy { it.id } }
 
-        fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
-            it.elevation.contains(elevation) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
+        fun evaluate(density: Float, moisture: Float, temperature: Float) = set.firstOrNull {
+            it.density.contains(density) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
         } ?: BiomeError
 
         fun get(id: String) = map[id]
-
-        fun create(
-            position: Vector3i,
-            elevation: Float,
-            moisture: Float,
-            temperature: Float
-        ) = Instance(
-            position = position,
-            elevation = elevation,
-            moisture = moisture,
-            temperature = temperature,
-            template = evaluate(elevation, moisture, temperature)
-        )
     }
 
-    abstract val elevation: ClosedFloatingPointRange<Float>
+    abstract val density: ClosedFloatingPointRange<Float>
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
 
     open val features: Set<Pair<JNoise, Feature>> = setOf()
 
-    open fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? = null
-
-    data class Instance(
-        val position: Vector3i,
-        val elevation: Float,
-        val moisture: Float,
-        val temperature: Float,
-        val template: Biome
-    )
+    open fun generate(
+        position: Vector3i,
+        density: Float,
+        densityAbove: Float,
+        moisture: Float,
+        temperature: Float
+    ): Block? = null
 
 }

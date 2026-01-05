@@ -176,11 +176,11 @@ class PlayScene(val world: World) : Scene() {
             ImGui.text("chunks_loaded=${world.chunks.size}")
 
             val chunk = world.chunks[player.getChunkPosition()]
-            val biome = chunk!!.getVoxel(world.player.getChunkLocalBlockPosition()).biome
-            ImGui.text("biome=${biome.template}")
-            ImGui.text("elevation=${biome.elevation}")
-            ImGui.text("moisture=${biome.moisture}")
-            ImGui.text("temperature=${biome.temperature}")
+//            val biome = chunk!!.(world.player.getChunkLocalBlockPosition()).biome
+//            ImGui.text("biome=${biome.template}")
+//            ImGui.text("elevation=${biome.elevation}")
+//            ImGui.text("moisture=${biome.moisture}")
+//            ImGui.text("temperature=${biome.temperature}")
 
             ImGui.end()
         })

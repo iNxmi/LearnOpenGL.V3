@@ -41,15 +41,11 @@ class ChunkMesh(
     private fun getExposedFaces(): Set<Pair<Vector3i, Face>> {
         val exposedFaces = mutableSetOf<Pair<Vector3i, Face>>()
 
-        for(index in chunk.layers[layer]!!) {
-            val localPosition = Chunk.indexToPosition(index)
-            val globalPosition = chunk.position * Chunk.SIZE + localPosition
-
-            val localVoxel = chunk.getVoxel(localPosition)
-            val localBlock = localVoxel.block ?: continue
-
+        for ((localPosition, localBlock) in chunk.blocks) {
             if (localBlock.layer != layer)
                 continue
+
+            val globalPosition = chunk.position * Chunk.SIZE + localPosition
 
             for ((direction, face) in Face.byNormal) {
                 val globalTargetPosition = globalPosition + direction
@@ -57,8 +53,7 @@ class ChunkMesh(
                 if (globalTargetPosition.x < 0 || globalTargetPosition.y < 0 || globalTargetPosition.z < 0)
                     continue
 
-                val globalVoxel = chunk.world.getVoxel(globalTargetPosition) ?: continue
-                val globalBlock = globalVoxel.block
+                val globalBlock = chunk.world.getGlobalBlock(globalTargetPosition)
 
                 if (globalBlock != null && globalBlock.layer == localBlock.layer)
                     continue
@@ -78,7 +73,7 @@ class ChunkMesh(
         val verticesArrayList = ArrayList<Float>()
         val indicesArrayList = ArrayList<Int>()
         for ((localPosition, face) in exposedFaces) {
-            val block = chunk.getVoxel(localPosition).block
+            val block = chunk.blocks[localPosition]
 
             val uv = TextureAtlas.getUVs(block!!.textures[face]!!)
 
@@ -238,8 +233,7 @@ class ChunkMesh(
         if (globalPosition.x < 0 || globalPosition.y < 0 || globalPosition.z < 0)
             return false
 
-        val voxel = chunk.world.getVoxel(globalPosition) ?: return false
-        val block = voxel.block ?: return false
+        val block = chunk.world.getGlobalBlock(globalPosition) ?: return false
         return block.layer == layer
     }
 

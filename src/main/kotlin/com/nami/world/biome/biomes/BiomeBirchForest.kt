@@ -1,7 +1,7 @@
 package com.nami.world.biome.biomes
 
 import com.nami.world.biome.Biome
-import com.nami.world.block.*
+import com.nami.world.block.Block
 import com.nami.world.block.blocks.BlockDirt
 import com.nami.world.block.blocks.BlockGravel
 import com.nami.world.block.blocks.BlockPodzol
@@ -27,29 +27,40 @@ import kotlin.math.roundToInt
 
 object BiomeBirchForest : Biome(id = "birch_forest") {
 
-    override val elevation = 67f..256f
+    override val density = 67f..256f
     override val moisture = 50f..100f
     override val temperature = 5f..25f
 
-    override fun generate(position: Vector3i, elevation: Float, moisture: Float, temperature: Float): Block? {
-        val y = position.y
+    override fun generate(
+        position: Vector3i,
+        density: Float,
+        densityAbove: Float,
+        moisture: Float,
+        temperature: Float
+    ): Block? {
 
-        val height = elevation.roundToInt()
-        if ((0 until height - 4).contains(y))
-            return BlockStone
+        //Air
+        if (density <= 0f)
+            return null
 
-        if (temperature > 0) {
-            if ((height - 4 until height - 1).contains(y))
-                return BlockDirt
-
-            if ((height - 1 until height).contains(y))
-                return BlockPodzol
-        } else {
-            if ((height - 4 until height).contains(y))
-                return BlockGravel
+        //Surface
+        if (densityAbove <= 0f) {
+            return if (temperature > 0f)
+                BlockPodzol
+            else
+                BlockGravel
         }
 
-        return null
+        //Shallow
+        if (density < 4.0f) {
+            return if (temperature > 0f)
+                BlockDirt
+            else
+                BlockGravel
+        }
+
+        //Other
+        return BlockStone
     }
 
 }

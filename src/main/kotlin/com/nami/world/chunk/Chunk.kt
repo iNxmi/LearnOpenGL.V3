@@ -8,11 +8,17 @@ import com.nami.resources.texture.TextureAtlas
 import com.nami.world.Player
 import com.nami.world.World
 import com.nami.world.biome.Biome
+import com.nami.world.biome.biomes.BiomeBirchForest
+import com.nami.world.biome.biomes.BiomeMushroomForest
+import com.nami.world.biome.biomes.BiomeOakForest
+import com.nami.world.biome.biomes.BiomeSpruceForest
+import com.nami.world.block.Block
 import com.nami.world.block.Layer
 import com.nami.world.block.blocks.BlockError
 import de.articdive.jnoise.pipeline.JNoise
 import mu.KotlinLogging
 import org.joml.Matrix4f
+import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D
@@ -26,6 +32,7 @@ class Chunk(
 
     companion object {
         val SIZE = Vector3i(16, 16, 16)
+        val LENGTH = SIZE.x * SIZE.y * SIZE.z
 
         fun indexToPosition(index: Int): Vector3i = Vector3i(
             index % SIZE.x,
@@ -38,85 +45,75 @@ class Chunk(
 
     private val log = KotlinLogging.logger {}
 
-    val voxels: Array<Voxel>
-    val layers: Map<Layer, MutableSet<Int>> = mapOf(
-        Layer.SOLID to mutableSetOf(),
-        Layer.TRANSPARENT to mutableSetOf(),
-        Layer.FLUID to mutableSetOf(),
-        Layer.FOLIAGE to mutableSetOf()
-    )
+    val densityMap = mutableMapOf<Vector3i, Float>()
+    val moistureMap = mutableMapOf<Vector3i, Float>()
+    val temperatureMap = mutableMapOf<Vector3i, Float>()
+    val blocks = mutableMapOf<Vector3i, Block>()
     val meshes: Map<Layer, ChunkMesh>
 
     init {
-        voxels = Array(SIZE.x * SIZE.y * SIZE.z) { index ->
-            val localBlockPosition = indexToPosition(index)
-            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
+        for (z in 0 until SIZE.z)
+            for (y in 0 until SIZE.y)
+                for (x in 0 until SIZE.x) {
+                    val localPosition = Vector3i(x, y, z)
+                    val globalPosition = (this.position * SIZE) + localPosition
 
-            val elevation = world.elevation.evaluateNoise(
-                globalBlockPosition.x.toDouble(),
-                globalBlockPosition.z.toDouble()
-            ).toFloat()
+                    val density = world.biomeGenerator.getDensity(this, localPosition)
+                    val densityAbove = world.biomeGenerator.getDensity(this, localPosition + Vector3i(0, 1, 0))
+                    densityMap[localPosition] = density
 
-            val moisture = world.moisture.evaluateNoise(
-                globalBlockPosition.x.toDouble(),
-                globalBlockPosition.y.toDouble(),
-                globalBlockPosition.z.toDouble()
-            ).toFloat()
+                    val moisture = world.biomeGenerator.getMoisture(this, localPosition)
+                    moistureMap[localPosition] = moisture
 
-            val temperature = world.temperature.evaluateNoise(
-                globalBlockPosition.x.toDouble(),
-                globalBlockPosition.y.toDouble(),
-                globalBlockPosition.z.toDouble()
-            ).toFloat()
+                    val temperature = world.biomeGenerator.getTemperature(this, localPosition)
+                    temperatureMap[localPosition] = temperature
 
-            val biome = Biome.create(globalBlockPosition, elevation, moisture, temperature)
-            val block = biome.template.generate(globalBlockPosition, elevation, moisture, temperature)
+//                    val biome = Biome.evaluate(density, moisture, temperature)
+                    val biome = BiomeSpruceForest
+                    val block = biome.generate(globalPosition, density, densityAbove, moisture, temperature)
 
-            if (block != null)
-                layers[block.layer]!!.add(index)
-
-            Voxel(localBlockPosition, biome, block)
-        }
-
-        for ((index, voxel) in voxels.withIndex()) {
-            val localBlockPosition = indexToPosition(index)
-            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
-            val biome = voxel.biome
-
-            if (voxel.block != null)
-                continue
-
-            for ((noise, feature) in biome.template.features) {
-                if (!canSpawnFeature(globalBlockPosition, 4, noise))
-                    continue
-
-                val under = positionToIndex(localBlockPosition + Vector3i(0, -1, 0))
-                if (under !in 0 until SIZE.x * SIZE.y * SIZE.z)
-                    continue
-                if (voxels[under].block == null)
-                    continue
-
-                val featureBlocks = feature.generate(biome.elevation, biome.moisture, biome.temperature)
-//                val featureBlocks = mapOf(Vector3i() to BlockError)
-                val byIndex = featureBlocks.mapKeys { positionToIndex(it.key + localBlockPosition) }
-
-                for ((index, newBlock) in byIndex) {
-                    if (index !in 0 until (SIZE.x * SIZE.y * SIZE.z))
-                        continue
-
-                    val currentVoxel = voxels[index]
-                    val currentBlock = currentVoxel.block
-                    if (currentBlock != null)
-                        layers[currentBlock.layer]!!.remove(index)
-
-                    voxels[index].block = newBlock
-
-                    layers[newBlock.layer]!!.add(index)
+                    if (block != null)
+                        blocks[localPosition] = block
                 }
 
-                break
-            }
-        }
+//        for (index in 0 until LENGTH) {
+//            val localBlockPosition = indexToPosition(index)
+//            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
+//
+//            val biome = biomes[index]
+//            val block = blocks[index]
+//
+//            if (block != null)
+//                continue
+//
+//            for ((noise, feature) in biome.template.features) {
+//                if (!canSpawnFeature(globalBlockPosition, 4, noise))
+//                    continue
+//
+//                val under = positionToIndex(localBlockPosition + Vector3i(0, -1, 0))
+//                if (under !in 0 until LENGTH)
+//                    continue
+//                if (blocks[under] == null)
+//                    continue
+//
+//                val featureBlocks = feature.generate(biome.elevation, biome.moisture, biome.temperature)
+//                for ((featureLocalBlockPosition, block) in featureBlocks) {
+//                    val index = positionToIndex(localPosition)
+//                    if (index !in 0 until LENGTH)
+//                        continue
+//
+//                    val currentBlock = blocks[index]
+//                    if (currentBlock != null)
+//                        layers[currentBlock.layer]!!.remove(index)
+//
+//                    voxels[index].block = newBlock
+//
+//                    layers[newBlock.layer]!!.add(index)
+//                }
+//
+//                break
+//            }
+//        }
 
         meshes = mapOf(
             Layer.SOLID to ChunkMesh(this, Layer.SOLID),
@@ -126,33 +123,25 @@ class Chunk(
         )
     }
 
-    private fun canSpawnFeature(globalPosition: Vector3i, radius: Int, noise: JNoise): Boolean {
+    private fun canSpawnFeature(globalPosition: Vector2i, radius: Int, noise: JNoise): Boolean {
         var max = 0f
-        for (z in globalPosition.z - radius..globalPosition.z + radius)
-            for (y in globalPosition.y - radius..globalPosition.y + radius)
-                for (x in globalPosition.x - radius..globalPosition.x + radius) {
-                    val value = noise.evaluateNoise(
-                        x.toDouble(),
-                        y.toDouble(),
-                        z.toDouble(),
-                    ).toFloat()
+        for (z in globalPosition.y - radius..globalPosition.y + radius)
+            for (x in globalPosition.x - radius..globalPosition.x + radius) {
+                val value = noise.evaluateNoise(
+                    x.toDouble(),
+                    z.toDouble(),
+                ).toFloat()
 
-                    max = max(max, value)
-                }
+                max = max(max, value)
+            }
 
         return noise.evaluateNoise(
             globalPosition.x.toDouble(),
             globalPosition.y.toDouble(),
-            globalPosition.z.toDouble(),
         ).toFloat() == max
     }
 
-    fun getVoxel(index: Int): Voxel = voxels[index]
-    fun getVoxel(position: Vector3i): Voxel = getVoxel(positionToIndex(position))
-
     fun generateMesh() = meshes.forEach { (_, mesh) -> mesh.generate() }
-
-    fun update() {}
 
     fun render(time: Time, player: Player, layer: Layer) {
         val shader = Resources.SHADER.get("chunk").bind()
