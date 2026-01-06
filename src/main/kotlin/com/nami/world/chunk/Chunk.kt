@@ -45,9 +45,11 @@ class Chunk(
 
     private val log = KotlinLogging.logger {}
 
+    val elevationMap = mutableMapOf<Vector3i, Float>()
     val densityMap = mutableMapOf<Vector3i, Float>()
     val moistureMap = mutableMapOf<Vector3i, Float>()
     val temperatureMap = mutableMapOf<Vector3i, Float>()
+    val biomes = mutableMapOf<Vector3i, Biome>()
     val blocks = mutableMapOf<Vector3i, Block>()
     val meshes: Map<Layer, ChunkMesh>
 
@@ -57,6 +59,9 @@ class Chunk(
                 for (x in 0 until SIZE.x) {
                     val localPosition = Vector3i(x, y, z)
                     val globalPosition = (this.position * SIZE) + localPosition
+
+                    val elevation = world.biomeGenerator.getElevation(this, Vector2i(localPosition.x, localPosition.z))
+                    elevationMap[localPosition] = elevation
 
                     val density = world.biomeGenerator.getDensity(this, localPosition)
                     val densityAbove = world.biomeGenerator.getDensity(this, localPosition + Vector3i(0, 1, 0))
@@ -68,52 +73,63 @@ class Chunk(
                     val temperature = world.biomeGenerator.getTemperature(this, localPosition)
                     temperatureMap[localPosition] = temperature
 
-//                    val biome = Biome.evaluate(density, moisture, temperature)
-                    val biome = BiomeSpruceForest
-                    val block = biome.generate(globalPosition, density, densityAbove, moisture, temperature)
+                    val biome = Biome.evaluate(elevation, moisture, temperature)
+                    biomes[localPosition] = biome
 
+                    val block = biome.generate(globalPosition, density, densityAbove, moisture, temperature)
                     if (block != null)
                         blocks[localPosition] = block
                 }
 
-//        for (index in 0 until LENGTH) {
-//            val localBlockPosition = indexToPosition(index)
-//            val globalBlockPosition = (this.position * SIZE) + localBlockPosition
-//
-//            val biome = biomes[index]
-//            val block = blocks[index]
-//
-//            if (block != null)
-//                continue
-//
-//            for ((noise, feature) in biome.template.features) {
-//                if (!canSpawnFeature(globalBlockPosition, 4, noise))
-//                    continue
-//
-//                val under = positionToIndex(localBlockPosition + Vector3i(0, -1, 0))
-//                if (under !in 0 until LENGTH)
-//                    continue
-//                if (blocks[under] == null)
-//                    continue
-//
-//                val featureBlocks = feature.generate(biome.elevation, biome.moisture, biome.temperature)
-//                for ((featureLocalBlockPosition, block) in featureBlocks) {
-//                    val index = positionToIndex(localPosition)
-//                    if (index !in 0 until LENGTH)
-//                        continue
-//
-//                    val currentBlock = blocks[index]
-//                    if (currentBlock != null)
-//                        layers[currentBlock.layer]!!.remove(index)
-//
-//                    voxels[index].block = newBlock
-//
-//                    layers[newBlock.layer]!!.add(index)
-//                }
-//
-//                break
-//            }
-//        }
+        for (z in 0 until SIZE.z)
+            for (x in 0 until SIZE.x) {
+                val elevation = world.biomeGenerator.getElevation(this, Vector2i(x, z))
+                if ((this.position.y * SIZE.y) < elevation || ((this.position.y + 1) * SIZE.y) >= elevation)
+                    continue
+
+                val y = elevation.toInt()
+                val localBlockPosition = Vector3i(x, y, z)
+                val globalBlockPosition = (this.position * SIZE) + localBlockPosition
+
+                val biome = biomes[globalBlockPosition]
+                val block = blocks[globalBlockPosition]
+
+                if (block != null)
+                    continue
+
+                for ((noise, feature) in biome!!.features) {
+                    if (!canSpawnFeature(Vector2i(x, z), 4, noise))
+                        continue
+
+                    val localPositionUnder = localBlockPosition + Vector3i(0, -1, 0)
+                    val globalPositionUnder = (this.position * SIZE) + localPositionUnder
+                    if (world.getGlobalBlock(globalPositionUnder) == null)
+                        continue
+
+                    val featureBlocks = feature.generate(
+                        elevationMap[localBlockPosition]!!,
+                        moistureMap[localBlockPosition]!!,
+                        temperatureMap[localBlockPosition]!!
+                    )
+                    for ((featureLocalBlockPosition, block) in featureBlocks) {
+
+                        val localFeatureBlockPosition = localBlockPosition + featureLocalBlockPosition
+
+                        if (localFeatureBlockPosition.x !in 0 until SIZE.x)
+                            continue
+                        if (localFeatureBlockPosition.y !in 0 until SIZE.y)
+                            continue
+                        if (localFeatureBlockPosition.z !in 0 until SIZE.z)
+                            continue
+
+                        val currentBlock = blocks[localFeatureBlockPosition]
+                        if (currentBlock != null)
+                            blocks[localFeatureBlockPosition] = block
+                    }
+
+                    break
+                }
+            }
 
         meshes = mapOf(
             Layer.SOLID to ChunkMesh(this, Layer.SOLID),

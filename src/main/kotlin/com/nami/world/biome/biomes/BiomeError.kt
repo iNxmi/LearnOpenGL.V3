@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
 
 internal object BiomeError : Biome(id = "error") {
 
-    override val density = 0f..0f
+    override val elevation = 0f..0f
     override val moisture = 0f..0f
     override val temperature = 0f..0f
 

@@ -11,7 +11,7 @@ import kotlin.math.roundToInt
 
 object BiomeSpruceForest : Biome(id = "spruce_forest") {
 
-    override val density = 67f..256f
+    override val elevation = 67f..256f
     override val moisture = 0f..100f
     override val temperature = -25f..0f
 

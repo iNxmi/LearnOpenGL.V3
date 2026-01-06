@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 
 object BiomeOakForest : Biome(id = "oak_forest") {
 
-    override val density = 67f..256f
+    override val elevation = 67f..256f
     override val moisture = 0f..100f
     override val temperature = 0f..35f
 
@@ -64,7 +64,7 @@ object BiomeOakForest : Biome(id = "oak_forest") {
             }
 
         //Shallow
-        if (density < 4.0f)
+        if (density < 2.0f)
             if (temperature > 0f)
                 return BlockDirt
             else

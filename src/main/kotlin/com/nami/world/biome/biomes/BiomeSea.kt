@@ -11,7 +11,7 @@ import kotlin.math.roundToInt
 
 object BiomeSea : Biome(id = "sea") {
 
-    override val density = 0f..64f
+    override val elevation = 0f..64f
     override val moisture = 0f..100f
     override val temperature = -25f..50f
 

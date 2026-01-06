@@ -26,14 +26,14 @@ abstract class Biome(val id: String) {
 
         val map by lazy { set.associateBy { it.id } }
 
-        fun evaluate(density: Float, moisture: Float, temperature: Float) = set.firstOrNull {
-            it.density.contains(density) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
+        fun evaluate(elevation: Float, moisture: Float, temperature: Float) = set.firstOrNull {
+            it.elevation.contains(elevation) && it.moisture.contains(moisture) && it.temperature.contains(temperature)
         } ?: BiomeError
 
         fun get(id: String) = map[id]
     }
 
-    abstract val density: ClosedFloatingPointRange<Float>
+    abstract val elevation: ClosedFloatingPointRange<Float>
     abstract val moisture: ClosedFloatingPointRange<Float>
     abstract val temperature: ClosedFloatingPointRange<Float>
 

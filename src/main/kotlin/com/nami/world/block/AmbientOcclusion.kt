@@ -29,10 +29,10 @@ object AmbientOcclusion {
     )
 
     val AO_BOTTOM = arrayOf(
+        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0,  1), Vector3i(-1, 0,  1)),
         AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, -1), Vector3i(-1, 0, -1)),
-        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, -1), Vector3i(1, 0, -1)),
-        AOOffsets(Vector3i(1, 0, 0), Vector3i(0, 0, 1), Vector3i(1, 0, 1)),
-        AOOffsets(Vector3i(-1, 0, 0), Vector3i(0, 0, 1), Vector3i(-1, 0, 1))
+        AOOffsets(Vector3i( 1, 0, 0), Vector3i(0, 0, -1), Vector3i( 1, 0, -1)),
+        AOOffsets(Vector3i( 1, 0, 0), Vector3i(0, 0,  1), Vector3i( 1, 0,  1))
     )
 
     val AO_NORTH = arrayOf(

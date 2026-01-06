@@ -60,7 +60,7 @@ class PlayScene(val world: World) : Scene() {
 //            }
 
             if (ImGui.collapsingHeader("Time")) {
-                if (ImGui.sliderFloat("Scale", timeScale, 0f, 5f))
+                if (ImGui.sliderFloat("Scale", timeScale, 0f, 50f))
                     world.time.scale = timeScale[0]
             }
 
