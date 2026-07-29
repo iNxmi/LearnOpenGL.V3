@@ -8,7 +8,11 @@ class GamePath {
     companion object {
 
         //AppData
-        private val appdata: Path = Paths.get(System.getenv("APPDATA"))
+        private val appdata: Path = Paths.get(
+            System.getenv("APPDATA")
+                ?: System.getenv("XDG_DATA_HOME")
+                ?: (System.getProperty("user.home") + "/.local/share")
+        )
 
         //Root
         private val root: Path = Paths.get("")
