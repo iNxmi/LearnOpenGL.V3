@@ -1,13 +1,14 @@
-package com.nami.engine.platform
+package com.nami.engine
 
-import com.nami.engine.platform.window.Window
+import com.nami.engine.window.Window
 
 interface Platform {
 
     val version: String
     val timeInSeconds: Double
+    val isVsyncEnabled: Boolean
 
     fun initialize()
-    fun createWindow(width: Int, height: Int, title: String = ""): Window
+    fun createWindow(): Window
 
 }

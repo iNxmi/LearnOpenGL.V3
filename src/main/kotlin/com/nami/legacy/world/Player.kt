@@ -3,8 +3,8 @@ package com.nami.world
 import com.nami.Directions
 import com.nami.legacy.Input
 import com.nami.Transform
-import com.nami.engine.platform.input.Key
-import com.nami.engine.platform.input.MouseButton
+import com.nami.engine.input.Key
+import com.nami.engine.input.MouseButton
 import com.nami.legacy.camera.CameraPerspective
 import com.nami.extension.minus
 import com.nami.extension.times

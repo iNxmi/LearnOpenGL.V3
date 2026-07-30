@@ -1,9 +1,11 @@
 package com.nami
 
 import com.jogamp.opengl.GL.GL_MULTISAMPLE
-import com.nami.engine.platform.GLFWPlatform
-import com.nami.engine.platform.Platform
-import com.nami.engine.platform.window.Window
+import com.nami.engine.GLFWPlatform
+import com.nami.engine.Platform
+import com.nami.engine.callbacks.WindowResizeCallback
+import com.nami.engine.window.Size
+import com.nami.engine.window.Window
 import com.nami.legacy.Input
 import com.nami.resources.Resources
 import com.nami.legacy.scene.SceneManager
@@ -32,11 +34,19 @@ class Game {
 
         platform.initialize()
 
-        window = platform.createWindow(1920, 1080, "LearnOpengl.V3")
+        window = platform.createWindow()
+        window.initialize()
+        window.size = Size(1920, 1080)
+        window.title = "LearnOpengl.V3"
         window.setKeyCallback(Input)
         window.setMouseButtonCallback(Input)
         window.setCursorPositionCallback(Input)
         window.setScrollCallback(Input)
+        window.setWindowResizeCallback(object : WindowResizeCallback {
+            override fun onWindowResizeCallback(window: Window, width: Int, height: Int) {
+                glViewport(0, 0, width, height)
+            }
+        })
 
         GL.createCapabilities()
         glEnable(GL_DEPTH_TEST)
@@ -47,7 +57,7 @@ class Game {
         val errorCount = Resources.load()
         if (errorCount != 0) {
             log.warn { "Completed loading with $errorCount errors" }
-        }else {
+        } else {
             log.info { "Completed loading with 0 errors" }
         }
 

@@ -1,8 +1,8 @@
 package com.nami.scene.scenes
 
-import com.nami.engine.platform.input.Key
+import com.nami.engine.input.Key
 import com.nami.legacy.Input
-import com.nami.engine.platform.window.Window
+import com.nami.engine.window.Window
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.world.World

@@ -1,6 +1,6 @@
-package com.nami.engine.platform.callbacks
+package com.nami.engine.callbacks
 
-import com.nami.engine.platform.window.Window
+import com.nami.engine.window.Window
 
 interface CursorPositionCallback {
 

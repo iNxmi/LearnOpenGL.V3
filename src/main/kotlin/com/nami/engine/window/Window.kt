@@ -1,9 +1,10 @@
-package com.nami.engine.platform.window
+package com.nami.engine.window
 
-import com.nami.engine.platform.callbacks.CursorPositionCallback
-import com.nami.engine.platform.callbacks.KeyCallback
-import com.nami.engine.platform.callbacks.MouseButtonCallback
-import com.nami.engine.platform.callbacks.ScrollCallback
+import com.nami.engine.callbacks.CursorPositionCallback
+import com.nami.engine.callbacks.KeyCallback
+import com.nami.engine.callbacks.MouseButtonCallback
+import com.nami.engine.callbacks.ScrollCallback
+import com.nami.engine.callbacks.WindowResizeCallback
 
 interface Window {
 
@@ -13,7 +14,7 @@ interface Window {
     var isVisible: Boolean
     val isRawMouseMotionSupported: Boolean
 
-    fun initialize(width: Int, height: Int, title: String)
+    fun initialize()
 
     fun poll()
     fun swap()
@@ -26,5 +27,6 @@ interface Window {
     fun setMouseButtonCallback(callback: MouseButtonCallback)
     fun setCursorPositionCallback(callback: CursorPositionCallback)
     fun setScrollCallback(callback: ScrollCallback)
+    fun setWindowResizeCallback(callback: WindowResizeCallback)
 
 }

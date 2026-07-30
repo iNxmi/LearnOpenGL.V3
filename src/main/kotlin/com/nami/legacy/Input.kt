@@ -1,13 +1,13 @@
 package com.nami.legacy
 
-import com.nami.engine.platform.callbacks.CursorPositionCallback
-import com.nami.engine.platform.callbacks.KeyCallback
-import com.nami.engine.platform.callbacks.MouseButtonCallback
-import com.nami.engine.platform.callbacks.ScrollCallback
-import com.nami.engine.platform.input.Action
-import com.nami.engine.platform.input.Key
-import com.nami.engine.platform.input.MouseButton
-import com.nami.engine.platform.window.Window
+import com.nami.engine.callbacks.CursorPositionCallback
+import com.nami.engine.callbacks.KeyCallback
+import com.nami.engine.callbacks.MouseButtonCallback
+import com.nami.engine.callbacks.ScrollCallback
+import com.nami.engine.input.Action
+import com.nami.engine.input.Key
+import com.nami.engine.input.MouseButton
+import com.nami.engine.window.Window
 import org.joml.Vector2i
 import java.util.*
 

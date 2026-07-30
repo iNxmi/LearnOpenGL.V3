@@ -1,13 +1,13 @@
-package com.nami.engine.platform
+package com.nami.engine
 
-import com.nami.engine.platform.window.GLFWWindow
-import com.nami.engine.platform.window.Window
+import com.nami.engine.window.GLFWWindow
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11
 import org.lwjgl.glfw.GLFW.glfwGetTime
 import org.lwjgl.glfw.GLFW.glfwGetVersionString
 import org.lwjgl.glfw.GLFW.glfwInit
 import org.lwjgl.glfw.GLFW.glfwInitHint
+import org.lwjgl.glfw.GLFW.glfwSwapInterval
 import org.lwjgl.glfw.GLFWErrorCallback
 
 class GLFWPlatform: Platform {
@@ -15,6 +15,14 @@ class GLFWPlatform: Platform {
     override val version = "GLFW ${glfwGetVersionString()}"
     override val timeInSeconds
         get() = glfwGetTime()
+
+    override var isVsyncEnabled: Boolean = true
+        set(value) {
+            val interval = if(value) 1 else 0
+            glfwSwapInterval(interval)
+
+            field = value
+        }
 
     override fun initialize() {
         GLFWErrorCallback.createPrint(System.err).set()
@@ -24,10 +32,6 @@ class GLFWPlatform: Platform {
             throw IllegalStateException("Failed to initialize GLFW.")
     }
 
-    override fun createWindow(width: Int, height: Int, title:String): Window {
-        val window = GLFWWindow()
-        window.initialize(width, height, title)
-        return window
-    }
+    override fun createWindow() = GLFWWindow()
 
 }
