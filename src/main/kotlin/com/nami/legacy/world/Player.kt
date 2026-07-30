@@ -3,8 +3,8 @@ package com.nami.world
 import com.nami.Directions
 import com.nami.legacy.Input
 import com.nami.Transform
-import com.nami.engine.hardware.input.Key
-import com.nami.engine.hardware.input.MouseButton
+import com.nami.engine.platform.input.Key
+import com.nami.engine.platform.input.MouseButton
 import com.nami.legacy.camera.CameraPerspective
 import com.nami.extension.minus
 import com.nami.extension.times
@@ -18,7 +18,6 @@ import com.nami.world.item.items.ItemTnt
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
-import org.lwjgl.glfw.GLFW
 import kotlin.math.cos
 import kotlin.math.sin
 

@@ -1,13 +1,12 @@
-package com.nami.engine.hardware.window
+package com.nami.engine.platform.window
 
-import com.nami.engine.hardware.callbacks.CursorPositionCallback
-import com.nami.engine.hardware.callbacks.KeyCallback
-import com.nami.engine.hardware.callbacks.MouseButtonCallback
-import com.nami.engine.hardware.callbacks.ScrollCallback
-import com.nami.engine.hardware.input.Action
-import com.nami.engine.hardware.input.Key
-import com.nami.engine.hardware.input.MouseButton
-import org.joml.Vector2i
+import com.nami.engine.platform.callbacks.CursorPositionCallback
+import com.nami.engine.platform.callbacks.KeyCallback
+import com.nami.engine.platform.callbacks.MouseButtonCallback
+import com.nami.engine.platform.callbacks.ScrollCallback
+import com.nami.engine.platform.input.Action
+import com.nami.engine.platform.input.Key
+import com.nami.engine.platform.input.MouseButton
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -59,12 +58,6 @@ class GLFWWindow : Window {
         get() = glfwRawMouseMotionSupported()
 
     override fun initialize(width: Int, height: Int, title: String) {
-        GLFWErrorCallback.createPrint(System.err).set()
-
-        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11) // todo temp fix for wayland issue
-        if (!glfwInit())
-            throw IllegalStateException("Failed to initialize ")
-
         glfwDefaultWindowHints()
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
@@ -86,7 +79,9 @@ class GLFWWindow : Window {
         glfwSwapInterval(0)
     }
 
-    override fun update() = glfwSwapBuffers(handle)
+    override fun poll() = glfwPollEvents()
+
+    override fun swap() = glfwSwapBuffers(handle)
 
     override fun destroy() {
         glfwFreeCallbacks(handle)

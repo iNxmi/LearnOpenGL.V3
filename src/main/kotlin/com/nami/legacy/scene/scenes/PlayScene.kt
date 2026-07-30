@@ -1,8 +1,8 @@
 package com.nami.scene.scenes
 
-import com.nami.engine.hardware.input.Key
+import com.nami.engine.platform.input.Key
 import com.nami.legacy.Input
-import com.nami.engine.hardware.window.Window
+import com.nami.engine.platform.window.Window
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.world.World
@@ -12,7 +12,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.lwjgl.BufferUtils
-import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat

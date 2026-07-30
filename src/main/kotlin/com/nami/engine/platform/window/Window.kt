@@ -1,10 +1,9 @@
-package com.nami.engine.hardware.window
+package com.nami.engine.platform.window
 
-import com.nami.engine.hardware.callbacks.CursorPositionCallback
-import com.nami.engine.hardware.callbacks.KeyCallback
-import com.nami.engine.hardware.callbacks.MouseButtonCallback
-import com.nami.engine.hardware.callbacks.ScrollCallback
-import org.joml.Vector2i
+import com.nami.engine.platform.callbacks.CursorPositionCallback
+import com.nami.engine.platform.callbacks.KeyCallback
+import com.nami.engine.platform.callbacks.MouseButtonCallback
+import com.nami.engine.platform.callbacks.ScrollCallback
 
 interface Window {
 
@@ -16,7 +15,8 @@ interface Window {
 
     fun initialize(width: Int, height: Int, title: String)
 
-    fun update()
+    fun poll()
+    fun swap()
 
     fun destroy()
 

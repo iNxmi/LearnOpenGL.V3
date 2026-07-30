@@ -1,9 +1,9 @@
 package com.nami
 
 import com.jogamp.opengl.GL.GL_MULTISAMPLE
-import com.nami.engine.hardware.input.Key
-import com.nami.engine.hardware.window.GLFWWindow
-import com.nami.engine.hardware.window.Window
+import com.nami.engine.platform.GLFWPlatform
+import com.nami.engine.platform.Platform
+import com.nami.engine.platform.window.Window
 import com.nami.legacy.Input
 import com.nami.resources.Resources
 import com.nami.legacy.scene.SceneManager
@@ -12,7 +12,6 @@ import com.nami.world.World
 import mu.KotlinLogging
 import org.joml.Vector3i
 import org.lwjgl.Version
-import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
@@ -24,13 +23,16 @@ class Game {
 
     private val log = KotlinLogging.logger {}
 
-    val window: Window = GLFWWindow()
+    private val platform: Platform = GLFWPlatform()
+    private val window: Window
 
     init {
         log.info("LWJGL Version: ${Version.getVersion()}")
-        log.info("GLFW Version: ${glfwGetVersionString()}")
+        log.info("Platform API Version: ${platform.version}")
 
-        window.initialize(1920, 1080, "LearnOpengl.V3")
+        platform.initialize()
+
+        window = platform.createWindow(1920, 1080, "LearnOpengl.V3")
         window.setKeyCallback(Input)
         window.setMouseButtonCallback(Input)
         window.setCursorPositionCallback(Input)
@@ -62,10 +64,10 @@ class Game {
     private fun loop() {
         var lastTime = 0f
         while (!window.shouldClose) {
-            glfwPollEvents()
+            window.poll()
 
-            DELTA_TIME = glfwGetTime().toFloat() - lastTime
-            lastTime = glfwGetTime().toFloat()
+            DELTA_TIME = platform.timeInSeconds.toFloat() - lastTime
+            lastTime = platform.timeInSeconds.toFloat()
 
             SceneManager.update()
             render()
@@ -82,7 +84,7 @@ class Game {
         if (error != 0)
             log.warn { "OpenGL Error: $error" }
 
-        window.update()
+        window.swap()
     }
 
 }

@@ -1,4 +1,4 @@
-package com.nami.engine.hardware
+package com.nami.engine.platform
 
 enum class MouseButton {
 

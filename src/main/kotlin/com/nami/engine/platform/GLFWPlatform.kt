@@ -1,0 +1,33 @@
+package com.nami.engine.platform
+
+import com.nami.engine.platform.window.GLFWWindow
+import com.nami.engine.platform.window.Window
+import org.lwjgl.glfw.GLFW.GLFW_PLATFORM
+import org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11
+import org.lwjgl.glfw.GLFW.glfwGetTime
+import org.lwjgl.glfw.GLFW.glfwGetVersionString
+import org.lwjgl.glfw.GLFW.glfwInit
+import org.lwjgl.glfw.GLFW.glfwInitHint
+import org.lwjgl.glfw.GLFWErrorCallback
+
+class GLFWPlatform: Platform {
+
+    override val version = "GLFW ${glfwGetVersionString()}"
+    override val timeInSeconds
+        get() = glfwGetTime()
+
+    override fun initialize() {
+        GLFWErrorCallback.createPrint(System.err).set()
+
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11) // todo temp fix for wayland issue
+        if (!glfwInit())
+            throw IllegalStateException("Failed to initialize GLFW.")
+    }
+
+    override fun createWindow(width: Int, height: Int, title:String): Window {
+        val window = GLFWWindow()
+        window.initialize(width, height, title)
+        return window
+    }
+
+}

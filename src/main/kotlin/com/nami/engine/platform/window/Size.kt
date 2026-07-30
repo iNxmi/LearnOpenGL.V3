@@ -1,4 +1,4 @@
-package com.nami.engine.hardware.window
+package com.nami.engine.platform.window
 
 data class Size(
     val width: Int,
