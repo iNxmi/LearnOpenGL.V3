@@ -4,16 +4,21 @@ import com.nami.engine.hardware.callbacks.CursorPositionCallback
 import com.nami.engine.hardware.callbacks.KeyCallback
 import com.nami.engine.hardware.callbacks.MouseButtonCallback
 import com.nami.engine.hardware.callbacks.ScrollCallback
+import org.joml.Vector2i
 
 interface Window {
 
-    var width: Int
-    var height: Int
+    var size: Size
     var title: String
+    var shouldClose: Boolean
+    var isVisible: Boolean
+    val isRawMouseMotionSupported: Boolean
 
-    fun initialize()
+    fun initialize(width: Int, height: Int, title: String)
+
+    fun update()
+
     fun destroy()
-    fun shouldClose(): Boolean
 
     fun makeContextCurrent()
 

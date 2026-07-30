@@ -135,10 +135,11 @@ enum class Key(val glfwCode: Int) {
 
     KEY_MENU(GLFW_KEY_MENU),
 
+    KEY_LAST(GLFW_KEY_LAST),
     KEY_UNKNOWN(GLFW_KEY_UNKNOWN);
 
     object Mapper {
-        private const val GLFW_ARRAY_SIZE = GLFW_KEY_LAST + 1
+        private val GLFW_ARRAY_SIZE = KEY_LAST.glfwCode + 1
 
         private val glfwArray = Array(GLFW_ARRAY_SIZE) { KEY_UNKNOWN }
 

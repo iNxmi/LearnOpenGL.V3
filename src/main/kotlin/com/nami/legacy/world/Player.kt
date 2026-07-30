@@ -1,9 +1,10 @@
 package com.nami.world
 
 import com.nami.Directions
-import com.nami.Input
+import com.nami.legacy.Input
 import com.nami.Transform
-import com.nami.Window
+import com.nami.engine.hardware.input.Key
+import com.nami.engine.hardware.input.MouseButton
 import com.nami.legacy.camera.CameraPerspective
 import com.nami.extension.minus
 import com.nami.extension.times
@@ -70,7 +71,6 @@ class Player {
 
         val mousePositionDelta = Vector2i(mousePosition).sub(mousePositionLast)
 
-        if (GLFW.glfwGetInputMode(Window.pointer, GLFW.GLFW_CURSOR) == GLFW.GLFW_CURSOR_DISABLED) {
             eulerAngles.y += mousePositionDelta.x * SENSITIVITY
             eulerAngles.x -= mousePositionDelta.y * SENSITIVITY
             eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
@@ -80,7 +80,7 @@ class Player {
                 sin(Math.toRadians(eulerAngles.x.toDouble())),
                 sin(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble()))
             ).normalize()
-        }
+
 
         mousePositionLast.set(mousePosition)
     }
@@ -89,25 +89,25 @@ class Player {
         val position = transform.position
 
         var speed = SPEED * world.time.delta
-        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
+        if (Input.isKeyDown(Key.KEY_LEFT_SHIFT))
             speed *= 2f
 
         val dir = Vector3f(camera.directionFront.x, 0f, camera.directionFront.z).normalize()
         val move = Vector3f()
 
-        if (Input.isKeyDown(GLFW.GLFW_KEY_W))
+        if (Input.isKeyDown(Key.KEY_W))
             move.add(Vector3f(dir).mul(1f, 0f, 1f))
-        if (Input.isKeyDown(GLFW.GLFW_KEY_S))
+        if (Input.isKeyDown(Key.KEY_S))
             move.add(Vector3f(dir).mul(1f, 0f, 1f).mul(-1f))
 
-        if (Input.isKeyDown(GLFW.GLFW_KEY_A))
+        if (Input.isKeyDown(Key.KEY_A))
             move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f).mul(-1f))
-        if (Input.isKeyDown(GLFW.GLFW_KEY_D))
+        if (Input.isKeyDown(Key.KEY_D))
             move.add(Vector3f(dir).cross(Directions.UP.vector).normalize().mul(0.6f))
 
-        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE))
+        if (Input.isKeyDown(Key.KEY_SPACE))
             move.add(Vector3f(0f,1f,0f))
-        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
+        if (Input.isKeyDown(Key.KEY_LEFT_CONTROL))
             move.add(Vector3f(0f,-1f,0f))
 
         if (move.length() != 0f)
@@ -149,11 +149,11 @@ class Player {
 
     fun inputAction(world: World) {
         //Primary
-        if (Input.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
+        if (Input.isMousePressed(MouseButton.LEFT))
             selectedItem?.onPrimaryUse()
 
         //Secondary
-        if (Input.isMousePressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT))
+        if (Input.isMousePressed(MouseButton.RIGHT))
             selectedItem?.onSecondaryUse()
     }
 

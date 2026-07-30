@@ -1,6 +1,6 @@
-package com.nami.scene
+package com.nami.legacy.scene
 
-import com.nami.imgui.ImGUIManager
+import com.nami.scene.Scene
 
 object SceneManager {
 
@@ -15,10 +15,5 @@ object SceneManager {
 
     fun update() = selected?.onUpdate()
     fun render() = selected?.onRender()
-    fun renderHUD() {
-        ImGUIManager.newFrame()
-        selected?.onRenderHUD()
-        ImGUIManager.render()
-    }
 
 }

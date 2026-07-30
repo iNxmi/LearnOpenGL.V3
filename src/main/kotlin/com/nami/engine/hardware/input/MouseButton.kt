@@ -2,7 +2,7 @@ package com.nami.engine.hardware.input
 
 import org.lwjgl.glfw.GLFW.*
 
-enum class MouseButton(glfwCode: Int) {
+enum class MouseButton(val glfwCode: Int) {
 
     LEFT(GLFW_MOUSE_BUTTON_LEFT),
     MIDDLE(GLFW_MOUSE_BUTTON_MIDDLE),
@@ -12,7 +12,9 @@ enum class MouseButton(glfwCode: Int) {
     BUTTON_5(GLFW_MOUSE_BUTTON_5),
     BUTTON_6(GLFW_MOUSE_BUTTON_6),
     BUTTON_7(GLFW_MOUSE_BUTTON_7),
-    BUTTON_8(GLFW_MOUSE_BUTTON_8), ;
+    BUTTON_8(GLFW_MOUSE_BUTTON_8),
+
+    BUTTON_LAST(GLFW_MOUSE_BUTTON_LAST);
 
     object Mapper {
         fun getByGLFW(code: Int) = when (code) {

@@ -7,6 +7,5 @@ abstract class Scene {
 
     open fun onUpdate() {}
     open fun onRender() {}
-    open fun onRenderHUD() {}
 
 }

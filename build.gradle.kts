@@ -87,7 +87,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.nami.GameKt")
+    mainClass.set("com.nami.LaunchKt")
 }
 
 kotlin {

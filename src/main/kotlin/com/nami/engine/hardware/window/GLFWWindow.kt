@@ -1,6 +1,5 @@
 package com.nami.engine.hardware.window
 
-import com.nami.Input
 import com.nami.engine.hardware.callbacks.CursorPositionCallback
 import com.nami.engine.hardware.callbacks.KeyCallback
 import com.nami.engine.hardware.callbacks.MouseButtonCallback
@@ -8,24 +7,61 @@ import com.nami.engine.hardware.callbacks.ScrollCallback
 import com.nami.engine.hardware.input.Action
 import com.nami.engine.hardware.input.Key
 import com.nami.engine.hardware.input.MouseButton
+import org.joml.Vector2i
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWVidMode
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.glViewport
+import org.lwjgl.system.MemoryStack.stackPush
 import org.lwjgl.system.MemoryUtil
 
-class GLFWWindow(
-    override var width: Int,
-    override var height: Int,
+class GLFWWindow : Window {
+
+    private var handle: Long = 0
+
+    override var size: Size
+        get() = stackPush().use{stack ->
+            val bufferWidth = stack.mallocInt(1)
+            val bufferHeight = stack.mallocInt(1)
+            glfwGetWindowSize(handle, bufferWidth, bufferHeight)
+
+            val width = bufferWidth[0]
+            val height = bufferHeight[0]
+
+            Size(width, height)
+        }
+        set(value) {
+            val width = value.width
+            val height = value.height
+
+            glfwSetWindowSize(handle, width, height)
+            glViewport(0, 0, width, height)
+        }
+
     override var title: String
-) : Window {
+        get() = glfwGetWindowTitle(handle)?: ""
+        set(value) = glfwSetWindowTitle(handle, value)
 
-    private var pointer: Long = 0
+    override var shouldClose
+        get() = glfwWindowShouldClose(handle)
+        set(value) = glfwSetWindowShouldClose(handle, value)
 
-    override fun initialize() {
+    override var isVisible
+        get() = glfwGetWindowAttrib(handle, GLFW_VISIBLE) == GLFW_TRUE
+        set(value) = if (value) {
+            glfwShowWindow(handle)
+        } else {
+            glfwHideWindow(handle)
+        }
+
+    override val isRawMouseMotionSupported
+        get() = glfwRawMouseMotionSupported()
+
+    override fun initialize(width: Int, height: Int, title: String) {
         GLFWErrorCallback.createPrint(System.err).set()
 
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11) // todo temp fix for wayland issue
         if (!glfwInit())
             throw IllegalStateException("Failed to initialize ")
 
@@ -34,41 +70,36 @@ class GLFWWindow(
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE)
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE)
-        glfwWindowHint(GLFW_SAMPLES, 16)
+        glfwWindowHint(GLFW_SAMPLES, 4)
 
-        pointer = glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL)
-        if (pointer == MemoryUtil.NULL)
+        handle = glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL)
+        if (handle == MemoryUtil.NULL)
             throw RuntimeException("Failed to create Window.")
 
         val videoMode: GLFWVidMode = glfwGetVideoMode(glfwGetPrimaryMonitor())!!
-        glfwSetWindowPos(pointer, (videoMode.width() - width) / 2, (videoMode.height() - height) / 2)
+        glfwSetWindowPos(handle, (videoMode.width() - width) / 2, (videoMode.height() - height) / 2)
 
-        glfwSetFramebufferSizeCallback(pointer) { _, width, height ->
-            this.width = width
-            this.height = height
-
-            GL11.glViewport(0, 0, width, height)
-        }
+        glfwSetFramebufferSizeCallback(handle) { _, width, height -> size = Size(width, height) }
 
         makeContextCurrent()
 
         glfwSwapInterval(0)
     }
 
+    override fun update() = glfwSwapBuffers(handle)
+
     override fun destroy() {
-        glfwFreeCallbacks(pointer)
-        glfwDestroyWindow(pointer)
+        glfwFreeCallbacks(handle)
+        glfwDestroyWindow(handle)
 
         glfwTerminate()
         glfwSetErrorCallback(null)?.free()
     }
 
-    override fun shouldClose(): Boolean = glfwWindowShouldClose(pointer)
-
-    override fun makeContextCurrent() = glfwMakeContextCurrent(pointer)
+    override fun makeContextCurrent() = glfwMakeContextCurrent(handle)
 
     override fun setKeyCallback(callback: KeyCallback) {
-        glfwSetKeyCallback(pointer, fun(_, keyCode: Int, _, actionCode: Int, _) {
+        glfwSetKeyCallback(handle, fun(_, keyCode: Int, _, actionCode: Int, _) {
             val key = Key.Mapper.getByGLFW(keyCode)
             val action = Action.Mapper.getByGLFW(actionCode)
             callback.onKeyCallback(this, key, action)
@@ -76,7 +107,7 @@ class GLFWWindow(
     }
 
     override fun setMouseButtonCallback(callback: MouseButtonCallback) {
-        glfwSetMouseButtonCallback(pointer, fun(_, buttonCode: Int, actionCode: Int, _) {
+        glfwSetMouseButtonCallback(handle, fun(_, buttonCode: Int, actionCode: Int, _) {
             val button = MouseButton.Mapper.getByGLFW(buttonCode)
             val action = Action.Mapper.getByGLFW(actionCode)
             callback.onMouseButtonCallback(this, button, action)
@@ -84,16 +115,15 @@ class GLFWWindow(
     }
 
     override fun setCursorPositionCallback(callback: CursorPositionCallback) {
-        glfwSetCursorPosCallback(pointer, fun(_, x: Double, y: Double){
+        glfwSetCursorPosCallback(handle, fun(_, x: Double, y: Double) {
             callback.onCursorPositionCallback(this, x.toInt(), y.toInt())
         })
     }
 
     override fun setScrollCallback(callback: ScrollCallback) {
-        glfwSetCursorPosCallback(pointer, fun(_, x: Double, y: Double){
+        glfwSetScrollCallback(handle, fun(_, x: Double, y: Double) {
             callback.onScrollCallback(this, x.toInt(), y.toInt())
         })
     }
-
 
 }

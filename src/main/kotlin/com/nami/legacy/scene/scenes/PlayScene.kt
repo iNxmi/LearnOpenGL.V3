@@ -1,224 +1,43 @@
 package com.nami.scene.scenes
 
-import com.nami.Game
-import com.nami.Input
-import com.nami.Window
-import com.nami.extension.minus
-import com.nami.extension.times
+import com.nami.engine.hardware.input.Key
+import com.nami.legacy.Input
+import com.nami.engine.hardware.window.Window
 import com.nami.resources.GamePath
-import com.nami.resources.Resources
 import com.nami.scene.Scene
-import com.nami.scene.SceneManager
 import com.nami.world.World
-import com.nami.world.block.Block
-import com.nami.world.chunk.Chunk
-import imgui.ImGui
-import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.joml.Vector2i
-import org.joml.Vector3d
-import org.joml.Vector3f
-import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.image.BufferedImage
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-class PlayScene(val world: World) : Scene() {
+class PlayScene(val window: Window, val world: World) : Scene() {
 
     private val log = KotlinLogging.logger { }
 
     private var polygonMode = GL_FILL
 
-    private var menu: String? = null
-
     private val languageID = ImInt()
 
-    private val menus = mapOf(
-        Pair("settings", Runnable {
-            ImGui.setNextWindowPos(0f, 0f)
-            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
-            ImGui.setNextWindowBgAlpha(0.4f)
-
-            ImGui.getFont().scale = 2f
-            ImGui.begin("settings", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
-
-//            if (ImGui.collapsingHeader("Language")) {
-//                val languages = Resources.LANGUAGE.map.values.toList()
-//                ImGui.listBox("Language", languageID, languages.map { it.language("name") }.toTypedArray())
-//
-//                if (ImGui.button("Select"))
-//                    Resources.LANGUAGE.select(languages[languageID.get()].id)
-//            }
-
-            if (ImGui.collapsingHeader("Time")) {
-                if (ImGui.sliderFloat("Scale", timeScale, 0f, 50f))
-                    world.time.scale = timeScale[0]
-            }
-
-            if (ImGui.collapsingHeader("OpenGL"))
-                if (ImGui.combo("glPolygonMode", comboPolyMode, arrayOf("GL_FILL", "GL_LINE", "GL_POINT")))
-                    polygonMode = when (comboPolyMode.get()) {
-                        0 -> GL_FILL
-                        1 -> GL_LINE
-                        2 -> GL_POINT
-                        else -> 0
-                    }
-
-            if (ImGui.sliderFloat("FOV", fovSlider, 1f, 179f))
-                world.player.camera.fov = Math.toRadians(fovSlider[0].toDouble()).toFloat()
-
-            if (ImGui.checkbox("Fullscreen", fullscreen)) {
-                if (fullscreen.get())
-                    glfwSetWindowMonitor(Window.pointer, glfwGetPrimaryMonitor(), 0, 0, 3840, 2160, 120)
-                else
-                    glfwSetWindowMonitor(Window.pointer, 0, 100, 100, 1920, 1080, 120)
-            }
-
-            if (ImGui.button("Main Menu")) {
-                SceneManager.set(MainMenuScene())
-            }
-
-            ImGui.end()
-        }),
-        Pair("inventory", Runnable {
-            val range = 4
-
-            val workstations = mutableSetOf<Block>()
-            for (z in -range..range)
-                for (y in -range..range)
-                    for (x in -range..range)
-                        if (x * x + y * y + z * z <= range * range * range) {
-                            val position = Vector3i(
-                                world.player.transform.position.x.toInt(),
-                                world.player.transform.position.y.toInt(),
-                                world.player.transform.position.z.toInt(),
-                            ).add(x, y, z)
-
-                            val block = world.blockManager.getBlock(position) ?: continue
-
-                            val tags = block.tags
-                            if (!tags.contains("workstation"))
-                                continue
-
-                            workstations.add(block)
-                        }
-
-            ImGui.setNextWindowPos(0f, 0f)
-            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
-            ImGui.setNextWindowBgAlpha(0.4f)
-
-            ImGui.getFont().scale = 2f
-            ImGui.begin("inventory", ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
-
-//            ImGui.text("Inventory")
-//            world.player.items.forEach { (item, itemInstance) ->
-//                if (ImGui.button("${itemInstance.template.language("name")}: ${itemInstance.count} * ${item.weight} = ${itemInstance.count * item.weight}kg"))
-//                    world.player.selectedItem = item.create(count = 100)
-//            }
-//
-//            ImGui.text("Crafting")
-//            ImGui.text("Workstations in range: $workstations")
-//            val recipes = mutableMapOf<Item, Set<RecipeVariant>>()
-//            Resources.RECIPE.map.values.forEach { recipe -> recipes[recipe.item] = recipe.variants }
-//
-//            recipes.forEach { (item, variants) ->
-//                if (!ImGui.collapsingHeader(item.language("name"))) return@forEach
-//
-//                variants.forEach { variant ->
-//                    if (variant.workstations != null)
-//                        if (!variant.workstations.any { it in workstations })
-//                            return@forEach
-//
-//                    val success = false
-//
-//                    val buttonName = variant.ingredients.map { (item, amount) -> "${item.language("name")}($amount) " }
-//                        .joinToString { it } + "= ${item.language("name")}(${variant.amount}) Workstations(${variant.workstations}) Success($success)"
-//                    if (!ImGui.button(buttonName))
-//                        return@forEach
-//
-//                    if (!success)
-//                        return@forEach
-//
-////                    variant.ingredients.forEach { (item, amount) -> inventory.remove(item, amount) }
-////                    inventory.add(item, variant.amount)
-//                }
-//
-//            }
-
-            ImGui.end()
-        }),
-        Pair("info", Runnable {
-            ImGui.setNextWindowPos(0f, 0f)
-            ImGui.setNextWindowSize(Window.width.toFloat(), Window.height.toFloat())
-
-            ImGui.getFont().scale = 2.5f
-            ImGui.begin("info", ImBoolean(), ImGuiWindowFlags.NoDecoration or ImGuiWindowFlags.NoMove)
-
-            ImGui.text("FPS=${1f / Game.DELTA_TIME}")
-            ImGui.text("seed=${world.seed}")
-
-            val player = world.player
-            ImGui.text("position=${player.getGlobalPosition().toString(NumberFormat.getInstance())}")
-            ImGui.text("block_position=${player.getGlobalBlockPosition().toString(NumberFormat.getInstance())}")
-            ImGui.text("chunk_position=${player.getChunkPosition().toString(NumberFormat.getInstance())}")
-            ImGui.text("chunk_relative_position=${player.getChunkLocalPosition().toString(NumberFormat.getInstance())}")
-            ImGui.text("chunk_relative_block_position=${player.getChunkLocalBlockPosition().toString(NumberFormat.getInstance())}")
-
-            ImGui.text("chunks_loaded=${world.chunks.size}")
-
-            val chunk = world.chunks[player.getChunkPosition()]
-//            val biome = chunk!!.(world.player.getChunkLocalBlockPosition()).biome
-//            ImGui.text("biome=${biome.template}")
-//            ImGui.text("elevation=${biome.elevation}")
-//            ImGui.text("moisture=${biome.moisture}")
-//            ImGui.text("temperature=${biome.temperature}")
-
-            ImGui.end()
-        })
-    )
-
     override fun onEnable() {
-        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-
-        if (glfwRawMouseMotionSupported())
-            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
+//        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+//
+//        if (glfwRawMouseMotionSupported())
+//            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
     }
 
     override fun onUpdate() {
-        if (Input.isKeyPressed(GLFW_KEY_ESCAPE)) {
-            menu = if (menu == null) "settings" else null
-
-            glfwSetInputMode(
-                Window.pointer,
-                GLFW_CURSOR,
-                if (menu != null) GLFW_CURSOR_NORMAL else GLFW_CURSOR_DISABLED
-            )
-        }
-
-        if (menu == null) {
-            if (Input.isKeyPressed(GLFW_KEY_E)) {
-                menu = "inventory"
-                glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-            }
-
-            if (Input.isKeyPressed(GLFW_KEY_F3)) {
-                menu = "info"
-                glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
-            }
-        }
-
-        if (Input.isKeyPressed(GLFW_KEY_F2)) {
-            val width = Window.width
-            val height = Window.height
+        if (Input.isKeyPressed(Key.KEY_F2)) {
+            val width = window.size.width
+            val height = window.size.height
 
             val buffer = BufferUtils.createByteBuffer(width * height * 3)
             glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer)
@@ -264,11 +83,5 @@ class PlayScene(val world: World) : Scene() {
     private val fovSlider = floatArrayOf(90.0f)
     private val timeScale = floatArrayOf(1.0f)
     private val fullscreen = ImBoolean(false)
-
-    override fun onRenderHUD() {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-        menus[menu]?.run()
-    }
 
 }
