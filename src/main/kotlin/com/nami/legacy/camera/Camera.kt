@@ -1,4 +1,4 @@
-package com.nami.camera
+package com.nami.legacy.camera
 
 import com.nami.Transform
 import org.joml.Matrix4f

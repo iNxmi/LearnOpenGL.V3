@@ -4,7 +4,7 @@ import com.nami.Directions
 import com.nami.Input
 import com.nami.Transform
 import com.nami.Window
-import com.nami.camera.CameraPerspective
+import com.nami.legacy.camera.CameraPerspective
 import com.nami.extension.minus
 import com.nami.extension.times
 import com.nami.world.block.Block
