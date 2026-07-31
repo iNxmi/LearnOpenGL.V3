@@ -1,21 +1,19 @@
-package com.nami
+package com.nami.legacy
 
-import com.jogamp.opengl.GL.GL_MULTISAMPLE
 import com.nami.engine.GLFWPlatform
-import com.nami.engine.Platform
-import com.nami.engine.callbacks.WindowResizeCallback
-import com.nami.engine.window.Size
-import com.nami.engine.window.Window
-import com.nami.legacy.Input
-import com.nami.resources.Resources
+import com.nami.engine.platform.Platform
+import com.nami.engine.platform.callbacks.WindowResizeCallback
+import com.nami.engine.platform.window.Size
+import com.nami.engine.platform.window.Window
 import com.nami.legacy.scene.SceneManager
+import com.nami.resources.Resources
 import com.nami.scene.scenes.PlayScene
 import com.nami.world.World
 import mu.KotlinLogging
 import org.joml.Vector3i
 import org.lwjgl.Version
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11
 
 class Game {
 
@@ -44,15 +42,15 @@ class Game {
         window.setScrollCallback(Input)
         window.setWindowResizeCallback(object : WindowResizeCallback {
             override fun onWindowResizeCallback(window: Window, width: Int, height: Int) {
-                glViewport(0, 0, width, height)
+                GL11.glViewport(0, 0, width, height)
             }
         })
 
         GL.createCapabilities()
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_MULTISAMPLE)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        GL11.glEnable(com.jogamp.opengl.GL.GL_MULTISAMPLE)
+        GL11.glEnable(GL11.GL_BLEND)
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
 
         val errorCount = Resources.load()
         if (errorCount != 0) {
@@ -86,11 +84,11 @@ class Game {
     }
 
     private fun render() {
-        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT or GL11.GL_STENCIL_BUFFER_BIT)
 
         SceneManager.render()
 
-        val error = glGetError()
+        val error = GL11.glGetError()
         if (error != 0)
             log.warn { "OpenGL Error: $error" }
 

@@ -1,6 +1,6 @@
-package com.nami.engine
+package com.nami.engine.platform
 
-import com.nami.engine.window.Window
+import com.nami.engine.platform.window.Window
 
 interface Platform {
 

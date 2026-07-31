@@ -1,11 +1,11 @@
-package com.nami.engine.window
+package com.nami.engine.platform.window
 
-import com.nami.engine.callbacks.CursorPositionCallback
-import com.nami.engine.callbacks.KeyCallback
-import com.nami.engine.callbacks.MouseButtonCallback
-import com.nami.engine.callbacks.ScrollCallback
-import com.nami.engine.callbacks.WindowResizeCallback
-import com.nami.engine.input.CursorMode
+import com.nami.engine.platform.callbacks.CursorPositionCallback
+import com.nami.engine.platform.callbacks.KeyCallback
+import com.nami.engine.platform.callbacks.MouseButtonCallback
+import com.nami.engine.platform.callbacks.ScrollCallback
+import com.nami.engine.platform.callbacks.WindowResizeCallback
+import com.nami.engine.platform.input.CursorMode
 
 interface Window {
 

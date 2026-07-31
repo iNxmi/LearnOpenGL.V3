@@ -1,5 +1,7 @@
 package com.nami
 
+import com.nami.legacy.Game
+
 class Time {
 
     var seconds = 0f

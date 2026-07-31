@@ -3,9 +3,9 @@ package com.nami.world
 import com.nami.Directions
 import com.nami.legacy.Input
 import com.nami.Transform
-import com.nami.engine.input.Key
-import com.nami.engine.input.MouseButton
-import com.nami.legacy.camera.CameraPerspective
+import com.nami.engine.platform.input.Key
+import com.nami.engine.platform.input.MouseButton
+import com.nami.legacy.camera.PerspectiveCamera
 import com.nami.extension.minus
 import com.nami.extension.times
 import com.nami.world.block.Block
@@ -18,6 +18,7 @@ import com.nami.world.item.items.ItemTnt
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
+import java.text.NumberFormat
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -37,7 +38,7 @@ class Player {
         transform.position.y = 128f
     }
 
-    val camera = CameraPerspective(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
+    val camera = PerspectiveCamera(90.0f, 16.0f / 9.0f, 0.01f, 1024.0f)
 
     val acceleration = Vector3f(0f, 0f, 0f)
 
@@ -74,12 +75,13 @@ class Player {
             eulerAngles.x -= mousePositionDelta.y * SENSITIVITY
             eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
 
-            camera.directionFront.set(
-                cos(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble())),
-                sin(Math.toRadians(eulerAngles.x.toDouble())),
-                sin(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble()))
-            ).normalize()
+            camera.rotation.rotationY(Math.toRadians(-eulerAngles.y.toDouble()).toFloat()).rotateX(Math.toRadians(eulerAngles.x.toDouble()).toFloat())
 
+//            camera.directionFront.set(
+//                cos(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble())),
+//                sin(Math.toRadians(eulerAngles.x.toDouble())),
+//                sin(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble()))
+//            ).normalize()
 
         mousePositionLast.set(mousePosition)
     }
@@ -91,7 +93,9 @@ class Player {
         if (Input.isKeyDown(Key.KEY_LEFT_SHIFT))
             speed *= 2f
 
-        val dir = Vector3f(camera.directionFront.x, 0f, camera.directionFront.z).normalize()
+        val direction = Vector3f(0f, 0f, -1f).rotate(camera.rotation)
+
+        val dir = Vector3f(direction.x, 0f, direction.z).normalize()
         val move = Vector3f()
 
         if (Input.isKeyDown(Key.KEY_W))
@@ -143,7 +147,7 @@ class Player {
 //            acceleration.y = 0f
 //        }
 
-        camera.transform.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
+        camera.position.set(Vector3f(position).add(0f, HEIGHT, 0f))
     }
 
     fun inputAction(world: World) {
@@ -156,41 +160,40 @@ class Player {
             selectedItem?.onSecondaryUse()
     }
 
-    fun getFacingMaterial(world: World): Block? {
-        for (i in 0..MAX_ITERATIONS) {
-            val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
-            val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+//    fun getFacingMaterial(world: World): Block? {
+//        for (i in 0..MAX_ITERATIONS) {
+//            val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
+//                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
+//            val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+//
+//            val blockManager = world.blockManager
+//            val block = blockManager.getBlock(blockPos) ?: continue
+//            return block
+//        }
+//
+//        return null
+//    }
 
-
-            val blockManager = world.blockManager
-            val block = blockManager.getBlock(blockPos) ?: continue
-            return block
-        }
-
-        return null
-    }
-
-    fun getPositionBeforeFacingBlock(world: World): Vector3i? {
-        for (i in 0..MAX_ITERATIONS) {
-            val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
-            val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
-
-            val blockManager = world.blockManager
-            if (blockManager.getBlock(blockPos) == null)
-                continue
-
-            val lastPos =
-                Vector3f(transform.position).add(0f, HEIGHT, 0f)
-                    .add(Vector3f(camera.directionFront).mul(((i - 1).toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
-            val lastBlockPos = Vector3i(lastPos.x.toInt(), lastPos.y.toInt(), lastPos.z.toInt())
-
-            return lastBlockPos
-        }
-
-        return null
-    }
+//    fun getPositionBeforeFacingBlock(world: World): Vector3i? {
+//        for (i in 0..MAX_ITERATIONS) {
+//            val pos = Vector3f(transform.position).add(0f, HEIGHT, 0f)
+//                .add(Vector3f(camera.directionFront).mul((i.toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
+//            val blockPos = Vector3i(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+//
+//            val blockManager = world.blockManager
+//            if (blockManager.getBlock(blockPos) == null)
+//                continue
+//
+//            val lastPos =
+//                Vector3f(transform.position).add(0f, HEIGHT, 0f)
+//                    .add(Vector3f(camera.directionFront).mul(((i - 1).toFloat() / MAX_ITERATIONS.toFloat()) * RANGE))
+//            val lastBlockPos = Vector3i(lastPos.x.toInt(), lastPos.y.toInt(), lastPos.z.toInt())
+//
+//            return lastBlockPos
+//        }
+//
+//        return null
+//    }
 
     fun getGroundHeight(world: World) = getGroundHeight(
         world,

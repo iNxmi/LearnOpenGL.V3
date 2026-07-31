@@ -1,4 +1,4 @@
-package com.nami.engine.input
+package com.nami.engine.platform.input
 
 import org.lwjgl.glfw.GLFW
 

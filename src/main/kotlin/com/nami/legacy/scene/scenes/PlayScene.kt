@@ -1,13 +1,12 @@
 package com.nami.scene.scenes
 
-import com.nami.engine.input.CursorMode
-import com.nami.engine.input.Key
+import com.nami.engine.platform.input.CursorMode
+import com.nami.engine.platform.input.Key
 import com.nami.legacy.Input
-import com.nami.engine.window.Window
+import com.nami.engine.platform.window.Window
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.world.World
-import imgui.type.ImBoolean
 import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -78,10 +77,5 @@ class PlayScene(val window: Window, val world: World) : Scene() {
 
         world.render()
     }
-
-    private val comboPolyMode = ImInt()
-    private val fovSlider = floatArrayOf(90.0f)
-    private val timeScale = floatArrayOf(1.0f)
-    private val fullscreen = ImBoolean(false)
 
 }

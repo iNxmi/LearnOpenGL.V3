@@ -151,7 +151,7 @@ class ChunkMesh(
             return
 
         faces.sortByDescending {
-            it.center.distanceSquared(player.camera.transform.position)
+            it.center.distanceSquared(player.camera.position)
         }
 
         val sortedIndices = IntArray(originalIndices.size)

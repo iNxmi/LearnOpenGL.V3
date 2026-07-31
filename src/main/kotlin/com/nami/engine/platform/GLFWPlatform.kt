@@ -1,6 +1,7 @@
 package com.nami.engine
 
-import com.nami.engine.window.GLFWWindow
+import com.nami.engine.platform.Platform
+import com.nami.engine.platform.window.GLFWWindow
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11
 import org.lwjgl.glfw.GLFW.glfwGetTime

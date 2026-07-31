@@ -1,10 +1,10 @@
-package com.nami.engine.window
+package com.nami.engine.platform.window
 
-import com.nami.engine.callbacks.*
-import com.nami.engine.input.Action
-import com.nami.engine.input.CursorMode
-import com.nami.engine.input.Key
-import com.nami.engine.input.MouseButton
+import com.nami.engine.platform.callbacks.*
+import com.nami.engine.platform.input.Action
+import com.nami.engine.platform.input.CursorMode
+import com.nami.engine.platform.input.Key
+import com.nami.engine.platform.input.MouseButton
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.system.MemoryStack.stackPush

@@ -164,8 +164,8 @@ class Chunk(
         shader.uniform.set("u_light_direction", Vector3f(1f, 1f, 0f).normalize())
         shader.uniform.set("u_specular_exponent", 8.0f)
 
-        shader.uniform.set("u_projection_matrix", player.camera.projection())
-        shader.uniform.set("u_view_matrix", player.camera.view())
+        shader.uniform.set("u_projection_matrix", player.camera.projection)
+        shader.uniform.set("u_view_matrix", player.camera.view)
 
         shader.uniform.set("u_camera_position", player.transform.position)
 

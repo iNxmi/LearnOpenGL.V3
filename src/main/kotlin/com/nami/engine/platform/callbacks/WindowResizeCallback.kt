@@ -1,6 +1,6 @@
-package com.nami.engine.callbacks
+package com.nami.engine.platform.callbacks
 
-import com.nami.engine.window.Window
+import com.nami.engine.platform.window.Window
 
 interface WindowResizeCallback {
 

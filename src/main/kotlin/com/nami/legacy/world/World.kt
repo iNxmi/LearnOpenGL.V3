@@ -109,7 +109,7 @@ class World(
         for ((chunkPosition, chunk) in chunks) {
             val worldPositionChunk =
                 Vector3f(chunkPosition).mul(Vector3f(Chunk.SIZE)).add(Vector3f(Chunk.SIZE).div(2.0f))
-            val worldPositionCamera = player.camera.transform.position
+            val worldPositionCamera = player.camera.position
             val distance = worldPositionChunk.distanceSquared(worldPositionCamera)
 
             sorted.put(distance, chunk)

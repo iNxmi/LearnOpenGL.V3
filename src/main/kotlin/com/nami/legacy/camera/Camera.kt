@@ -1,14 +1,15 @@
 package com.nami.legacy.camera
 
-import com.nami.Transform
 import org.joml.Matrix4f
+import org.joml.Quaternionf
+import org.joml.Vector3f
 
-abstract class Camera(
-    val transform: Transform = Transform()
-) {
-    protected val projection = Matrix4f()
-    abstract fun projection(): Matrix4f
+interface Camera {
 
-    protected val view = Matrix4f()
-    abstract fun view(): Matrix4f
+    val position: Vector3f
+    val rotation: Quaternionf
+
+    val projection: Matrix4f
+    val view: Matrix4f
+
 }
