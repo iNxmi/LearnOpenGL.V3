@@ -2,6 +2,7 @@ package com.nami.engine
 
 import com.nami.engine.platform.Platform
 import com.nami.engine.platform.window.GLFWWindow
+import mu.KotlinLogging
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM
 import org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11
 import org.lwjgl.glfw.GLFW.glfwGetTime
@@ -13,7 +14,9 @@ import org.lwjgl.glfw.GLFWErrorCallback
 
 class GLFWPlatform: Platform {
 
-    override val version = "GLFW ${glfwGetVersionString()}"
+    private val logger = KotlinLogging.logger {}
+
+    override val version = glfwGetVersionString()
     override val timeInSeconds
         get() = glfwGetTime()
 
@@ -26,6 +29,8 @@ class GLFWPlatform: Platform {
         }
 
     override fun initialize() {
+        logger.info { "GLFW Version: $version" }
+
         GLFWErrorCallback.createPrint(System.err).set()
 
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11) // todo temp fix for wayland issue

@@ -4,16 +4,15 @@ import com.nami.scene.Scene
 
 object SceneManager {
 
-    private var selected: Scene? = null
+    var scene: Scene? = null
+        set(value) {
+            field?.onDisable()
 
-    fun set(scene: Scene) {
-        selected?.onDisable()
+            field = value
+            field?.onEnable()
+        }
 
-        selected = scene
-        selected?.onEnable()
-    }
-
-    fun update() = selected?.onUpdate()
-    fun render() = selected?.onRender()
+    fun update() = scene?.onUpdate()
+    fun render() = scene?.onRender()
 
 }

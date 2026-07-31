@@ -1,8 +1,5 @@
-import org.gradle.internal.os.OperatingSystem
-
 plugins {
     kotlin("jvm") version "2.2.21"
-    application
 }
 
 group = "com.nami"
@@ -86,14 +83,20 @@ dependencies {
     implementation("org.joml:joml-primitives:1.10.0")
 }
 
-application {
-    mainClass.set("com.nami.LaunchKt")
-}
-
 kotlin {
     jvmToolchain(21)
 
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
+}
+
+val runServer by tasks.registering(JavaExec::class) {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.nami.game.server.LaunchKt")
+}
+
+val runClient by tasks.registering(JavaExec::class) {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.nami.game.client.LaunchKt")
 }

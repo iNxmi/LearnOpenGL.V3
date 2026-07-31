@@ -5,10 +5,9 @@ import com.nami.legacy.Input
 import com.nami.Transform
 import com.nami.engine.platform.input.Key
 import com.nami.engine.platform.input.MouseButton
-import com.nami.legacy.camera.PerspectiveCamera
+import com.nami.engine.camera.PerspectiveCamera
 import com.nami.extension.minus
 import com.nami.extension.times
-import com.nami.world.block.Block
 import com.nami.world.block.Layer
 import com.nami.world.chunk.Chunk
 import com.nami.world.item.Item
@@ -18,9 +17,6 @@ import com.nami.world.item.items.ItemTnt
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector3i
-import java.text.NumberFormat
-import kotlin.math.cos
-import kotlin.math.sin
 
 class Player {
 
@@ -71,17 +67,15 @@ class Player {
 
         val mousePositionDelta = Vector2i(mousePosition).sub(mousePositionLast)
 
-            eulerAngles.y += mousePositionDelta.x * SENSITIVITY
-            eulerAngles.x -= mousePositionDelta.y * SENSITIVITY
-            eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
+        eulerAngles.y += mousePositionDelta.x * SENSITIVITY
+        eulerAngles.x -= mousePositionDelta.y * SENSITIVITY
+        eulerAngles.x = eulerAngles.x.coerceIn(-89.9f, 89.9f)
 
-            camera.rotation.rotationY(Math.toRadians(-eulerAngles.y.toDouble()).toFloat()).rotateX(Math.toRadians(eulerAngles.x.toDouble()).toFloat())
-
-//            camera.directionFront.set(
-//                cos(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble())),
-//                sin(Math.toRadians(eulerAngles.x.toDouble())),
-//                sin(Math.toRadians(eulerAngles.y.toDouble())) * cos(Math.toRadians(eulerAngles.x.toDouble()))
-//            ).normalize()
+        camera.rotation.rotationY(
+            Math.toRadians(-eulerAngles.y.toDouble()).toFloat()
+        ).rotateX(
+            Math.toRadians(eulerAngles.x.toDouble()).toFloat()
+        )
 
         mousePositionLast.set(mousePosition)
     }

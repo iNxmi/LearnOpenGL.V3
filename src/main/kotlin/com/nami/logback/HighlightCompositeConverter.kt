@@ -14,5 +14,4 @@ class HighlightCompositeConverter : ForegroundCompositeConverterBase<ILoggingEve
         else -> ANSIConstants.DEFAULT_FG
     }
 
-
 }

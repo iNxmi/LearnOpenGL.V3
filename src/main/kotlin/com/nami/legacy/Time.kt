@@ -1,6 +1,6 @@
 package com.nami
 
-import com.nami.legacy.Game
+import com.nami.game.client.Client
 
 class Time {
 
@@ -12,7 +12,7 @@ class Time {
     var scale = 1.0f
 
     fun update() {
-        delta = Game.DELTA_TIME * scale
+        delta = Client.DELTA_TIME * scale
         seconds += delta
     }
 

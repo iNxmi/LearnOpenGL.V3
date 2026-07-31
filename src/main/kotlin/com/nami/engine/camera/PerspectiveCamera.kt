@@ -1,4 +1,4 @@
-package com.nami.legacy.camera
+package com.nami.engine.camera
 
 import com.nami.Directions
 import org.joml.Matrix4f
