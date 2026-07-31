@@ -6,6 +6,7 @@ import com.nami.engine.callbacks.MouseButtonCallback
 import com.nami.engine.callbacks.ScrollCallback
 import com.nami.engine.callbacks.WindowResizeCallback
 import com.nami.engine.input.Action
+import com.nami.engine.input.CursorMode
 import com.nami.engine.input.Key
 import com.nami.engine.input.MouseButton
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
@@ -46,6 +47,10 @@ class GLFWWindow : Window {
             glfwHideWindow(handle)
         }
 
+    override var isResizable
+        get() = glfwGetWindowAttrib(handle, GLFW_RESIZABLE) == GLFW_TRUE
+        set(value) = glfwSetWindowAttrib(handle, GLFW_RESIZABLE, if(value) GLFW_TRUE else GLFW_FALSE)
+
     override val isRawMouseMotionSupported
         get() = glfwRawMouseMotionSupported()
 
@@ -68,6 +73,12 @@ class GLFWWindow : Window {
 
         makeContextCurrent()
     }
+
+    override var cursorMode = CursorMode.NORMAL
+        set(value) {
+            glfwSetInputMode(handle, GLFW_CURSOR, value.glfwCode)
+            field = value
+        }
 
     override fun poll() = glfwPollEvents()
 

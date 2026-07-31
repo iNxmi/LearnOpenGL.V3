@@ -5,14 +5,19 @@ import com.nami.engine.callbacks.KeyCallback
 import com.nami.engine.callbacks.MouseButtonCallback
 import com.nami.engine.callbacks.ScrollCallback
 import com.nami.engine.callbacks.WindowResizeCallback
+import com.nami.engine.input.CursorMode
 
 interface Window {
 
     var size: Size
     var title: String
+
     var shouldClose: Boolean
+
     var isVisible: Boolean
+    var isResizable: Boolean
     val isRawMouseMotionSupported: Boolean
+    var cursorMode : CursorMode
 
     fun initialize()
 

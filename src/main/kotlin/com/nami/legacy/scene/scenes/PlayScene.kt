@@ -1,5 +1,6 @@
 package com.nami.scene.scenes
 
+import com.nami.engine.input.CursorMode
 import com.nami.engine.input.Key
 import com.nami.legacy.Input
 import com.nami.engine.window.Window
@@ -27,6 +28,8 @@ class PlayScene(val window: Window, val world: World) : Scene() {
     private val languageID = ImInt()
 
     override fun onEnable() {
+        window.cursorMode = CursorMode.DISABLED
+
 //        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
 //
 //        if (glfwRawMouseMotionSupported())
