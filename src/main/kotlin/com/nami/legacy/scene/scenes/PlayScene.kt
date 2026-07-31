@@ -30,10 +30,8 @@ class PlayScene(val window: Window, val world: World) : Scene() {
     override fun onEnable() {
         window.cursorMode = CursorMode.DISABLED
 
-//        glfwSetInputMode(Window.pointer, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-//
-//        if (glfwRawMouseMotionSupported())
-//            glfwSetInputMode(Window.pointer, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE)
+        if(window.isRawMouseMotionSupported)
+            window.isRawMouseMotionEnabled = true
     }
 
     override fun onUpdate() {

@@ -1,10 +1,6 @@
 package com.nami.engine.window
 
-import com.nami.engine.callbacks.CursorPositionCallback
-import com.nami.engine.callbacks.KeyCallback
-import com.nami.engine.callbacks.MouseButtonCallback
-import com.nami.engine.callbacks.ScrollCallback
-import com.nami.engine.callbacks.WindowResizeCallback
+import com.nami.engine.callbacks.*
 import com.nami.engine.input.Action
 import com.nami.engine.input.CursorMode
 import com.nami.engine.input.Key
@@ -19,7 +15,7 @@ class GLFWWindow : Window {
     private var handle: Long = 0
 
     override var size: Size
-        get() = stackPush().use{ stack ->
+        get() = stackPush().use { stack ->
             val bufferWidth = stack.mallocInt(1)
             val bufferHeight = stack.mallocInt(1)
             glfwGetWindowSize(handle, bufferWidth, bufferHeight)
@@ -32,7 +28,7 @@ class GLFWWindow : Window {
         set(value) = glfwSetWindowSize(handle, value.width, value.height)
 
     override var title: String
-        get() = glfwGetWindowTitle(handle)?: ""
+        get() = glfwGetWindowTitle(handle) ?: ""
         set(value) = glfwSetWindowTitle(handle, value)
 
     override var shouldClose
@@ -49,10 +45,27 @@ class GLFWWindow : Window {
 
     override var isResizable
         get() = glfwGetWindowAttrib(handle, GLFW_RESIZABLE) == GLFW_TRUE
-        set(value) = glfwSetWindowAttrib(handle, GLFW_RESIZABLE, if(value) GLFW_TRUE else GLFW_FALSE)
+        set(value) {
+            val code = if (value) GLFW_TRUE else GLFW_FALSE
+            glfwSetWindowAttrib(handle, GLFW_RESIZABLE, code)
+        }
 
     override val isRawMouseMotionSupported
         get() = glfwRawMouseMotionSupported()
+
+    override var isRawMouseMotionEnabled
+        get() = glfwGetInputMode(handle, GLFW_RAW_MOUSE_MOTION) == GLFW_TRUE
+        set(value) {
+            val code = if (value) GLFW_TRUE else GLFW_FALSE
+            glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, code)
+        }
+
+    override var cursorMode: CursorMode
+        get() {
+            val code = glfwGetInputMode(handle, GLFW_CURSOR)
+            return CursorMode.Mapper.getByGLFW(code)
+        }
+        set(value) = glfwSetInputMode(handle, GLFW_CURSOR, value.glfwCode)
 
     override fun initialize() {
         glfwDefaultWindowHints()
@@ -73,12 +86,6 @@ class GLFWWindow : Window {
 
         makeContextCurrent()
     }
-
-    override var cursorMode = CursorMode.NORMAL
-        set(value) {
-            glfwSetInputMode(handle, GLFW_CURSOR, value.glfwCode)
-            field = value
-        }
 
     override fun poll() = glfwPollEvents()
 

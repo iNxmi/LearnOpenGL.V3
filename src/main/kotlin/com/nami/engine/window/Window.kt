@@ -17,6 +17,7 @@ interface Window {
     var isVisible: Boolean
     var isResizable: Boolean
     val isRawMouseMotionSupported: Boolean
+    var isRawMouseMotionEnabled: Boolean
     var cursorMode : CursorMode
 
     fun initialize()
