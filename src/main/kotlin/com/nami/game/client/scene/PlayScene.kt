@@ -10,12 +10,9 @@ import com.nami.legacy.Input
 import com.nami.resources.GamePath
 import com.nami.scene.Scene
 import com.nami.world.World
-import imgui.type.ImInt
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.GL_RGB
 import org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE
 import org.lwjgl.opengl.GL11.glReadPixels

@@ -15,6 +15,7 @@ import com.nami.world.chunk.Chunk
 import mu.KotlinLogging
 import org.joml.Vector3f
 import org.joml.Vector3i
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL11.GL_CULL_FACE
 import org.lwjgl.opengl.GL11.glEnable
 import org.lwjgl.opengl.GL33.glClearColor
@@ -41,8 +42,12 @@ class World(
     fun render(graphics: Graphics) {
         time.update()
 
-        val color = Vector3f(52f / 255f, 146f / 255f, 235f / 255f).mul(1f)
-        glClearColor(color.x, color.y, color.z, 1.0f)
+        graphics.clearColor = Vector4f(
+            52.0f / 255.0f,
+            146.0f / 255.0f,
+            235.0f / 255.0f,
+            1.0f
+        ).mul(0.50f)
 
         player.update(this)
 

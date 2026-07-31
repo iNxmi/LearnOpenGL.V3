@@ -1,6 +1,7 @@
 package com.nami.engine.graphics
 
 import mu.KotlinLogging
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL.*
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL13.*
@@ -64,6 +65,15 @@ class OpenGLGraphics : Graphics {
             glEnable(GL_CULL_FACE)
             glCullFace(value.openglCode)
         }
+
+    override var clearColor: Vector4f
+        get() = stackPush().use { stack ->
+            val buffer = stack.mallocFloat(4)
+            glGetFloatv(GL_COLOR_CLEAR_VALUE, buffer)
+
+            return Vector4f(buffer[0], buffer[1], buffer[2], buffer[3])
+        }
+        set(value) = glClearColor(value.x,value.y,value.z,value.w)
 
     override fun initialize() {
         createCapabilities()

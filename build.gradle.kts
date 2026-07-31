@@ -23,18 +23,14 @@ val lwjglNatives = Pair(
                 "natives-linux-ppc64le"
             else if (arch.startsWith("riscv"))
                 "natives-linux-riscv64"
-            else
-                "natives-linux"
-        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) }     ->
-            "natives-macos"
-        arrayOf("Windows").any { name.startsWith(it) }                ->
-            "natives-windows"
-        else                                                                            ->
-            throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
+            else "natives-linux"
+
+        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) } -> "natives-macos"
+        arrayOf("Windows").any { name.startsWith(it) } -> "natives-windows"
+        else -> throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
     }
 }
 
-val imguiVersion = "1.86.11"
 val jomlVersion = "1.10.5"
 
 dependencies {
@@ -51,11 +47,6 @@ dependencies {
     implementation("org.danilopianini:khttp:1.3.1")
     implementation("de.articdive:jnoise-pipeline:4.1.0")
     implementation("de.javagl:obj:0.4.0")
-
-    implementation("io.github.spair:imgui-java-binding:$imguiVersion")
-    implementation("io.github.spair:imgui-java-lwjgl3:$imguiVersion")
-    implementation("io.github.spair:imgui-java-natives-windows:$imguiVersion")
-    implementation("io.github.spair:imgui-java-natives-linux:$imguiVersion")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
     implementation("ch.qos.logback:logback-classic:1.4.12")

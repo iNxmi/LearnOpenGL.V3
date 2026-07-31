@@ -1,5 +1,7 @@
 package com.nami.engine.graphics
 
+import org.joml.Vector4f
+
 interface Graphics {
 
     val version: String
@@ -7,6 +9,8 @@ interface Graphics {
     var viewport: Area
     var polygonMode: PolygonMode
     var cullingMode: CullingMode
+
+    var clearColor: Vector4f
 
     fun initialize()
 
