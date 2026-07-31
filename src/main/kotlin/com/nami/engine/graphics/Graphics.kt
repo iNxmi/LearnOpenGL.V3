@@ -5,6 +5,8 @@ interface Graphics {
     val version: String
 
     var viewport: Area
+    var polygonMode: PolygonMode
+    var cullingMode: CullingMode
 
     fun initialize()
 

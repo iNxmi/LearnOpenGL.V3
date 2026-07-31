@@ -11,7 +11,7 @@ class OpenGLGraphics : Graphics {
     private val logger = KotlinLogging.logger {}
 
     override val version: String
-        get() = glGetString(GL_VERSION)?: ""
+        get() = glGetString(GL_VERSION)?: "Error"
 
     override var viewport: Area
         get() = stackPush().use{ stack ->
@@ -26,6 +26,44 @@ class OpenGLGraphics : Graphics {
             )
         }
         set(value) = glViewport(value.x, value.y, value. width, value.height)
+
+    override var polygonMode: PolygonMode = PolygonMode.Fill()
+        get() {
+            val code = glGetInteger(GL_POLYGON_MODE)
+            return when(code) {
+                GL_FILL -> {
+                    val antialiasing = glIsEnabled(GL_POLYGON_SMOOTH)
+                    PolygonMode.Fill(antialiasing)
+                }
+                GL_LINE -> {
+                    val antialiasing = glIsEnabled(GL_LINE_SMOOTH)
+                    val width = glGetFloat(GL_LINE_WIDTH)
+                    PolygonMode.Line(width, antialiasing)
+                }
+                GL_POINT -> {
+                    val antialiasing = glIsEnabled(GL_POINT_SMOOTH)
+                    val size = glGetFloat(GL_POINT_SIZE)
+                    PolygonMode.Point(size, antialiasing)
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+        set(value) {
+            value.apply()
+            field = value
+        }
+
+    override var cullingMode: CullingMode
+        get() {
+            val code = glGetInteger(GL_CULL_FACE)
+            return CullingMode.Mapper.getOpenGL(code)
+        }
+        set(value) = if(value == CullingMode.DISABLED) {
+            glDisable(GL_CULL_FACE)
+        } else {
+            glEnable(GL_CULL_FACE)
+            glCullFace(value.openglCode)
+        }
 
     override fun initialize() {
         createCapabilities()

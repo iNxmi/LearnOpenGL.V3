@@ -2,6 +2,7 @@ package com.nami.world
 
 import com.google.common.collect.TreeMultimap
 import com.nami.Time
+import com.nami.engine.graphics.Graphics
 import com.nami.extension.div
 import com.nami.extension.minus
 import com.nami.extension.plus
@@ -23,7 +24,7 @@ class World(
     val seed: Long
 ) {
 
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     val time = Time()
 
@@ -37,7 +38,7 @@ class World(
 
     private val radius = 6
 
-    fun update() {
+    fun render(graphics: Graphics) {
         time.update()
 
         val color = Vector3f(52f / 255f, 146f / 255f, 235f / 255f).mul(1f)
@@ -75,9 +76,7 @@ class World(
 
 //        unload unused chunks immediately after not being in range
 //        chunks.entries.removeIf { it.key !in chunkPositions }
-    }
 
-    fun render() {
         val sorted = TreeMultimap.create<Float, Chunk>(
             naturalOrder(),
             compareBy<Chunk>(
@@ -115,7 +114,6 @@ class World(
             sorted.put(distance, chunk)
         }
 
-        glEnable(GL_CULL_FACE)
         for (distance in sorted.keySet().descendingSet())
             for (chunk in sorted.get(distance).descendingSet())
                 chunk.render(time, player, Layer.SOLID)

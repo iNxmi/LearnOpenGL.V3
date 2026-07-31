@@ -9,9 +9,9 @@ import com.nami.engine.platform.callbacks.WindowResizeCallback
 import com.nami.engine.platform.window.Size
 import com.nami.engine.platform.window.Window
 import com.nami.legacy.Input
-import com.nami.legacy.scene.SceneManager
+import com.nami.game.client.scene.SceneManager
 import com.nami.resources.Resources
-import com.nami.scene.scenes.PlayScene
+import com.nami.game.client.scene.PlayScene
 import com.nami.world.World
 import mu.KotlinLogging
 import org.joml.Vector3i
@@ -29,6 +29,8 @@ class Client {
     private val window: Window
 
     private val graphics: Graphics = OpenGLGraphics()
+
+    private val sceneManager : SceneManager
 
     init {
         logger.info("LWJGL Version: ${Version.getVersion()}")
@@ -59,8 +61,9 @@ class Client {
             logger.info { "Completed loading with 0 errors" }
         }
 
-        val world = World(Vector3i(8), System.currentTimeMillis())
-        SceneManager.scene = PlayScene(window, world)
+        sceneManager = SceneManager()
+        val world = World(Vector3i(64), System.currentTimeMillis())
+        sceneManager.scene = PlayScene(window, world)
 
         window.isVisible = true
 
@@ -77,7 +80,6 @@ class Client {
             DELTA_TIME = platform.timeInSeconds.toFloat() - lastTime
             lastTime = platform.timeInSeconds.toFloat()
 
-            SceneManager.update()
             render()
             Input.endFrame()
         }
@@ -86,7 +88,7 @@ class Client {
     private fun render() {
         graphics.clear()
 
-        SceneManager.render()
+        sceneManager.render(graphics)
 
         val error = graphics.getErrorCode()
         if (error != 0)
